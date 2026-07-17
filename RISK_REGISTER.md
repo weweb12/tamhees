@@ -272,7 +272,7 @@ Reject or remove the service and use a local or genuinely free alternative.
 - Impact: MEDIUM
 - Status: OPEN
 - Owner: Development process
-- Related decision: DM-DEC-007
+- Related decision: DM-DEC-019
 
 ### Risk
 
@@ -289,7 +289,7 @@ An unnecessary, abandoned, vulnerable, or compromised package could affect secur
 
 ### Mitigation
 
-- Minimize dependencies.
+- Minimize dependencies (target zero runtime dependencies).
 - Review each direct dependency's purpose and official source.
 - Use a lockfile.
 - Pin or control important versions.
@@ -436,31 +436,495 @@ Use the latest verified local commit or approved backup to restore the project.
 
 ---
 
+## DM-RISK-013 - Retrieval misses critical memory
+
+- Likelihood: MEDIUM
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-013
+- Added: 2026-07-15
+
+### Risk
+
+The context compiler fails to retrieve a memory record that is critical for the current task, causing the agent to make decisions without necessary context.
+
+### Warning signs
+
+- An agent makes a decision that contradicts a known memory.
+- A critical constraint is not included in the context pack.
+- Budget limits exclude important records.
+- Retrieval ranking consistently misses certain categories of memory.
+
+### Mitigation
+
+- Include authority-critical memories (e.g., constraints, locked decisions) with high priority regardless of keyword relevance.
+- Test retrieval precision and recall with benchmark fixtures.
+- Explain exclusions in the context pack so the agent can request missing context.
+- Allow agents to request specific memories by ID.
+
+### Contingency
+
+Expand the retrieval strategy, increase budget for critical categories, and add regression fixtures for missed cases.
+
+---
+
+## DM-RISK-014 - Retrieval includes irrelevant or unsafe memory
+
+- Likelihood: MEDIUM
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-021
+- Added: 2026-07-15
+
+### Risk
+
+The context compiler includes expired, conflicted, revoked, or sensitive memory in the context pack, leading to incorrect or unsafe agent behavior.
+
+### Warning signs
+
+- An expired decision appears as current in context.
+- A conflicted memory is presented without conflict indication.
+- Sensitive content appears unredacted in context output.
+- Revoked memories are included without revocation status.
+
+### Mitigation
+
+- Apply freshness, conflict, and revocation filters before inclusion.
+- Redact sensitive content before output.
+- Mark any included uncertain memory with audit warnings.
+- Test with fixtures containing expired, conflicted, and sensitive records.
+
+### Contingency
+
+Add stricter filtering rules and regression tests. Review and correct any context packs that included unsafe content.
+
+---
+
+## DM-RISK-015 - Automatic update corrupts canonical memory
+
+- Likelihood: LOW
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-020
+- Added: 2026-07-15
+
+### Risk
+
+The automatic post-task finalization writes incorrect, incomplete, or contradictory data to canonical memory records, damaging the project's knowledge base.
+
+### Warning signs
+
+- A canonical record contains data that contradicts current repository evidence.
+- An atomic write fails midway and leaves a corrupt file.
+- The memory index diverges from the actual records.
+- An update overwrites a more authoritative record.
+
+### Mitigation
+
+- Use atomic writes (temp file + rename) for all storage operations.
+- Validate proposed updates against authority rules before writing.
+- Maintain index consistency checks.
+- Keep audit log of all changes.
+- Preserve superseded records in archive.
+
+### Contingency
+
+Restore from the previous version in archive. Add regression tests for the failure case. Review and repair the index.
+
+---
+
+## DM-RISK-016 - Agent inference escalates authority
+
+- Likelihood: MEDIUM
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-020
+- Added: 2026-07-15
+
+### Risk
+
+An agent inference is incorrectly stored or treated as owner-confirmed truth, allowing unauthorized scope, budget, or privacy decisions.
+
+### Warning signs
+
+- An INFERRED memory is used to authorize a scope change.
+- The update pipeline accepts OWNER_CONFIRMED status from a non-owner source.
+- The audit engine treats agent-generated summaries as independent evidence.
+- Authority checks are bypassed through a code path.
+
+### Mitigation
+
+- Enforce non-escalation rules at the engine level.
+- Test that every code path validates authority before writing.
+- Log authority level in every audit event.
+- Test escalation rejection with specific fixtures.
+
+### Contingency
+
+Revert the incorrectly escalated record. Fix the validation gap. Add regression test.
+
+---
+
+## DM-RISK-017 - Adapter behavior drifts between tools
+
+- Likelihood: MEDIUM
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-023
+- Added: 2026-07-15
+
+### Risk
+
+Different adapters produce different results for the same memory query, undermining the canonical source of truth principle.
+
+### Warning signs
+
+- Cross-adapter equivalence tests fail.
+- An adapter applies its own filtering or ranking.
+- An adapter caches results independently.
+- Business logic exists in adapter code rather than the engine.
+
+### Mitigation
+
+- Keep adapters as thin translation layers.
+- All business logic stays in the engine.
+- Run cross-adapter equivalence tests in the benchmark harness.
+- Code review adapter implementations for business logic leaks.
+
+### Contingency
+
+Move any adapter-specific logic into the engine. Fix equivalence test failures.
+
+---
+
+## DM-RISK-018 - MCP behavior or specification changes
+
+- Likelihood: MEDIUM
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-013
+- Added: 2026-07-15
+
+### Risk
+
+The Model Context Protocol specification changes between when the adapter is designed and when it is implemented or used in production, breaking compatibility.
+
+### Warning signs
+
+- MCP SDK releases a breaking change.
+- The MCP specification deprecates a feature the adapter relies on.
+- Agent MCP clients behave differently than expected.
+- The stdio transport convention changes.
+
+### Mitigation
+
+- Defer MCP SDK dependency until the MCP implementation phase.
+- Monitor MCP specification changes.
+- Use the official MCP SDK rather than a custom implementation.
+- Design the adapter to isolate MCP-specific concerns.
+
+### Contingency
+
+Update the adapter to match the current specification. If breaking changes are severe, defer MCP support and rely on the generic adapter.
+
+---
+
+## DM-RISK-019 - Benchmark comparisons become unfair
+
+- Likelihood: LOW
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-022
+- Added: 2026-07-15
+
+### Risk
+
+The benchmark baselines (no memory, original GPTBrain.md, simple split-file) are constructed in a way that unfairly disadvantages them or unfairly advantages Doubtful Memory.
+
+### Warning signs
+
+- Baseline fixture data is intentionally poor quality.
+- Doubtful Memory fixture data is optimized for the benchmark.
+- Measurements exclude cases where Doubtful Memory performs worse.
+- Reviewers identify bias in the comparison methodology.
+
+### Mitigation
+
+- Use the same underlying project data across all baselines.
+- Document the fixture construction methodology.
+- Include measurements where Doubtful Memory may not improve on simpler approaches.
+- Have the benchmark methodology reviewed before publication.
+
+### Contingency
+
+Reconstruct baselines with reviewer feedback. Acknowledge limitations in the benchmark results.
+
+---
+
+## DM-RISK-020 - Context compiler costs more than it saves
+
+- Likelihood: LOW
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-013
+- Added: 2026-07-15
+
+### Risk
+
+The overhead of retrieval, auditing, ranking, and formatting context packs is greater than the benefit of selective memory, making the tool impractical for routine use.
+
+### Warning signs
+
+- Context compilation takes noticeably long for small projects.
+- The output is larger than the original memory file.
+- Users bypass the context compiler and read files directly.
+- The benchmark shows minimal improvement over simpler approaches.
+
+### Mitigation
+
+- Optimize retrieval for common cases.
+- Keep the context compiler's processing minimal for small memory stores.
+- Benchmark compilation time as part of the harness.
+- Provide a fast-path for small projects.
+
+### Contingency
+
+Simplify the context compiler. Reduce the overhead at the cost of less precise selection.
+
+---
+
+## DM-RISK-021 - Runtime context leaks into Git
+
+- Likelihood: MEDIUM
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-021
+- Added: 2026-07-15
+
+### Risk
+
+Ephemeral runtime data — including context packs with sensitive content — is accidentally committed to Git, exposing information that should never be persisted.
+
+### Warning signs
+
+- Files appear in `.gptbrain/runtime/` in `git status`.
+- A commit includes runtime files.
+- A `.gitignore` entry is missing or incorrect.
+- Sensitive content appears in Git history.
+
+### Mitigation
+
+- `gptbrain init` creates `.gptbrain/runtime/` with a `.gitignore` inside it.
+- The project `.gitignore` excludes `.gptbrain/runtime/`.
+- Pre-commit checks warn about runtime files.
+- Documentation warns against committing runtime data.
+
+### Contingency
+
+Remove the committed files. Rewrite Git history if sensitive content was exposed. Fix the `.gitignore`.
+
+---
+
+## DM-RISK-022 - Storage index diverges from records
+
+- Likelihood: MEDIUM
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-017
+- Added: 2026-07-15
+
+### Risk
+
+The memory index (`index.json`) becomes inconsistent with the actual records in the `records/` directory, causing retrieval to miss or return stale data.
+
+### Warning signs
+
+- Index lists a memory that no longer exists.
+- A record exists but is not in the index.
+- Index metadata (title, status) differs from the record.
+- Manual file edits bypass the engine and break consistency.
+
+### Mitigation
+
+- Update the index atomically with every record write.
+- Provide an index-rebuild command (`gptbrain repair` or similar).
+- Include index-consistency checks in the benchmark harness.
+- Test concurrent write scenarios.
+
+### Contingency
+
+Rebuild the index from the records directory. Add regression tests for the inconsistency case.
+
+---
+
+## DM-RISK-023 - CLI is difficult to use
+
+- Likelihood: MEDIUM
+- Impact: MEDIUM
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-014
+- Added: 2026-07-15
+
+### Risk
+
+The CLI is confusing, poorly documented, or has unexpected behavior, discouraging adoption.
+
+### Warning signs
+
+- Help text is unclear or missing.
+- Error messages do not explain recovery steps.
+- Commands have surprising side effects.
+- Users need to read source code to understand commands.
+- Common workflows require many steps.
+
+### Mitigation
+
+- Provide clear help text for every command.
+- Include error recovery guidance in error messages.
+- Test CLI workflows end-to-end.
+- Document common workflows in the README and demonstration guide.
+- Follow CLI conventions (exit codes, flags, argument ordering).
+
+### Contingency
+
+Improve help text and error messages. Simplify workflows based on user feedback.
+
+---
+
+## DM-RISK-024 - Scope expansion delays the competition release
+
+- Likelihood: HIGH
+- Impact: HIGH
+- Status: OPEN
+- Owner: Project owner and development process
+- Related decision: DM-DEC-010, DM-DEC-013
+- Added: 2026-07-15
+
+### Risk
+
+The expanded Version 1 scope (engine, CLI, 5 adapters, benchmark, dashboard) cannot be completed before the competition deadline.
+
+### Warning signs
+
+- Phases take longer than estimated.
+- New requirements are discovered during implementation.
+- Adapter integration reveals unexpected complexity.
+- The dashboard requires more work than planned.
+- Testing takes longer than expected.
+
+### Mitigation
+
+- Maintain strict phase gates — do not start the next phase until the current one passes.
+- Monitor progress against the roadmap.
+- Be willing to reduce scope if behind schedule.
+- Prioritize core engine and CLI over optional adapters.
+- Reserve time for release hardening.
+
+### Contingency
+
+Reduce to minimum viable adapters (generic + one specific). Simplify the dashboard. Skip optional benchmark comparisons. Focus on the core engine's correctness and the demo scenario.
+
+---
+
+## DM-RISK-025 - Development agent accidentally performs destructive work
+
+- Likelihood: LOW
+- Impact: HIGH
+- Status: OPEN
+- Owner: Development process
+- Related decision: DM-DEC-024
+- Added: 2026-07-15
+
+### Risk
+
+The AI development agent (Antigravity or another) accidentally deletes files, overwrites user changes, installs unapproved dependencies, connects external services, or makes destructive Git operations.
+
+### Warning signs
+
+- `git status` shows unexpected changes.
+- Files are missing or overwritten.
+- `package.json` appears without approval.
+- External services are configured.
+- Destructive Git commands are used.
+
+### Mitigation
+
+- `AGENTS.md` rules require git status inspection before edits.
+- Rules prohibit destructive Git commands.
+- Rules require approval for dependencies and external services.
+- `.agents/rules/doubtful-memory.md` enforces preservation of user changes.
+- Verification before claiming success.
+
+### Contingency
+
+Restore from the latest commit. Review and correct the agent's behavior. Add stricter rules if needed.
+
+---
+
 ## Current risk summary
 
 ### Highest-priority open risks
 
-1. DM-RISK-001 - Unverified official challenge requirements.
-2. DM-RISK-002 - Product becomes only a documentation template.
-3. DM-RISK-003 - Audit rules are arbitrary or inconsistent.
-4. DM-RISK-004 - Unsafe handling of sensitive content.
-5. DM-RISK-005 - Scope expansion prevents completion.
-6. DM-RISK-009 - UI polish hides weak product behavior.
-7. DM-RISK-011 - Documentation and application drift apart.
+1. DM-RISK-001 - Unverified official challenge requirements (HIGH likelihood, MEDIUM impact).
+2. DM-RISK-002 - Product becomes only a documentation template (MEDIUM, HIGH).
+3. DM-RISK-003 - Audit rules are arbitrary or inconsistent (MEDIUM, HIGH).
+4. DM-RISK-004 - Unsafe handling of sensitive content (MEDIUM, HIGH).
+5. DM-RISK-005 - Scope expansion prevents completion (HIGH, HIGH).
+6. DM-RISK-009 - UI polish hides weak product behavior (MEDIUM, HIGH).
+7. DM-RISK-011 - Documentation and application drift apart (MEDIUM, HIGH).
+8. DM-RISK-013 - Retrieval misses critical memory (MEDIUM, HIGH).
+9. DM-RISK-014 - Retrieval includes irrelevant or unsafe memory (MEDIUM, HIGH).
+10. DM-RISK-015 - Automatic update corrupts canonical memory (LOW, HIGH).
+11. DM-RISK-016 - Agent inference escalates authority (MEDIUM, HIGH).
+12. DM-RISK-021 - Runtime context leaks into Git (MEDIUM, HIGH).
+13. DM-RISK-024 - Scope expansion delays competition release (HIGH, HIGH).
+14. DM-RISK-025 - Development agent performs destructive work (LOW, HIGH).
+
+### Medium-priority open risks
+
+1. DM-RISK-006 - Unsupported uniqueness or market claims (MEDIUM, MEDIUM).
+2. DM-RISK-008 - Dependency or supply-chain problem (MEDIUM, MEDIUM).
+3. DM-RISK-010 - Inaccessible or confusing interface (MEDIUM, MEDIUM).
+4. DM-RISK-017 - Adapter behavior drifts between tools (MEDIUM, MEDIUM).
+5. DM-RISK-018 - MCP behavior or specification changes (MEDIUM, MEDIUM).
+6. DM-RISK-019 - Benchmark comparisons become unfair (LOW, MEDIUM).
+7. DM-RISK-020 - Context compiler costs more than it saves (LOW, MEDIUM).
+8. DM-RISK-022 - Storage index diverges from records (MEDIUM, MEDIUM).
+9. DM-RISK-023 - CLI is difficult to use (MEDIUM, MEDIUM).
 
 ### Controlled risks
 
 - DM-RISK-007 - External service or unexpected cost.
 - DM-RISK-012 - Local data loss or repository corruption.
 
+### Risk totals
+
+- Total risks: 25
+- Open: 23
+- Controlled: 2
+- Occurred: 0
+- Closed: 0
+
 ## Review schedule
 
 Review this register:
 
-- At the end of project control.
+- At the end of every development phase.
 - After protocol approval.
 - After audit-engine implementation.
-- After interface implementation.
+- After adapter implementation.
+- After dashboard implementation.
 - Before production build.
 - Before any external publication.
 - Whenever a risk occurs or a major decision changes.

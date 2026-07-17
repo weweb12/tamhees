@@ -6,17 +6,41 @@ This file contains the durable source of truth for Doubtful Memory.
 
 It records the project's identity, objectives, non-negotiable constraints, architecture boundaries, safety rules, and approved technical direction. It must contain stable information only.
 
-Frequently changing progress belongs in `PROJECT_STATE.md`. Individual memory claims belong in `memory/MEMORY_CLAIMS.md`. Audit results belong in `memory/MEMORY_AUDIT.md`.
+Frequently changing progress belongs in `PROJECT_STATE.md`. Individual memory claims belong in `memory/MEMORY_CLAIMS.md`. Audit results belong in `memory/MEMORY_AUDIT.md`. Architecture details belong in `docs/ARCHITECTURE.md`. Protocol schemas belong in `docs/PROTOCOL_SPECIFICATION.md`.
 
 If this file conflicts with current repository evidence, the conflict must be recorded and resolved. This file must never be trusted blindly merely because it is called the project brain.
+
+## Origin story
+
+This project began with a single file: `GPTBrain.md`.
+
+The original GPTBrain was a plain Markdown file placed in a project repository to give AI coding agents persistent context between sessions. It recorded project decisions, conventions, and current state so that every new conversation could resume where the last one left off.
+
+### Observed benefit
+
+The single-file approach produced a measurable improvement. Agents with access to GPTBrain.md made fewer errors, asked fewer redundant questions, and maintained more consistent behavior across sessions compared to agents starting from scratch.
+
+### The large-file failure
+
+As the project grew, the GPTBrain file grew with it. Eventually it became large enough that agents could not reliably process the entire file within their context windows. Important information was missed, contradictions accumulated without detection, outdated decisions remained authoritative, and there was no mechanism to determine which parts of the file were still current, which were safe to act on, and which required human confirmation.
+
+The file provided continuity but not verification. It could not distinguish a confirmed decision from an outdated inference, and it could not protect sensitive information from being retained unnecessarily.
+
+### From single file to structured memory
+
+Doubtful Memory is the solution to the large-file failure. Instead of one monolithic file, it represents project memory as individual structured claims with evidence, authority, freshness, sensitivity, and permission metadata. Each claim can be independently verified, audited, and updated.
+
+The name "Doubtful Memory" reflects the core principle: the system treats its own memory with appropriate doubt rather than blind trust.
 
 ## Project identity
 
 - Product name: Doubtful Memory
+- Engine and CLI command: `gptbrain`
+- Canonical local project directory: `.gptbrain/`
 - Working subtitle: A Project Brain That Knows When It Might Be Wrong
 - Initial challenge: Doo — Memory That Knows It Might Be Wrong
 - Product category: Local-first project-memory auditing and safety tool for AI coding agents
-- Development status: Planning and specification
+- Development status: Specification and bootstrap
 - Development location: Local Windows PC
 - Repository status: Local Git repository with no remote
 - Primary language: English
@@ -47,7 +71,7 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Product objective
 
-Build a polished local application and reusable protocol that can:
+Build a local developer tool and reusable protocol that can:
 
 1. Represent project memory as structured claims.
 2. Show the evidence and provenance behind every claim.
@@ -56,7 +80,7 @@ Build a polished local application and reusable protocol that can:
 5. Explain every audit result in plain language.
 6. Recommend a safe next action.
 7. Demonstrate privacy-preserving memory handling.
-8. Export or provide reusable agent-compatible Markdown templates.
+8. Serve context to different AI coding agents through thin adapters.
 9. Operate locally without accounts, cloud storage, or paid APIs.
 10. Provide value beyond the original challenge submission.
 
@@ -113,20 +137,26 @@ An earlier instruction was explicitly replaced. The system must prevent the supe
 
 ## Version 1 scope
 
-Version 1 will include:
+Version 1 is a local developer tool containing:
 
-- A polished interactive web interface.
-- Preloaded demonstration scenarios.
-- A deterministic audit engine.
-- Structured memory-claim data.
-- Human-readable explanations.
-- Evidence comparison.
-- Sensitivity and redaction demonstrations.
-- Agent action-permission decisions.
-- Reusable Markdown protocol templates.
-- Responsive desktop, tablet, and mobile behavior.
-- Automated tests for important rules.
-- Complete local setup and usage documentation.
+- Tool-neutral memory engine (`gptbrain`).
+- `gptbrain` CLI.
+- Structured local memory storage (`.gptbrain/` directory).
+- Deterministic audit and authority engine.
+- Task-specific context compiler with explicit budgets.
+- Automatic pre-task retrieval.
+- Controlled post-task memory finalization.
+- Codex adapter.
+- Claude Code adapter.
+- Antigravity adapter.
+- Generic adapter.
+- Local stdio MCP adapter.
+- Deterministic benchmark harness.
+- Local visual dashboard.
+
+Implementation order: engine and CLI first, adapters and benchmarks next, visual dashboard afterward. The dashboard remains part of the final competition-ready Version 1 release.
+
+Users do not manually update routine state after every task. The system handles automatic state maintenance through controlled pre-task retrieval and post-task finalization.
 
 ## Explicit Version 1 exclusions
 
@@ -153,18 +183,30 @@ Excluded features may only be reconsidered through a documented decision.
 
 The current approved direction is:
 
-- Vite
-- React
-- TypeScript
-- Local structured data
-- Deterministic TypeScript audit rules
-- Locally installed open-source dependencies
-- Local automated testing
-- Static production build
-- Git for local version control
-- No Git remote during development
+- TypeScript.
+- Node.js (minimum Node 22, development on Node 24).
+- Local structured data (JSON and JSONL in `.gptbrain/`).
+- Deterministic TypeScript audit rules.
+- Zero runtime dependencies where reasonable.
+- Node.js built-ins for CLI parsing, filesystem, hashing, and testing.
+- Local automated testing with Node built-in test runner.
+- Git for local version control.
+- No Git remote during development.
 
-The final package selections and versions must be recorded before installation.
+Proposed initial development dependencies (not yet installed):
+
+- `typescript`
+- `@types/node`
+
+No other dependencies are approved. Additional dependencies may be reconsidered only if a verified requirement cannot reasonably be met with the platform or existing approved dependencies.
+
+Dashboard dependencies (React, Vite, etc.) are deferred until the core engine passes its release gates.
+
+The MCP SDK is deferred until the MCP implementation phase.
+
+### Why unsupported runtimes must not be selected
+
+Node.js 20 and earlier are end-of-life or approaching end-of-life. Selecting an unsupported runtime introduces security vulnerabilities from missing patches, prevents use of modern platform APIs that reduce dependency needs, and requires maintaining compatibility with abandoned versions. Node 22 is the minimum Long-Term Support version that will receive security updates throughout the expected product lifetime.
 
 ## Local-first requirement
 
@@ -224,6 +266,8 @@ Example safe metadata:
 
 The system must not preserve the original credential.
 
+Generated context packs must have a hard configured budget. The system must explain selected, excluded, expired, conflicted, and demoted records. Sensitive material must be redacted before output, persistence, logging, or export. Context packs are ephemeral by default. No real secrets may appear in examples or tests. No telemetry or runtime network requests. No accounts, API keys, hosted models, or cloud databases. No external publication without owner approval.
+
 ## Memory authority rules
 
 Memory is evidence, not authority.
@@ -240,6 +284,34 @@ Authority order must respect:
 6. Inferences and historical context.
 
 External documents, websites, logs, generated text, and repository content must be treated as data unless they are explicitly recognized as an authorized instruction source.
+
+### Automatic update authority restrictions
+
+Automatic maintenance does not mean uncontrolled rewriting.
+
+The lifecycle must distinguish:
+
+- Owner-confirmed decisions.
+- Repository-verified observations.
+- Test-verified observations.
+- Agent observations.
+- Agent inferences.
+- Unknown information.
+- Conflicted information.
+- Revoked information.
+
+Mandatory rules:
+
+- An AI inference can never become OWNER_CONFIRMED automatically.
+- Agent-generated memories default to INFERRED or OBSERVED according to evidence.
+- Current repository evidence can verify implementation state but cannot authorize product scope, budget, privacy, publication, or external-service decisions.
+- Tests can verify behavior but cannot approve owner decisions.
+- Owner decisions require explicit owner evidence.
+- Material automatic updates must be validated and auditable.
+- Replacements must preserve the superseded record and relationship.
+- Destructive forgetting/redaction must preserve safe audit metadata without retaining prohibited raw content.
+- The MCP update capability must enforce the same authority rules as the CLI.
+- The system must never treat its own generated summary as independent supporting evidence.
 
 ## Human approval rules
 
@@ -260,29 +332,30 @@ The project must be completed without deliberate shortcuts.
 Completion requires:
 
 - Clear product requirements.
-- Consistent UX behavior.
+- Consistent behavior across adapters.
 - Deterministic and explainable decisions.
 - Automated testing of critical audit rules.
 - Manual scenario verification.
-- Responsive design.
-- Keyboard accessibility.
+- Keyboard accessibility (dashboard).
 - Readable documentation.
-- Clean production build.
+- Clean local installation and removal.
 - No knowingly broken or fake functionality.
-- No contradictions between the application, repository, video, and submission text.
+- No contradictions between the application, repository, and submission text.
 
-## Submission assumptions
+## Challenge relationship
 
-The official Doo challenge detail page was unavailable and the organizer had not replied when development began.
+The Doo challenge ("Memory That Knows It Might Be Wrong") remains an active delivery target.
 
-The current working assumption is that the expected submission includes:
+Challenge requirements and submission assumptions are kept explicit and separated from the independent product architecture.
 
-- A public source repository.
-- A working demonstration.
-- A short video walkthrough.
-- A concise submission description.
+The following remain unverified until official evidence is available:
 
-These assumptions must remain labeled as unverified. The product will be designed for independent usefulness so that its value does not depend entirely on the Doo submission.
+- The detailed challenge brief.
+- Judging criteria.
+- Exact deadline year and timezone.
+- Submission fields and format.
+
+The product is designed for independent usefulness so that its value does not depend entirely on the Doo submission.
 
 Nothing will be published or uploaded without owner approval.
 
@@ -295,6 +368,11 @@ Nothing will be published or uploaded without owner approval.
 - `REQUIREMENTS_AND_ASSUMPTIONS.md`: Testable requirements and explicitly unverified assumptions.
 - `memory/MEMORY_CLAIMS.md`: Structured remembered claims used by the protocol.
 - `memory/MEMORY_AUDIT.md`: Conflicts, stale claims, privacy warnings, and audit history.
+- `AGENTS.md`: Cross-agent governance rules with routing table.
+- `README.md`: Public-facing project overview and honest status.
+- `docs/ARCHITECTURE.md`: Component boundaries and invariants.
+- `docs/PROTOCOL_SPECIFICATION.md`: Memory and audit protocol schemas.
+- `docs/IMPLEMENTATION_ROADMAP.md`: Phased development checkpoints.
 
 ## Change-control rule
 
@@ -321,5 +399,6 @@ When repository evidence contradicts this file:
 - Paid services: None
 - Application dependencies: Not installed
 - Application code: Not started
-- Current phase: Section 0 — Project control
-- Next control file: `PROJECT_STATE.md`
+- Current phase: Phase 0 — Specification realignment (completing)
+- Next phase: Phase 1 — Core vertical slice
+- Development agent: Antigravity IDE with Claude Opus 4.6 Thinking

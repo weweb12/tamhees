@@ -6,7 +6,7 @@ This file demonstrates the protocol by representing important project memories a
 
 These claims describe the Doubtful Memory project itself. The project is therefore using its own protocol during development.
 
-This is an initial working format. The final claim schema and controlled vocabulary will be approved during protocol design.
+This is an initial working format. The final claim schema and controlled vocabulary will be approved during protocol design. The production memory engine is not yet implemented. When it is, these bootstrap claims will be migrated to `.gptbrain/` JSON format.
 
 ## Important rule
 
@@ -41,7 +41,8 @@ Before acting, evaluate:
 ## Candidate status values
 
 - `OWNER_CONFIRMED`
-- `VERIFIED_IN_REPOSITORY`
+- `REPO_VERIFIED`
+- `TEST_VERIFIED`
 - `OBSERVED`
 - `INFERRED`
 - `UNKNOWN`
@@ -64,11 +65,12 @@ Before acting, evaluate:
 ## Candidate action-permission values
 
 - `MAY_ACT`
+- `ACT_WITH_CAUTION`
 - `ASK_BEFORE_CHANGE`
 - `MUST_NOT_ACT`
 - `FORGET_OR_REDACT`
 
-These vocabularies remain candidates until protocol design is approved.
+These vocabularies remain candidates until protocol design is approved. The status vocabulary has been updated to include `REPO_VERIFIED` and `TEST_VERIFIED` as specified in the Phase 0 architecture corrections. The permission vocabulary has been updated to include `ACT_WITH_CAUTION`.
 
 ---
 
@@ -79,7 +81,7 @@ These vocabularies remain candidates until protocol design is approved.
 - source_reference: Current project planning conversation and `DECISIONS.md` DM-DEC-005
 - status: OWNER_CONFIRMED
 - confidence: HIGH
-- last_verified: 2026-07-11
+- last_verified: 2026-07-15
 - review_after: Only if the owner explicitly changes the budget policy
 - sensitivity: INTERNAL
 - action_permission: MAY_ACT
@@ -95,7 +97,7 @@ These vocabularies remain candidates until protocol design is approved.
 - source_reference: `PROJECT_BRAIN.md` and `DECISIONS.md` DM-DEC-004
 - status: OWNER_CONFIRMED
 - confidence: HIGH
-- last_verified: 2026-07-11
+- last_verified: 2026-07-15
 - review_after: Only if the owner explicitly approves a different architecture
 - sensitivity: INTERNAL
 - action_permission: MAY_ACT
@@ -111,7 +113,7 @@ These vocabularies remain candidates until protocol design is approved.
 - source_reference: `DECISIONS.md` DM-DEC-006
 - status: OWNER_CONFIRMED
 - confidence: HIGH
-- last_verified: 2026-07-11
+- last_verified: 2026-07-15
 - review_after: Before proposing any AI-dependent functionality
 - sensitivity: INTERNAL
 - action_permission: MAY_ACT
@@ -125,14 +127,15 @@ These vocabularies remain candidates until protocol design is approved.
 - claim: The initial approved technical direction is Vite, React, TypeScript, local structured data, and deterministic TypeScript audit rules.
 - source_type: Approved project decision
 - source_reference: `DECISIONS.md` DM-DEC-007
-- status: OWNER_CONFIRMED
+- status: REVOKED
+- superseded_by: DM-CLAIM-011, DM-CLAIM-012, DM-CLAIM-013
 - confidence: HIGH
-- last_verified: 2026-07-11
-- review_after: Before dependency installation or an architecture change
+- last_verified: 2026-07-15
+- review_after: N/A — superseded
 - sensitivity: PUBLIC
-- action_permission: MAY_ACT
-- recheck_method: Review DM-DEC-007 and approved package-selection records
-- notes: Exact packages and versions are not yet approved.
+- action_permission: MUST_NOT_ACT
+- recheck_method: See superseding claims
+- notes: SUPERSEDED. DM-DEC-007 was superseded on 2026-07-15. The Vite/React web-demo-first approach was replaced by an engine-first architecture. See DM-DEC-013 through DM-DEC-019.
 
 ---
 
@@ -175,7 +178,7 @@ These vocabularies remain candidates until protocol design is approved.
 - source_reference: Current project direction and `DECISIONS.md` DM-DEC-002
 - status: OWNER_CONFIRMED
 - confidence: HIGH
-- last_verified: 2026-07-11
+- last_verified: 2026-07-15
 - review_after: During each major product-scope review
 - sensitivity: PUBLIC
 - action_permission: MAY_ACT
@@ -221,14 +224,126 @@ These vocabularies remain candidates until protocol design is approved.
 - claim: The repository currently has no Git remote and has not been uploaded.
 - source_type: Repository inspection
 - source_reference: Local `git remote -v` and repository state
-- status: VERIFIED_IN_REPOSITORY
+- status: REPO_VERIFIED
 - confidence: HIGH
-- last_verified: 2026-07-11
+- last_verified: 2026-07-15
 - review_after: Before any remote configuration or publication
 - sensitivity: INTERNAL
 - action_permission: MUST_NOT_ACT
 - recheck_method: Run `git remote -v`
 - notes: Do not connect or upload the repository without explicit owner approval.
+
+---
+
+## DM-CLAIM-011
+
+- claim: Version 1 is a local developer tool containing a tool-neutral memory engine, gptbrain CLI, structured local storage, deterministic audit engine, context compiler, adapters (Codex, Claude Code, Antigravity, generic, local MCP), benchmark harness, and local visual dashboard.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-013.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Only if the owner explicitly changes the Version 1 scope
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-013 and PROJECT_BRAIN.md Version 1 scope
+- notes: Supersedes DM-CLAIM-004 regarding the product form. Engine and CLI first, adapters next, dashboard last — all within Version 1.
+
+---
+
+## DM-CLAIM-012
+
+- claim: The product name is Doubtful Memory. The engine and CLI command is gptbrain. The canonical local project directory is .gptbrain/. Do not use dm or .dm/.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-014.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Only if the owner explicitly changes the naming
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-014
+- notes: Preserves the GPTBrain lineage while using the Doubtful Memory product name.
+
+---
+
+## DM-CLAIM-013
+
+- claim: The approved technical direction is TypeScript on Node 22+ (dev on Node 24), zero runtime dependencies, Node built-ins for CLI/filesystem/testing, JSON/JSONL storage in .gptbrain/. Vite, React, and dashboard dependencies are deferred.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-017, DM-DEC-018, DM-DEC-019.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Before dependency installation or architecture change
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-017, DM-DEC-018, DM-DEC-019
+- notes: Supersedes DM-CLAIM-004 regarding technical stack. Only typescript and @types/node as dev deps initially (not yet installed).
+
+---
+
+## DM-CLAIM-014
+
+- claim: An AI inference can never become OWNER_CONFIRMED automatically. Automatic updates must be validated, auditable, and authority-restricted.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-020.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Only if the owner explicitly changes the authority model
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-020 and docs/ARCHITECTURE.md authority model
+- notes: Applies to all interfaces: CLI, MCP, and every adapter.
+
+---
+
+## DM-CLAIM-015
+
+- claim: Context packs are ephemeral by default, not permanently cached. Runtime-generated sensitive context must never be committed.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-021.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Only if the owner explicitly approves persistent caching
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-021 and docs/ARCHITECTURE.md context compiler
+- notes: The .gptbrain/runtime/ directory is Git-ignored.
+
+---
+
+## DM-CLAIM-016
+
+- claim: The core benchmark uses deterministic fixtures only. No hosted model dependency. Compares against: no memory, original GPTBrain.md, simple split-file, and Doubtful Memory.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-022.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: Before benchmark implementation or publication
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check DM-DEC-022
+- notes: Optional human/model evaluation may be documented separately but is not required.
+
+---
+
+## DM-CLAIM-017
+
+- claim: The Doo challenge remains an active delivery target. Challenge requirements remain unverified and must be separated from the independent product architecture.
+- source_type: Owner instruction
+- source_reference: Owner-approved repository audit corrections, 2026-07-15.
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-15
+- review_after: When official challenge information becomes available
+- sensitivity: PUBLIC
+- action_permission: ASK_BEFORE_CHANGE
+- recheck_method: Check PROJECT_BRAIN.md challenge relationship section
+- notes: Do not remove or describe the challenge as irrelevant. Keep challenge and product architecturally separated.
 
 ---
 

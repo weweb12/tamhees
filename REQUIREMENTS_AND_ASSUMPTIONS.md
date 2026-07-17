@@ -25,78 +25,367 @@ An assumption must never silently become a requirement or fact.
 
 ---
 
-# 1. Product requirements
+# 1. Core engine requirements
 
-## DM-REQ-PROD-001 - Clear opening explanation
-
-- Priority: MUST
-- Status: NOT_STARTED
-
-The opening interface must explain within one screen that project memory can be inaccurate, invasive, or overconfident and that Doubtful Memory audits whether remembered claims are safe to use.
-
-### Acceptance criteria
-
-- The problem is visible without opening documentation.
-- The product purpose is explained in plain language.
-- The opening content does not claim that AI project memory is a new invention.
-- A first-time user can identify the primary action.
-
----
-
-## DM-REQ-PROD-002 - Working interactive audit
+## DM-REQ-ENGINE-001 - gptbrain CLI
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Related decision: DM-DEC-014
 
-The application must execute a real audit using structured claim and evidence data.
+The `gptbrain` CLI must be the primary human interface to the engine.
 
 ### Acceptance criteria
 
-- Audit results are calculated rather than stored as fixed presentation text.
-- Modifying relevant input changes the result.
-- The same input produces the same result.
-- The interface displays the calculated outcome.
+- CLI is invoked as `gptbrain <command>`.
+- Argument parsing uses Node.js built-ins (`util.parseArgs` or `process.argv`).
+- Exit codes follow conventions (0 = success, 1 = error, 2 = usage error).
+- `gptbrain --help` displays available commands.
+- `gptbrain --version` displays the current version.
+- No runtime dependencies are required for CLI operation.
 
 ---
 
-## DM-REQ-PROD-003 - Multiple representative scenarios
+## DM-REQ-ENGINE-002 - .gptbrain initialization
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Related decision: DM-DEC-017
 
-The application must include scenarios covering:
-
-- Contradictory technical memory.
-- Stale memory.
-- Overconfident inference.
-- Sensitive or secret-like information.
-- Revoked or superseded memory.
+The `gptbrain init` command must create the `.gptbrain/` directory structure.
 
 ### Acceptance criteria
 
-- Every scenario executes through the same audit engine.
-- Every scenario has a clear expected result.
-- Every scenario can be reset.
-- Every scenario is included in automated test coverage.
+- Running `gptbrain init` in a project directory creates the complete directory structure.
+- Created directories include: `memories/records/`, `evidence/`, `audits/`, `episodes/`, `archive/`, `runtime/`.
+- Created files include: `config.json` (with schema version), `state.json`, `memories/index.json`.
+- The command is idempotent — running it again does not destroy existing data.
+- The command reports what was created.
 
 ---
 
-## DM-REQ-PROD-004 - Independent value
+## DM-REQ-ENGINE-003 - Atomic JSON memory storage
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Related decision: DM-DEC-017
 
-The application must be understandable and useful without knowledge of the Doo challenge.
+Each canonical memory must be stored as one atomic JSON file.
 
 ### Acceptance criteria
 
-- Core interface text does not depend on challenge context.
-- Documentation explains practical developer and team use cases.
-- Challenge alignment is presented separately from product identity.
+- Each memory is stored at `.gptbrain/memories/records/<memory-id>.json`.
+- Writes use temporary-file plus rename for atomicity.
+- JSON output uses deterministic key ordering for Git-friendly diffs.
+- Every stored record includes a `schemaVersion` field.
+- The memory index (`index.json`) is updated on every write.
+- Reading a record and writing it back produces an identical file.
 
 ---
 
-# 2. Memory-claim requirements
+## DM-REQ-ENGINE-004 - Schema versioning and migration
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-017
+
+Every stored artifact must include a schema version, and the engine must handle version differences.
+
+### Acceptance criteria
+
+- Every JSON and JSONL record includes `schemaVersion`.
+- Unknown schema versions produce a validation error with migration guidance.
+- Missing required fields produce a validation error.
+- Schema migrations are forward-only.
+- Migration preserves all authority levels and relationships.
+- Migration produces an audit event recording the transformation.
+
+---
+
+## DM-REQ-ENGINE-005 - Automatic pre-task retrieval
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+Before a task begins, the system must automatically retrieve relevant context.
+
+### Acceptance criteria
+
+- A command or adapter call retrieves memories relevant to a task description.
+- Retrieved context is ranked by relevance, freshness, and authority.
+- The retrieval applies the configured budget limit.
+- The output includes selection and exclusion explanations.
+- Sensitive content is redacted before output.
+
+---
+
+## DM-REQ-ENGINE-006 - Controlled post-task finalization
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-020
+
+After a task, proposed memory updates must be validated through authority rules.
+
+### Acceptance criteria
+
+- Proposed updates are validated before being written to storage.
+- Authority non-escalation is enforced (INFERRED cannot become OWNER_CONFIRMED automatically).
+- Owner decisions cannot be overridden by agent inference.
+- Material updates produce audit events.
+- Superseded records are archived with relationships preserved.
+
+---
+
+## DM-REQ-ENGINE-007 - Context-budget enforcement
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-021
+
+Context packs must have a hard configured budget that is never exceeded.
+
+### Acceptance criteria
+
+- The budget limit is configurable.
+- Token size is estimated for each selected memory.
+- The total estimated size never exceeds the budget.
+- When the budget is insufficient for all relevant memories, the system prioritizes by relevance and authority.
+- The budget compliance is reported in the context pack.
+
+---
+
+## DM-REQ-ENGINE-008 - Selection and exclusion explanations
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-021
+
+The context compiler must explain every selection and exclusion decision.
+
+### Acceptance criteria
+
+- Every selected memory includes a reason for selection.
+- Every excluded memory includes a reason: irrelevant, expired, conflicted, demoted, over-budget, or redacted.
+- Expired, conflicted, and demoted records are explicitly identified.
+- Explanations are included in the context-pack output.
+
+---
+
+## DM-REQ-ENGINE-009 - Authority non-escalation
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-020
+
+The system must prevent automatic escalation of authority levels.
+
+### Acceptance criteria
+
+- An AI inference can never become OWNER_CONFIRMED automatically.
+- Agent-generated memories default to INFERRED or OBSERVED.
+- Repository evidence cannot authorize scope, budget, privacy, or publication decisions.
+- Tests cannot approve owner decisions.
+- The system never treats its own generated summary as independent evidence.
+- The same rules apply through CLI, MCP, and all adapters.
+
+---
+
+## DM-REQ-ENGINE-010 - Candidate-memory validation
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-020
+
+Proposed memory updates must be validated before acceptance.
+
+### Acceptance criteria
+
+- Proposed status must not exceed the proposer's authority level.
+- Missing required fields are rejected.
+- Unknown vocabulary values are rejected.
+- Duplicate IDs are detected and rejected.
+- Validation results are included in the update response.
+
+---
+
+## DM-REQ-ENGINE-011 - Ephemeral context packs
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-021
+
+Generated context packs must be ephemeral by default.
+
+### Acceptance criteria
+
+- Context packs are not permanently cached in `.gptbrain/`.
+- Context is returned in memory/stdout or stored temporarily under Git-ignored `runtime/`.
+- Runtime-generated sensitive context is never committed.
+- No context-pack history accumulates by default.
+
+---
+
+# 2. Adapter requirements
+
+## DM-REQ-ADAPT-001 - Adapter lifecycle
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-023
+
+Each adapter must support a standard lifecycle.
+
+### Acceptance criteria
+
+- Adapters support: initialize, retrieve context, propose updates, finalize.
+- All adapter operations go through the engine.
+- No adapter maintains its own memory store.
+- Adapters enforce engine authority rules.
+
+---
+
+## DM-REQ-ADAPT-002 - Codex adapter
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+A thin adapter for OpenAI Codex integration.
+
+### Acceptance criteria
+
+- Translates between Codex's agent instruction format and the engine API.
+- Retrieves and serves context through the engine.
+- Does not contain business logic.
+- Passes cross-adapter equivalence tests.
+
+---
+
+## DM-REQ-ADAPT-003 - Claude Code adapter
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+A thin adapter for Anthropic Claude Code integration.
+
+### Acceptance criteria
+
+- Integrates with Claude Code's CLAUDE.md convention.
+- Retrieves and serves context through the engine.
+- Does not contain business logic.
+- Passes cross-adapter equivalence tests.
+
+---
+
+## DM-REQ-ADAPT-004 - Antigravity adapter
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+A thin adapter for Google Antigravity IDE integration.
+
+### Acceptance criteria
+
+- Integrates with Antigravity's AGENTS.md / skill hooks.
+- Retrieves and serves context through the engine.
+- Does not contain business logic.
+- Passes cross-adapter equivalence tests.
+- Antigravity is a served agent, not a runtime dependency.
+
+---
+
+## DM-REQ-ADAPT-005 - Generic adapter
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+A generic adapter for any AI coding agent through CLI/file interface.
+
+### Acceptance criteria
+
+- Works with any agent that can read files or invoke CLI commands.
+- Retrieves and serves context through the engine.
+- Does not require agent-specific configuration.
+- Passes cross-adapter equivalence tests.
+
+---
+
+## DM-REQ-ADAPT-006 - Local stdio MCP adapter
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-013
+
+A local stdio-based Model Context Protocol adapter.
+
+### Acceptance criteria
+
+- Uses stdio transport only — no HTTP, no remote connections.
+- Enforces the same authority rules as the CLI.
+- MCP SDK dependency is approved at the MCP implementation phase.
+- Conforms to the MCP specification.
+
+---
+
+## DM-REQ-ADAPT-007 - Cross-adapter equivalence
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-023
+
+The same memory query through different adapters must produce equivalent results.
+
+### Acceptance criteria
+
+- Fixture-based tests verify equivalent context output across all adapters.
+- No adapter produces results that differ in content or authority from another.
+- Equivalence is tested as part of the benchmark harness.
+
+---
+
+# 3. Benchmark requirements
+
+## DM-REQ-BENCH-001 - Deterministic benchmark harness
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-022
+
+A benchmark harness that measures memory system performance with deterministic fixtures.
+
+### Acceptance criteria
+
+- Measures: retrieved-memory precision, recall, context size, token size, budget compliance, stale-memory detection, conflict detection, revocation handling, authority protection, sensitive-content retention, deterministic outcome correctness, abstention/escalation, cross-adapter equivalence.
+- Uses deterministic fixture data.
+- Produces consistent results across runs.
+- Does not require a hosted model or API.
+- Can run offline.
+
+---
+
+## DM-REQ-BENCH-002 - Original GPTBrain baseline
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-022
+
+The benchmark must include comparison against the original single-file GPTBrain.md approach.
+
+### Acceptance criteria
+
+- Baseline includes: no project memory, original GPTBrain.md, simple split-file memory, Doubtful Memory.
+- Each baseline uses the same fixture data.
+- Comparisons are objective and measurable.
+- No subjective quality claims in the core benchmark.
+
+---
+
+# 4. Memory-claim requirements
 
 ## DM-REQ-CLAIM-001 - Stable claim identifier
 
@@ -150,10 +439,11 @@ Every claim must identify where it came from.
 
 Every claim must have a controlled verification status.
 
-Initial status candidates are:
+Status values:
 
 - `OWNER_CONFIRMED`
-- `VERIFIED_IN_REPOSITORY`
+- `REPO_VERIFIED`
+- `TEST_VERIFIED`
 - `OBSERVED`
 - `INFERRED`
 - `UNKNOWN`
@@ -167,8 +457,6 @@ Initial status candidates are:
 - `CONFLICTED` cannot produce `TRUST`.
 - `REVOKED` cannot authorize action.
 
-The final status vocabulary will be approved during protocol design.
-
 ---
 
 ## DM-REQ-CLAIM-005 - Confidence
@@ -178,11 +466,7 @@ The final status vocabulary will be approved during protocol design.
 
 Every claim must contain a controlled confidence value.
 
-Initial values are:
-
-- `HIGH`
-- `MEDIUM`
-- `LOW`
+Values: `HIGH`, `MEDIUM`, `LOW`.
 
 ### Acceptance criteria
 
@@ -223,8 +507,6 @@ Claims must include a sensitivity classification.
 - Sensitivity affects audit outcomes when appropriate.
 - Sensitivity is visible without revealing protected content.
 
-The exact classification vocabulary will be approved during protocol design.
-
 ---
 
 ## DM-REQ-CLAIM-008 - Permission to act
@@ -258,20 +540,14 @@ A claim that may require verification should provide a practical recheck method.
 
 ---
 
-# 3. Audit-engine requirements
+# 5. Audit-engine requirements
 
 ## DM-REQ-AUDIT-001 - Five primary outcomes
 
 - Priority: MUST
 - Status: NOT_STARTED
 
-The engine must produce one primary outcome:
-
-- `TRUST`
-- `RECHECK`
-- `ASK_OWNER`
-- `BLOCK_ACTION`
-- `FORGET_OR_REDACT`
+The engine must produce one primary outcome: `TRUST`, `RECHECK`, `ASK_OWNER`, `BLOCK_ACTION`, or `FORGET_OR_REDACT`.
 
 ### Acceptance criteria
 
@@ -370,7 +646,7 @@ A revoked claim must not authorize action.
 - Priority: MUST
 - Status: NOT_STARTED
 
-Secret-like or unnecessarily sensitive raw content must not be preserved in audit output, logs, exports, or persistent client storage.
+Secret-like or unnecessarily sensitive raw content must not be preserved in audit output, logs, exports, or persistent storage.
 
 ### Acceptance criteria
 
@@ -397,22 +673,76 @@ Every audit rule must have a stable identifier and a human-readable description.
 
 ---
 
-# 4. User-interface requirements
+# 6. Lifecycle requirements
+
+## DM-REQ-LIFE-001 - Automatic state maintenance
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Related decision: DM-DEC-020
+
+Users must not be required to manually update routine state after every task.
+
+### Acceptance criteria
+
+- Pre-task retrieval is automatic.
+- Post-task finalization validates and writes updates.
+- The system maintains state through controlled lifecycle operations.
+- Manual intervention is required only for owner-level decisions.
+
+---
+
+## DM-REQ-LIFE-002 - Safe migration from bootstrap Markdown
+
+- Priority: MUST
+- Status: NOT_STARTED
+
+The system must safely migrate from the bootstrap `memory/MEMORY_CLAIMS.md` format to `.gptbrain/` JSON storage.
+
+### Acceptance criteria
+
+- Existing claims are preserved with their original authority levels.
+- Migration does not elevate INFERRED to OWNER_CONFIRMED.
+- Superseded claims remain visible with REVOKED status.
+- Migration produces an audit event.
+- The bootstrap Markdown files are preserved (not deleted during migration).
+
+---
+
+## DM-REQ-LIFE-003 - Clean local installation and removal
+
+- Priority: MUST
+- Status: NOT_STARTED
+
+The product must install and remove cleanly.
+
+### Acceptance criteria
+
+- Installation requires only documented commands.
+- Removal leaves no orphaned configuration or data outside `.gptbrain/`.
+- `.gptbrain/` removal is a clean project-level uninstall.
+- No global system modifications are required.
+
+---
+
+# 7. Dashboard requirements
+
+> These requirements are part of the mandatory Version 1 release. Implementation order is deferred until Phase 8, but the requirements themselves are not removed or optional.
 
 ## DM-REQ-UI-001 - Primary audit journey
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Target phase: Phase 8
 
-A user must be able to select a scenario, inspect its memory and evidence, run the audit, understand the result, and see the safe next action.
+A user must be able to view memory state, inspect evidence, run audits, understand results, and see safe next actions through the dashboard.
 
 ### Acceptance criteria
 
 - The journey has no broken step.
-- The selected scenario is always visible.
 - Memory and current evidence are visually distinguishable.
 - The primary outcome is prominent.
-- Reset behavior is available.
+- The dashboard reads from `.gptbrain/` through the engine.
 
 ---
 
@@ -420,8 +750,9 @@ A user must be able to select a scenario, inspect its memory and evidence, run t
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Target phase: Phase 8
 
-The interface must work on desktop, tablet, and mobile screen sizes.
+The dashboard must work on desktop, tablet, and mobile screen sizes.
 
 ### Acceptance criteria
 
@@ -436,6 +767,7 @@ The interface must work on desktop, tablet, and mobile screen sizes.
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Target phase: Phase 8
 
 Status and outcomes must not rely on color alone.
 
@@ -452,8 +784,9 @@ Status and outcomes must not rely on color alone.
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Target phase: Phase 8
 
-The primary demonstration must be operable using a keyboard.
+The dashboard must be operable using a keyboard.
 
 ### Acceptance criteria
 
@@ -468,19 +801,110 @@ The primary demonstration must be operable using a keyboard.
 
 - Priority: MUST
 - Status: NOT_STARTED
+- Target phase: Phase 8
 
-The interface must explain technical concepts without assuming prior knowledge of the protocol.
+The dashboard must explain technical concepts without assuming prior knowledge of the protocol.
 
 ### Acceptance criteria
 
 - Terms such as provenance, confidence, freshness, and action permission are explained.
 - Error messages describe recovery steps.
-- The interface avoids unexplained status codes.
+- The dashboard avoids unexplained status codes.
 - Detailed technical information remains available without overwhelming the primary flow.
 
 ---
 
-# 5. Technical requirements
+## DM-REQ-UI-006 - Local dashboard as Version 1 deliverable
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Target phase: Phase 8
+- Related decision: DM-DEC-016
+
+The local visual dashboard is a Version 1 release deliverable, not post-Version-1.
+
+### Acceptance criteria
+
+- Dashboard is functional and included in the release.
+- Dashboard reads from `.gptbrain/` through the engine.
+- Dashboard does not bypass engine authority or privacy rules.
+- Dashboard dependencies are approved before Phase 8 begins.
+
+---
+
+# 8. Product requirements
+
+## DM-REQ-PROD-001 - Clear opening explanation
+
+- Priority: MUST
+- Status: NOT_STARTED
+- Target phase: Phase 8
+
+The dashboard opening must explain that project memory can be inaccurate, invasive, or overconfident and that Doubtful Memory audits whether remembered claims are safe to use.
+
+### Acceptance criteria
+
+- The problem is visible without opening documentation.
+- The product purpose is explained in plain language.
+- The opening content does not claim that AI project memory is a new invention.
+- A first-time user can identify the primary action.
+
+---
+
+## DM-REQ-PROD-002 - Working interactive audit
+
+- Priority: MUST
+- Status: NOT_STARTED
+
+The application must execute a real audit using structured claim and evidence data.
+
+### Acceptance criteria
+
+- Audit results are calculated rather than stored as fixed presentation text.
+- Modifying relevant input changes the result.
+- The same input produces the same result.
+- The interface displays the calculated outcome.
+
+---
+
+## DM-REQ-PROD-003 - Multiple representative scenarios
+
+- Priority: MUST
+- Status: NOT_STARTED
+
+The application must include scenarios covering:
+
+- Contradictory technical memory.
+- Stale memory.
+- Overconfident inference.
+- Sensitive or secret-like information.
+- Revoked or superseded memory.
+
+### Acceptance criteria
+
+- Every scenario executes through the same audit engine.
+- Every scenario has a clear expected result.
+- Every scenario can be reset.
+- Every scenario is included in automated test coverage.
+
+---
+
+## DM-REQ-PROD-004 - Independent value
+
+- Priority: MUST
+- Status: NOT_STARTED
+
+The application must be understandable and useful without knowledge of the Doo challenge.
+
+### Acceptance criteria
+
+- Core interface text does not depend on challenge context.
+- Documentation explains practical developer and team use cases.
+- Challenge alignment is presented separately from product identity.
+
+---
+
+# 9. Technical requirements
 
 ## DM-REQ-TECH-001 - Local operation
 
@@ -493,7 +917,6 @@ The core application must run locally without a backend, account, cloud database
 
 - Local development requires no service credentials.
 - Core scenarios function without network access.
-- Production build contains the required scenario data.
 - No telemetry request is made.
 
 ---
@@ -542,14 +965,18 @@ Tests cover at least:
 - Priority: MUST
 - Status: NOT_STARTED
 
-The project must produce a clean static production build.
+The final Version 1 project must produce verified release artifacts.
 
 ### Acceptance criteria
 
-- The build command completes without errors.
-- The built application loads correctly.
-- No development-only dependency is required at runtime.
-- Required assets and scenarios are present.
+- Produces verified release artifacts for the local gptbrain CLI and engine.
+- Produces required templates and agent adapters.
+- Produces the local visual dashboard when Phase 8 is completed.
+- Has a clean local installation/build process.
+- No development-only dependency required at runtime.
+- No private memory, runtime context, secrets, test residue, or machine-specific paths in release artifacts.
+- Successful operation on the supported Node.js baseline.
+- Reproducible build commands documented and tested before release.
 
 ---
 
@@ -562,15 +989,16 @@ Every direct dependency must have a documented purpose and must not require a pa
 
 ### Acceptance criteria
 
-- Dependencies are reviewed before installation.
-- A lockfile is committed.
+- Target initial zero-runtime-dependency.
+- Dependency approval before installation.
+- A lockfile is required once dependencies are installed.
+- License and runtime-network review.
 - Unused dependencies are removed.
-- Known audit warnings are reviewed rather than ignored.
-- No dependency requires payment information.
+- No paid service, API key, account, or hosted runtime requirement.
 
 ---
 
-# 6. Documentation requirements
+# 10. Documentation requirements
 
 ## DM-REQ-DOC-001 - Setup documentation
 
@@ -621,7 +1049,7 @@ Documentation must provide a short reproducible path through the primary contrad
 
 ---
 
-# 7. Quality requirements
+# 11. Quality requirements
 
 ## DM-REQ-QUAL-001 - No knowingly fake functionality
 
@@ -644,18 +1072,17 @@ Controls and displayed results must represent real implemented behavior.
 - Priority: MUST
 - Status: NOT_STARTED
 
-The application, tests, protocol, README, screenshots, video, and submission description must not contradict one another.
+The application, tests, protocol, README, and submission description must not contradict one another.
 
 ### Acceptance criteria
 
 - A final consistency review is completed.
 - Outcome names and meanings match everywhere.
 - Setup commands are verified.
-- Screenshots and scripts reflect the final build.
 
 ---
 
-# 8. Current assumptions
+# 12. Current assumptions
 
 ## DM-ASM-001 - Challenge interpretation
 
@@ -705,7 +1132,7 @@ Verify on the official platform before planning final submission timing.
 - Verification status: UNVERIFIED
 - Impact if wrong: MEDIUM
 
-A static interactive website is assumed to be an acceptable demonstration format.
+A local developer tool with a visual dashboard is assumed to be an acceptable demonstration format.
 
 ### Validation method
 
@@ -752,7 +1179,7 @@ Test the engine against representative scenarios and evaluate whether the rules 
 
 ---
 
-# 9. Traceability rule
+# 13. Traceability rule
 
 Every implemented feature must reference one or more requirement IDs.
 
@@ -768,9 +1195,9 @@ If a requirement changes:
 
 ## Current requirement summary
 
-- Requirements defined: 36
+- Total requirements defined: 60
 - Requirements verified: 0
 - Requirements in progress: 0
-- Requirements not started: 36
+- Requirements not started: 60
 - Assumptions recorded: 7
 - Assumptions fully verified: 0
