@@ -1,6 +1,10 @@
 # Doubtful Memory — Implementation Roadmap
 
-> **Status**: This roadmap describes the planned development phases. Only Phase 0 has been completed. All subsequent phases describe proposed work.
+> **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
+
+> **Current Position**: Phases 1 and 2 are implemented and locally verified in the Phase 2 local checkpoint. The combined suite passes 81 tests with zero failures, zero skips, and zero todos. Phase 2 is complete, and Phase 3 retrieval, ranking, explanations, and budget enforcement is next.
+
+> **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
 ## Phasing principles
 
@@ -51,19 +55,21 @@ All acceptance criteria pass. Owner reviews and approves the specification state
 
 ---
 
-## Phase 1 — Core vertical slice
+## Phase 1: Core vertical slice
+Status: **COMPLETE — LOCALLY VERIFIED**
 
-### Outputs
+**Goal**: Build the smallest working slice of the local engine.
 
-- `package.json` with approved dependencies (typescript, @types/node only initially).
-- `tsconfig.json` with Node 22 target.
-- `gptbrain init` command that creates `.gptbrain/` directory structure.
-- One validated memory record written to `.gptbrain/memories/records/`.
-- Atomic write implementation (temp file + rename).
-- Schema version on stored records.
-- Context output to stdout.
-- One deterministic audit rule with JSONL event output.
-- Node built-in test runner (`node --test`) tests.
+**Deliverables**:
+- [x] Initial `.gptbrain/` storage structure logic.
+- [x] TypeScript types and runtime validation for memory records.
+- [x] `gptbrain init` command (creates bootstrap memory).
+- [x] `gptbrain context --task ""` command (reads, validates, outputs deterministic JSON).
+- [x] `gptbrain audit` command (one rule: DM-RULE-AUTH-001).
+- [x] Local JSONL audit history appending.
+- [x] Test suite using `node:test` (no outside dependencies).
+
+**Exit condition**: `gptbrain init`, `gptbrain context`, and `gptbrain audit` run locally, pass validation, and successfully execute without network access.
 
 ### Acceptance criteria
 
@@ -86,11 +92,11 @@ All acceptance criteria pass. Owner reviews and approves the specification state
 
 ### Stop gate
 
-All acceptance criteria pass. Tests pass. Owner approves the vertical slice.
+All acceptance criteria and independent tests pass. Phase 1 is included in the verified Phase 2 local checkpoint.
 
-### Evidence required
+### Current evidence
 
-- Passing test output.
+- Passing test output: 51 tests passed, 0 failed, 0 skipped.
 - Example `.gptbrain/` directory listing.
 - Example memory record JSON.
 - Example audit event JSONL line.
@@ -99,15 +105,20 @@ All acceptance criteria pass. Tests pass. Owner approves the vertical slice.
 
 ## Phase 2 — Complete memory store and audit rules
 
+Status: **COMPLETE — LOCALLY VERIFIED**
+
 ### Outputs
 
-- Full CRUD operations for memory records.
-- Memory index (`index.json`) maintained on every write.
-- Evidence record storage and retrieval.
-- Complete set of audit rules with stable IDs.
-- Rule precedence implementation matching the protocol specification.
-- Archive handling for superseded/revoked records.
-- Schema validation for all stored artifacts.
+- [x] Controlled create, update, revoke, and redact operations.
+- [x] Memory index (`index.json`) rebuilt on every successful write.
+- [x] Evidence record storage and retrieval.
+- [x] Complete Phase 2 audit rules with stable IDs.
+- [x] Rule precedence matching the protocol specification.
+- [x] Archive handling for pre-update and pre-revoke snapshots.
+- [x] Redaction without raw-content archive copies.
+- [x] Strict schema validation for controlled artifacts.
+- [x] CLI memory and evidence operations.
+- [x] Optimistic concurrency and authority non-escalation.
 
 ### Acceptance criteria
 
@@ -128,12 +139,12 @@ All acceptance criteria pass. Tests pass. Owner approves the vertical slice.
 
 ### Stop gate
 
-All audit rules pass their tests. Index consistency is verified. Owner approves.
+All audit rules pass their tests, index consistency is verified, and the temporary-directory CLI smoke workflow passes. Phase 2 is complete in the local checkpoint.
 
 ### Evidence required
 
-- Complete test output.
-- Rule coverage report.
+- Complete test output: 81 passed, 0 failed, 0 skipped.
+- Tests cover validation, storage, path safety, evidence, mutation rollback boundaries, audit precedence, privacy, context safety, and CLI integration.
 
 ---
 

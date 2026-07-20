@@ -23,10 +23,10 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Intended product (Version 1)
 
-- **gptbrain engine**: Tool-neutral memory engine with deterministic audit rules.
-- **gptbrain CLI**: Command-line interface for initialization, memory management, context compilation, and auditing.
+- **gptbrain engine (temporary codename)**: Tool-neutral memory engine with deterministic audit rules.
+- **gptbrain CLI (temporary codename)**: Command-line interface for initialization, memory management, context compilation, and auditing.
 - **Structured local storage**: `.gptbrain/` directory with atomic JSON memory records and JSONL audit logs.
-- **Authority model**: Seven-level verification status distinguishing owner decisions from agent inferences.
+- **Authority model**: Eight-status verification model distinguishing owner decisions from agent inferences.
 - **Context compiler**: Task-specific context packs with explicit budgets and selection explanations.
 - **Agent adapters**: Codex, Claude Code, Antigravity, and generic adapters with cross-adapter equivalence.
 - **Local MCP adapter**: stdio-based Model Context Protocol integration.
@@ -35,20 +35,29 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **This project is in specification and bootstrap stage.**
+> **Version 0.2.0 — Phases 1 and 2 are implemented and locally verified. Phase 2 is complete.**
 
-- No working CLI or engine exists yet.
-- No application code has been written.
-- No packages or dependencies are installed.
-- The repository contains only project planning and specification documents.
-- Development is local-only with no Git remote configured.
+The local engine now provides validated memory creation, update, revocation, and redaction; evidence storage; archive preservation; deterministic audit precedence; secret-like-content rejection; context safety; and CLI access. The test suite contains 81 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
+
+Implemented commands:
+
+- `gptbrain init [directory]`: Initialize safe `.gptbrain/` storage.
+- `gptbrain memory list`: List canonical memory records.
+- `gptbrain memory show <memory-id>`: Show one canonical record.
+- `gptbrain memory apply --input <candidate.json>`: Apply a controlled `CREATE`, `UPDATE`, `REVOKE`, or `REDACT` candidate.
+- `gptbrain evidence list`: List evidence records.
+- `gptbrain evidence add --input <evidence.json>`: Add validated evidence.
+- `gptbrain context --task "..."`: Compile an ephemeral, audit-aware context pack.
+- `gptbrain audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
+
+Phases 3–9 remain. The next development milestone is accelerated Phases 3–4, beginning with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement. Later work covers automatic lifecycle hooks, agent adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
 
 ## Design principles
 
 - **Local-only**: No cloud services, accounts, API keys, or telemetry.
 - **Zero runtime dependencies**: Core engine targets Node.js built-ins only.
 - **Deterministic**: Same input always produces the same audit result.
-- **Privacy-safe**: Sensitive content is redacted before persistence or output.
+- **Privacy-safe**: Raw SENSITIVE/SECRET retention candidates are rejected; legacy sensitive output is defensively redacted. Common secret-like patterns are rejected before memory or evidence persistence, and controlled redaction removes legacy raw content without copying it into archives or logs. Pattern matching is defensive but cannot guarantee detection of every possible secret.
 - **Tool-neutral**: Works across different AI coding agents through thin adapters.
 - **Auditable**: Every audit decision includes evidence and triggered rules.
 
@@ -56,6 +65,13 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ```
 doubtful-memory/
+├── package.json
+├── tsconfig.json
+├── src/
+├── test/
+├── examples/
+│   ├── create-memory-candidate.json
+│   └── repository-evidence.json
 ├── PROJECT_BRAIN.md              # Stable project identity and boundaries
 ├── PROJECT_STATE.md              # Current phase and working position
 ├── DECISIONS.md                  # Recorded decisions and reasoning
@@ -75,11 +91,38 @@ doubtful-memory/
     └── MEMORY_AUDIT.md           # Bootstrap audit history
 ```
 
+## Local setup and verification
+
+In the project directory:
+
+```powershell
+npm ci
+npm run verify
+npm run build
+node dist/src/cli.js --help
+```
+
+No API key, account, hosted model, database, or runtime network connection is required.
+
+## Controlled update workflow
+
+Coding agents should not edit `.gptbrain/` records directly. They submit a JSON update candidate matching `docs/PROTOCOL_SPECIFICATION.md`, then invoke:
+
+```powershell
+node dist/src/cli.js memory apply --input .\candidate.json
+```
+
+The engine validates schema, authority, evidence references, optimistic concurrency, privacy, paths, archive behavior, index consistency, and audit logging. A failed candidate does not silently overwrite canonical memory.
+
+The `examples/` files are safe templates for coding agents. Copy and edit them for the target project rather than treating their example timestamps and IDs as current facts.
+
+Owner-confirmed promotion is intentionally two-step: create a lower-authority memory, attach explicit owner-instruction evidence, then propose the promotion. An agent's claim that it has owner authority is not sufficient by itself.
+
 ## Next planned work
 
-**Phase 1 — Core vertical slice**: Implement `gptbrain init`, one validated memory record, local store, context output, one deterministic audit, and Node built-in tests.
+**Accelerated Milestone 2 (Phases 3–4)**: begin with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement, then implement Phase 4 automatic pre-task/post-task lifecycle finalization while preserving the existing authority and privacy gates.
 
-## Runtime requirements (planned)
+## Runtime requirements
 
 - **Minimum**: Node.js 22
 - **Development**: Node.js 24

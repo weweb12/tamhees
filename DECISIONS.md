@@ -365,7 +365,8 @@ Version 1 is a local developer tool containing: tool-neutral memory engine, gptb
 ## DM-DEC-014 - Product name and gptbrain engine/CLI identity
 
 - Date: 2026-07-15
-- Status: APPROVED
+- Status: SUPERSEDED
+- Superseded by: DM-DEC-026
 - Category: Product
 
 ### Context
@@ -385,6 +386,10 @@ The product name and command identity needed explicit recording to prevent confu
 - `gptbrain` preserves the connection to the original GPTBrain.md origin.
 - A single canonical name prevents confusion across documentation and code.
 - `.gptbrain/` follows the convention of tool-specific dot-directories.
+
+### Why superseded
+
+Doubtful Memory remains the product name, but `gptbrain` and `.gptbrain` are now temporary centralized codenames rather than permanent final identities.
 
 ### Consequences
 
@@ -771,6 +776,168 @@ Antigravity IDE with Claude Opus 4.6 Thinking is the currently approved developm
 ### Alternatives considered
 
 - Antigravity as runtime dependency: Rejected; it is a development tool only.
+
+---
+
+## DM-DEC-025 - Canonical Phase 1 Memory Schema
+
+- Date: 2026-07-19
+- Status: APPROVED
+- Category: Protocol
+
+### Context
+
+The Phase 1 memory core is now implemented. The protocol specification needed to reflect the actual running code's canonical field names to prevent confusion between the specification and the types.
+
+### Decision
+
+Adopt the explicit Phase 1 implementation field names in the protocol specification:
+- `claim` is renamed to `statement`.
+- `status` is renamed to `verificationStatus`.
+- `permission` is renamed to `actionPermission`.
+- Added `kind` (e.g., OBSERVATION, REQUIREMENT).
+- Retained `recheckMethod` and `notes` as optional string fields.
+
+Clearly distinguish between fields implemented in Phase 1 (e.g., deterministic lexical selection) and fields planned for later phases (e.g., token budgets, evidence mapping).
+
+### Reasons
+
+- Divergence between the specification and the implemented TypeScript interfaces (`MemoryRecord`, `ContextPack`, `AuditEvent`) creates developer confusion.
+- The implemented names (`verificationStatus`, `actionPermission`) are more precise than the originally proposed single-word names.
+- Documenting future fields clarifies that their absence in Phase 1 is intentional, not an oversight.
+
+### Consequences
+
+- All future code and documentation must use the new field names.
+- The `PROTOCOL_SPECIFICATION.md` now matches `src/core/types.ts`.
+
+---
+
+## DM-DEC-026 - Temporary codename centralization
+
+- Date: 2026-07-19
+- Status: APPROVED
+- Category: Product
+
+### Context
+
+The product remains "Doubtful Memory", but the CLI, engine, and storage directory needed a consistent temporary identifier until a final name is chosen.
+
+### Decision
+
+Use `gptbrain` for the CLI and engine, and `.gptbrain/` for the storage directory as temporary centralized codenames. Centralize their definitions in `src/core/identity.ts`. The CLI/storage rename will be a later controlled change. Doubtful Memory remains the product name. Runtime source must use centralized identity constants where technically possible.
+
+### Reasons
+
+- Hardcoding names across multiple files makes future renaming risky and difficult.
+- Centralization allows development to proceed without committing permanently to a CLI name.
+
+### Consequences
+
+- All source code must use the constants from `identity.ts` rather than hardcoded strings.
+
+---
+
+## DM-DEC-027 - Phase 1 approved dependencies
+
+- Date: 2026-07-19
+- Status: APPROVED
+- Category: Technology
+
+### Context
+
+Phase 1 requires explicit owner approval for any dependencies.
+
+### Decision
+
+The exact approved development dependencies for Phase 1 are:
+- `typescript@6.0.3` — Apache-2.0
+- `@types/node@22.20.1` — MIT
+- `undici-types@6.21.0` — MIT, transitive development-only type package
+
+There are zero runtime dependencies. The core engine and CLI use Node built-ins only.
+There is no paid service, account, API key, hosted runtime, or runtime network requirement. Both direct dependencies have an approved development purpose.
+
+### Reasons
+
+- This maintains the zero-runtime-dependency target.
+- These dependencies are strictly for build-time type checking and compilation.
+
+### Consequences
+
+- No other dependencies may be added without explicit owner approval.
+
+---
+
+## DM-DEC-028 - Phase 2 controlled mutation and evidence interface
+
+- Date: 2026-07-20
+- Status: APPROVED
+- Category: Architecture and protocol
+
+### Context
+
+Phase 2 required usable create, update, revoke, redact, and evidence operations without allowing agents to bypass authority, privacy, archive, index, or audit invariants.
+
+### Decision
+
+- Use one canonical `UpdateCandidate` contract for `CREATE`, `UPDATE`, `REVOKE`, and `REDACT`.
+- Expose controlled mutations through `gptbrain memory apply --input <candidate.json>`.
+- Expose evidence through `gptbrain evidence add|list` and memory inspection through `gptbrain memory list|show`.
+- Require optimistic concurrency for updates by matching the canonical `updatedAt` value.
+- Prevent lower-authority candidates from overwriting higher-authority canonical records and require status/source alignment.
+- Require stored supporting `OWNER_INSTRUCTION` evidence before promotion to, or mutation of, `OWNER_CONFIRMED` memory.
+- Allow `REDACT` to bypass ordinary authority ordering because privacy removal has highest precedence, while still validating the candidate and writing safe audit metadata.
+- Preserve pre-update and pre-revoke snapshots in archive.
+- Never copy raw content removed by `REDACT` into archive or audit history.
+- Rebuild the derived index and append a privacy-safe audit event before reporting mutation success.
+
+### Reasons
+
+- A single update contract gives the CLI and future adapters the same policy boundary.
+- Optimistic concurrency prevents silent lost updates.
+- Stored owner evidence is stronger than trusting an agent's self-declared authority level.
+- Archive and audit behavior make material changes explainable and recoverable without retaining prohibited redacted content.
+
+### Consequences
+
+- Future adapters must call this engine boundary rather than edit JSON directly.
+- Owner-confirmed promotion is deliberately a two-step evidence workflow.
+- Multi-process file locking remains future hardening; Phase 2 guarantees atomic single-process batches and detects malformed state.
+
+---
+
+## DM-DEC-029 - Accelerated milestone delivery without removing Version 1 gates
+
+- Date: 2026-07-20
+- Status: APPROVED
+- Category: Delivery
+
+### Context
+
+The owner needs to finish the competition project quickly while avoiding a sloppy release. Repeated tiny agent prompts and ZIP review cycles consumed more time than implementation.
+
+### Decision
+
+Keep all mandatory Version 1 requirements and stop-gate evidence, but group the remaining roadmap into larger delivery milestones:
+
+1. Phases 3–4: budgeted retrieval, ranking, and automatic lifecycle.
+2. Phases 5–7: adapters and deterministic benchmark.
+3. Phases 8–9: dashboard, hardening, documentation, and submission package.
+
+Run independent review and full documentation reconciliation once per grouped milestone instead of after every small edit.
+
+### Reasons
+
+- Larger vertical milestones reduce context loss and handoff overhead.
+- Keeping the original acceptance criteria prevents speed from becoming hidden quality reduction.
+- A tested engine-first sequence protects the central product value before visual polish.
+
+### Consequences
+
+- The numbered phases remain traceable in the roadmap.
+- No mandatory feature is removed by this decision.
+- Any future proposal to defer MCP, an adapter, benchmark coverage, or dashboard scope still requires a separate explicit owner decision.
 
 ---
 

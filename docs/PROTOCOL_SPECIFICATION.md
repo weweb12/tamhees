@@ -1,6 +1,6 @@
 # Doubtful Memory — Protocol Specification
 
-> **Status**: This document defines the proposed protocol. Approval of this specification does not mean it is implemented. Implementation status is tracked in `docs/IMPLEMENTATION_ROADMAP.md` and `PROJECT_STATE.md`.
+> **Status**: Memory, evidence, update-candidate, audit-event, controlled mutation, archive, and audit-precedence contracts are implemented in Phase 2. Retrieval budgets, lifecycle automation, migration, adapters, and dashboard behavior remain planned and are tracked in `docs/IMPLEMENTATION_ROADMAP.md`.
 
 ## Overview
 
@@ -16,16 +16,17 @@ A memory record is the canonical unit of project memory.
 {
   "schemaVersion": "1.0.0",
   "id": "<memory-id>",
-  "claim": "<plain-language statement of what is believed>",
+  "kind": "<OBSERVATION | REQUIREMENT | DECISION | ...>",
+  "statement": "<plain-language statement of what is believed>",
   "source": {
     "type": "<source-type>",
     "reference": "<where evidence can be checked>",
     "agent": "<agent that created the record, if applicable>"
   },
-  "status": "<status-vocabulary-value>",
+  "verificationStatus": "<status-vocabulary-value>",
   "confidence": "<confidence-vocabulary-value>",
   "sensitivity": "<sensitivity-vocabulary-value>",
-  "permission": "<permission-vocabulary-value>",
+  "actionPermission": "<permission-vocabulary-value>",
   "freshness": {
     "lastVerified": "<ISO-8601 date>",
     "reviewAfter": "<ISO-8601 date or condition>",
@@ -38,9 +39,9 @@ A memory record is the canonical unit of project memory.
     "supportedBy": ["<evidence-id>"],
     "relatedTo": ["<memory-id>"]
   },
-  "recheckMethod": "<how to validate this claim>",
   "tags": ["<optional-tag>"],
-  "notes": "<relevant limitations or context>",
+  "recheckMethod": "<how to validate this statement, optional>",
+  "notes": "<relevant limitations or context, optional>",
   "createdAt": "<ISO-8601 datetime>",
   "updatedAt": "<ISO-8601 datetime>"
 }
@@ -48,11 +49,11 @@ A memory record is the canonical unit of project memory.
 
 ### Required fields
 
-- `schemaVersion`, `id`, `claim`, `source`, `status`, `confidence`, `sensitivity`, `permission`, `freshness.lastVerified`
+- `schemaVersion`, `id`, `kind`, `statement`, `source`, `verificationStatus`, `confidence`, `sensitivity`, `actionPermission`, `freshness`, `relationships`, `tags`, `createdAt`, `updatedAt`
 
 ### Optional fields
 
-- `freshness.reviewAfter`, `freshness.expiresAfter`, `relationships.*`, `recheckMethod`, `tags`, `notes`, `source.agent`
+- `freshness.reviewAfter`, `freshness.expiresAfter`, `relationships.*`, `recheckMethod`, `notes`, `source.agent`
 
 ---
 
@@ -85,6 +86,14 @@ Evidence records support or contradict memory claims.
 | `AGENT_OBSERVATION` | Agent-observed fact during task execution |
 | `DOCUMENT_REFERENCE` | External document or specification |
 | `CONVERSATION_RECORD` | Owner conversation or approval record |
+
+### Evidence storage rules
+
+1. `content` is a privacy-safe summary, not a raw file dump, credential, or conversation transcript.
+2. Evidence must reference at least one existing memory ID.
+3. Evidence IDs are immutable; duplicate IDs are rejected rather than overwritten.
+4. Common secret-like patterns are rejected before persistence without echoing the candidate value.
+5. Evidence is data, not authority by itself. Owner promotion specifically requires supporting `OWNER_INSTRUCTION` evidence and the controlled mutation workflow.
 
 ---
 
@@ -146,12 +155,15 @@ Sensitivity classifies the retention and exposure handling of a record.
 | `SENSITIVE` | Requires redaction before external output |
 | `SECRET` | Must not be retained in raw form; redact immediately |
 
-### Sensitivity rules
+### Sensitivity rules (implemented in Phase 2)
 
-1. `SECRET` records trigger `FORGET_OR_REDACT` audit outcome.
-2. `SENSITIVE` records are redacted before output, persistence, logging, or export.
-3. Sensitivity affects what appears in context packs.
-4. No real secrets may appear in examples or tests.
+1. `SECRET` records trigger `FORGET_OR_REDACT`.
+2. New memory and evidence candidates matching common secret patterns are rejected before persistence without echoing the candidate value.
+3. `REDACT` replaces legacy raw content with a safe tombstone and never copies the raw value into archive or audit history.
+4. New `SENSITIVE`, `SECRET`, or `FORGET_OR_REDACT` records may retain only explicitly redacted statement/source fields and the safe `redacted` tag.
+5. Legacy `SENSITIVE` memory is defensively redacted in CLI and context output until a controlled `REDACT` operation removes it.
+6. Pattern detection is defensive, not exhaustive; absence of a match does not prove content is safe.
+7. No real secrets may appear in examples or tests.
 
 ---
 
@@ -192,7 +204,7 @@ Memory records can reference other records and evidence.
 
 1. When a record is superseded, the original is marked `REVOKED` with `supersededBy` set.
 2. The superseding record sets `supersedes` to the original's ID.
-3. Both records remain in storage (original moves to archive).
+3. The prior active state moves to archive while a revoked canonical tombstone remains addressable by ID.
 4. `conflictsWith` relationships prevent either record from producing `TRUST`.
 
 ---
@@ -221,7 +233,7 @@ Authority determines what types of evidence can authorize different categories o
 
 ---
 
-## 9. Freshness rules
+## 9. Freshness rules (implemented in Phase 2)
 
 Freshness determines whether a memory record may still be considered current.
 
@@ -231,12 +243,13 @@ Freshness determines whether a memory record may still be considered current.
 2. If `reviewAfter` is set and the current date exceeds it, the record requires review.
 3. If `expiresAfter` is set and the current date exceeds it, the record cannot produce `TRUST`.
 4. Expired records automatically receive `RECHECK` audit outcome.
-5. Freshness degradation may reduce confidence automatically.
-6. `lastVerified` may only be updated after actual verification against the stated source.
+5. Conditional `reviewAfter` values that cannot be evaluated automatically produce `RECHECK`.
+6. Automatic confidence degradation remains planned; Phase 2 does not silently rewrite confidence during an audit.
+7. `lastVerified` may only be updated after actual verification against the stated source.
 
 ---
 
-## 10. Audit outcomes
+## 10. Audit outcomes (implemented)
 
 The audit engine produces one primary outcome per evaluated record.
 
@@ -258,21 +271,39 @@ The audit engine produces one primary outcome per evaluated record.
 
 ---
 
-## 11. Rule precedence
+## 11. Rule precedence (implemented)
 
 Audit rules are evaluated in defined order. Each rule has a stable identifier.
 
-### Rule categories (proposed order)
+### Rule categories and stable Phase 2 identifiers
 
-1. **Privacy rules** (DM-RULE-PRIV-*): Detect and handle sensitive content.
-2. **Revocation rules** (DM-RULE-REVOKE-*): Detect revoked or superseded records.
-3. **Conflict rules** (DM-RULE-CONFLICT-*): Detect contradictory evidence.
-4. **Authority rules** (DM-RULE-AUTH-*): Verify authorization level for proposed action.
-5. **Freshness rules** (DM-RULE-FRESH-*): Detect stale or expired records.
-6. **Evidence rules** (DM-RULE-EVID-*): Verify evidence sufficiency.
-7. **Trust rules** (DM-RULE-TRUST-*): Confirm conditions for trust.
+1. **Privacy**: `DM-RULE-PRIV-001`, `DM-RULE-PRIV-002`.
+2. **Revocation**: `DM-RULE-REVOKE-001`.
+3. **Conflict**: `DM-RULE-CONFLICT-001`.
+4. **Authority**: `DM-RULE-AUTH-001` through `DM-RULE-AUTH-006`.
+5. **Freshness**: `DM-RULE-FRESH-001`, `DM-RULE-FRESH-002`.
+6. **Evidence**: `DM-RULE-EVID-001`, `DM-RULE-EVID-002`.
+7. **Trust**: `DM-RULE-TRUST-001`.
 
-Higher-category rules take precedence. Within a category, specific rule order is defined during implementation.
+Higher-category rules take precedence. Within each category, source order in `src/core/audit.ts` is the canonical deterministic order.
+
+| Rule ID | Behavior |
+|---------|----------|
+| `DM-RULE-PRIV-001` | SECRET sensitivity requires forgetting or redaction. |
+| `DM-RULE-PRIV-002` | FORGET_OR_REDACT permission prevents retention. |
+| `DM-RULE-REVOKE-001` | Revoked or superseded memory cannot authorize action. |
+| `DM-RULE-CONFLICT-001` | Declared or evidence-backed conflict blocks action. |
+| `DM-RULE-AUTH-001` | Agent inference cannot become owner-confirmed automatically. |
+| `DM-RULE-AUTH-002` | MUST_NOT_ACT permission blocks action. |
+| `DM-RULE-AUTH-003` | ASK_BEFORE_CHANGE escalates to the owner. |
+| `DM-RULE-AUTH-004` | OWNER_CONFIRMED requires stored supporting owner evidence during audit. |
+| `DM-RULE-AUTH-005` | ACT_WITH_CAUTION requires recheck. |
+| `DM-RULE-AUTH-006` | Controlled mutations must pass authority validation. |
+| `DM-RULE-FRESH-001` | Expired memory requires re-verification. |
+| `DM-RULE-FRESH-002` | Due or conditional review requires re-verification. |
+| `DM-RULE-EVID-001` | Declared support IDs must exist and support the memory. |
+| `DM-RULE-EVID-002` | Unknown, inferred, low-confidence, or unsupported memory requires recheck. |
+| `DM-RULE-TRUST-001` | Current, sufficiently supported memory may be trusted within permission. |
 
 ### Rule storage
 
@@ -288,23 +319,22 @@ A context pack is the output of the context compiler for a specific task.
 {
   "schemaVersion": "1.0.0",
   "taskDescription": "<what the task needs>",
-  "budget": {
-    "maxTokens": "<configured limit>",
-    "estimatedTokens": "<actual estimated usage>",
-    "compliant": true
-  },
+  "selectionStrategy": "<Phase 2: audit-aware deterministic lexical/tag selection>",
   "selected": [
     {
       "memoryId": "<id>",
+      "statement": "<the statement, redacted if sensitive>",
       "reason": "<why selected>",
       "auditOutcome": "<outcome>",
-      "redacted": false
+      "verificationStatus": "<status>",
+      "confidence": "<confidence>",
+      "tags": ["<tag>"]
     }
   ],
   "excluded": [
     {
       "memoryId": "<id>",
-      "reason": "<why excluded: irrelevant | expired | conflicted | demoted | over-budget | redacted>"
+      "reason": "<why excluded: irrelevant | revoked | redacted>"
     }
   ],
   "warnings": ["<any audit warnings>"],
@@ -312,14 +342,22 @@ A context pack is the output of the context compiler for a specific task.
 }
 ```
 
+### Phase 2 Context-pack fields
+- The structure above is the implemented canonical structure.
+- Retrieval uses deterministic lexical/tag filtering followed by the complete audit precedence chain.
+- Blocked, revoked, redacted, or irrelevant records have explicit exclusion reasons.
+
+### Later planned fields
+- **Budget and Ranking (Phase 3+)**: Fields such as `budget.maxTokens`, `budget.estimatedTokens`, and `budget.compliant` are planned for future phases when semantic search and strict capacity enforcement are added.
+
 ### Context-pack rules
 
-1. Hard configured budget must not be exceeded.
-2. The pack explains every selection and exclusion decision.
-3. Context packs are ephemeral by default — not permanently cached.
-4. Generated context is returned in memory/stdout or stored temporarily under Git-ignored runtime storage.
-5. Sensitive material is redacted before inclusion.
-6. No real secrets in context output.
+1. The pack explains every selection and exclusion decision.
+2. Context packs are ephemeral by default — not permanently cached.
+3. Generated context is returned in memory/stdout or stored temporarily under Git-ignored runtime storage.
+4. Sensitive material is redacted before inclusion.
+5. No real secrets appear in context output.
+6. Phase 3 adds a hard configured budget that must never be exceeded.
 
 ---
 
@@ -337,17 +375,27 @@ When the engine or an adapter proposes a memory update:
   "proposedBy": "<agent or process>",
   "authorityLevel": "<status the proposer claims>",
   "requiresOwnerApproval": true,
+  "reason": "<why this mutation is proposed>",
+  "supersededBy": "<replacement memory ID, optional for REVOKE>",
   "timestamp": "<ISO-8601 datetime>"
 }
 ```
 
-### Update rules
+### Implemented update rules
 
 1. Proposed status must not exceed the proposer's authority level.
 2. `OWNER_CONFIRMED` requires owner evidence — never automatic.
 3. Updates must preserve the superseded record and relationship.
 4. Destructive forgetting preserves safe audit metadata.
 5. The same authority rules apply regardless of interface (CLI, MCP, adapter).
+6. Updates use optimistic concurrency: a proposed record's `updatedAt` must match the canonical record before the engine assigns a new timestamp.
+7. `CREATE` rejects duplicate IDs; `UPDATE`, `REVOKE`, and `REDACT` reject missing IDs.
+8. Pre-update and pre-revoke states are archived. Raw content removed by `REDACT` is never archived.
+9. Owner-confirmed promotion is a two-step workflow: create a lower-authority record, attach stored owner-instruction evidence, then submit a promotion candidate referencing that evidence.
+10. A candidate's self-declared authority does not replace explicit supporting owner evidence.
+11. A lower-authority candidate cannot overwrite or revoke a higher-authority canonical record.
+12. Verified statuses must align with provenance (`REPO_VERIFIED` with repository state, `TEST_VERIFIED` with test results, and observations with observation sources).
+13. `REDACT` is the privacy-first exception to ordinary authority ordering; it removes raw content but cannot create new authority.
 
 ---
 
@@ -371,6 +419,11 @@ Each audit event is appended to the JSONL audit log.
   "engineVersion": "<version, if automated>"
 }
 ```
+
+### Phase 2 audit-event compatibility
+- New events include `evidenceExamined`.
+- The field remains optional during validation so existing Phase 1 history rows remain readable without destructive migration.
+- Audit batches are fully validated before one atomic history replacement, preventing partially written batches.
 
 ---
 

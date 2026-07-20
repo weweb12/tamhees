@@ -4,29 +4,40 @@
 
 This file records the project's current working position.
 
-Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log. Users are not responsible for manually updating routine state after every task — the system handles automatic state maintenance.
+Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
+
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Automatic lifecycle maintenance does not exist yet.
 
 ## Status summary
 
 - Project: Doubtful Memory
-- Current phase: Phase 0 — Specification realignment (completing)
+- Current phase: Phase 2 — Complete and locally verified; combined Phase 1–2 local checkpoint.
 - Overall status: In progress
-- Development environment: Windows, local only, Node 24
-- Development agent: Antigravity IDE with Claude Opus 4.6 Thinking
+- Development environment: Windows, local-only, Node 24.
+- Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest verified commit: `1c6bc6f` - `docs: establish Doubtful Memory project controls`
+- Latest verified checkpoint: Phase 2 local checkpoint
 - Git remote: None
+- Repository upload/publication: None
 - External services: None
 - Paid services: None
-- Application dependencies: Not installed
-- Application code: Not started
-- Packages installed: None
-- Last updated: 2026-07-15
+- Application dependencies: None (zero runtime dependencies)
+- Application code: Phase 2 engine core, CLI, strict validation, evidence storage, controlled mutations, archive handling, privacy guards, context safety, and full audit precedence implemented.
+- Packages:
+  - typescript@6.0.3
+  - @types/node@22.20.1
+  - zero runtime dependencies
+- CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
+- Current verified test evidence:
+  - 81 passed
+  - 0 failed
+  - 0 skipped
+- Last updated: 2026-07-21
 
 ## Current objective
 
-Complete Phase 0 specification realignment, then proceed to Phase 1 core vertical slice.
+Begin the accelerated Phases 3–4 milestone with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement.
 
 ## Completed work
 
@@ -50,10 +61,30 @@ Complete Phase 0 specification realignment, then proceed to Phase 1 core vertica
 - Phase 0: Added engine/CLI/adapter/benchmark requirements.
 - Phase 0: Appended 13 new risks (DM-RISK-013 through DM-RISK-025).
 - Phase 0: Updated memory claims and audit history.
+- Phase 1: Approved development dependencies installed.
+- Phase 1: Basic project structure established.
+- Phase 1: Implemented deterministic JSON validation engine.
+- Phase 1: Implemented fail-safe deterministic audit engine (DM-RULE-AUTH-001).
+- Phase 1: Implemented local JSON and JSONL atomic storage with deep path safety.
+- Phase 1: Implemented strict CLI argument parsing.
+- Phase 1: Created `gptbrain init`, `gptbrain context`, and `gptbrain audit` commands.
+- Phase 1: Comprehensive `node:test` regression suite independently verified at 51 passing tests.
+- Phase 1: `PROTOCOL_SPECIFICATION.md` updated to match canonical schema (DM-DEC-025).
+- Phase 2: Implemented controlled `CREATE`, `UPDATE`, `REVOKE`, and `REDACT` operations.
+- Phase 2: Implemented strict update-candidate and evidence-record validation.
+- Phase 2: Implemented evidence storage and retrieval under `.gptbrain/evidence/`.
+- Phase 2: Implemented optimistic concurrency and authority non-escalation for mutations.
+- Phase 2: Implemented pre-update/pre-revoke archive snapshots and privacy-safe redaction.
+- Phase 2: Implemented stable privacy, revocation, conflict, authority, freshness, evidence, and trust rule precedence.
+- Phase 2: Implemented evidence-aware audit events and atomic audit-batch replacement.
+- Phase 2: Added `memory` and `evidence` CLI operations.
+- Phase 2: Expanded verification to 81 passing tests with zero failures or skips.
+- Phase 2: Installed and locally verified the combined Phase 1–2 checkpoint with typecheck, build, 81 tests, archive-safety checks, and the temporary-directory CLI smoke workflow passing.
 
 ## Current files in focus
 
-- All project-control and specification documents.
+- The verified Phase 1–2 local checkpoint.
+- Phase 3 has not started; its next scope is retrieval, ranking, explanations, and budget enforcement.
 
 ## Locked constraints
 
@@ -80,10 +111,8 @@ Complete Phase 0 specification realignment, then proceed to Phase 1 core vertica
 - The official Doo challenge detail page remains unavailable.
 - Official judging criteria remain unverified.
 - Official submission requirements remain unverified.
-- Final package versions have not been selected (beyond typescript and @types/node).
 - The final visual direction has not been approved.
-- The final claim schema has not been approved (proposed in protocol specification).
-- Detailed audit decision rules have not been approved.
+- Phase 2 audit rules are implemented; benchmark validation and user feedback may still identify rule refinements.
 - The final public publishing method has not been selected or approved.
 
 ## Current blockers
@@ -104,26 +133,22 @@ The unavailable official challenge brief is a submission risk, but it does not p
 
 Detailed risks are maintained in `RISK_REGISTER.md`.
 
-## Definition of the current phase being complete
+## Phase 2 completion status
 
-Phase 0 (Specification realignment) is complete when:
+Phase 2 (Complete memory store and audit rules) is complete and locally verified. Its completion criteria were:
 
-- All documentation is internally consistent.
-- All specification files exist and reflect the approved architecture.
-- Superseded decisions are marked and replaced.
-- New decisions, requirements, risks, claims, and audit records are appended.
-- No document claims application functionality exists.
-- All IDs are unique within their namespace.
-- Cross-references resolve correctly.
-- The specification state passes owner review.
+- Controlled create, update, revoke, redact, and evidence operations work through the engine and CLI.
+- Index, archive, privacy, authority, and audit-history invariants pass automated tests.
+- Full Phase 2 audit precedence produces deterministic outcomes.
+- Documentation accurately reflects implemented behavior and limitations.
 
 ## Next phase
 
-Phase 1 — Core vertical slice.
+Accelerated Milestone 2: Phases 3–4 (budgeted retrieval plus automatic lifecycle).
 
 ## Next immediate action
 
-Dependency approval and implementation of the first tested gptbrain vertical slice: `gptbrain init`, one validated memory record, local store, context output, one deterministic audit, Node built-in tests.
+Begin Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement. Do not add an external service or runtime dependency, upload the repository, or configure a remote without explicit owner approval.
 
 ## Safe restart instructions
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "DM-EVIDENCE-EXAMPLE-001",
+  "type": "REPOSITORY_STATE",
+  "source": "package.json",
+  "content": "The project package metadata and source tree use TypeScript.",
+  "relationship": "SUPPORTS",
+  "memoryIds": [
+    "DM-MEM-EXAMPLE-001"
+  ],
+  "collectedAt": "2026-07-20T00:00:00.000Z",
+  "collectedBy": "example-agent",
+  "notes": "Example uses public, non-sensitive repository metadata."
+}

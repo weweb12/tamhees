@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "action": "CREATE",
+  "proposedRecord": {
+    "schemaVersion": "1.0.0",
+    "id": "DM-MEM-EXAMPLE-001",
+    "kind": "OBSERVATION",
+    "statement": "The project uses TypeScript for the local engine.",
+    "source": {
+      "type": "AGENT_OBSERVATION",
+      "reference": "package.json",
+      "agent": "example-agent"
+    },
+    "verificationStatus": "OBSERVED",
+    "confidence": "MEDIUM",
+    "freshness": {
+      "lastVerified": "2026-07-20T00:00:00.000Z"
+    },
+    "sensitivity": "PUBLIC",
+    "actionPermission": "ACT_WITH_CAUTION",
+    "relationships": {},
+    "tags": [
+      "typescript",
+      "engine"
+    ],
+    "recheckMethod": "Inspect package.json and the TypeScript source tree.",
+    "createdAt": "2026-07-20T00:00:00.000Z",
+    "updatedAt": "2026-07-20T00:00:00.000Z"
+  },
+  "evidence": [],
+  "proposedBy": "example-agent",
+  "authorityLevel": "OBSERVED",
+  "requiresOwnerApproval": false,
+  "reason": "Record a directly observed implementation fact.",
+  "timestamp": "2026-07-20T00:00:00.000Z"
+}

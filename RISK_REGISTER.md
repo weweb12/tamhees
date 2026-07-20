@@ -872,6 +872,17 @@ Restore from the latest commit. Review and correct the agent's behavior. Add str
 
 ---
 
+## Phase 2 risk review - 2026-07-20
+
+- `DM-RISK-003` remains OPEN. Rule IDs and precedence are now deterministic and tested, but benchmark and user validation are still required.
+- `DM-RISK-004` remains OPEN. Pre-persistence secret-like rejection and controlled redaction are tested, but pattern detection is intentionally incomplete.
+- `DM-RISK-015` remains OPEN with stronger controls. Optimistic concurrency, archive snapshots, rollback behavior, strict validation, index rebuilds, and audit events now protect controlled mutations; automatic Phase 4 finalization is not implemented.
+- `DM-RISK-016` remains OPEN with stronger controls. Phase 2 rejects tested authority escalation paths and requires stored owner evidence, but all future adapters must prove equivalent enforcement.
+- `DM-RISK-022` remains OPEN with reduced likelihood for single-process use. Every successful mutation rebuilds the derived index and failed index/audit commits roll back the canonical record. Multi-process locking remains unimplemented.
+- `DM-RISK-023` remains OPEN. CLI memory/evidence flows have integration tests and help text, but no independent user-usability test has occurred.
+- `DM-RISK-024` remains OPEN. DM-DEC-029 reduces handoff overhead by grouping remaining phases without removing mandatory gates.
+- No risk status was silently changed to CONTROLLED or CLOSED based only on the implementing agent's own report.
+
 ## Current risk summary
 
 ### Highest-priority open risks

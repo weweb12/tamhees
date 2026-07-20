@@ -40,7 +40,7 @@ The name "Doubtful Memory" reflects the core principle: the system treats its ow
 - Working subtitle: A Project Brain That Knows When It Might Be Wrong
 - Initial challenge: Doo — Memory That Knows It Might Be Wrong
 - Product category: Local-first project-memory auditing and safety tool for AI coding agents
-- Development status: Specification and bootstrap
+- Development status: Active local Version 1 implementation; engine and CLI first
 - Development location: Local Windows PC
 - Repository status: Local Git repository with no remote
 - Primary language: English
@@ -94,7 +94,7 @@ The system supports five primary outcomes:
 - `BLOCK_ACTION`: The requested action must not proceed under current evidence or permission.
 - `FORGET_OR_REDACT`: Sensitive or unnecessary information must not be retained in raw form.
 
-The exact decision rules will be defined and tested before implementation is considered complete.
+The canonical decision rules and precedence are documented in `docs/PROTOCOL_SPECIFICATION.md`, implemented in source, and must remain covered by deterministic tests. Benchmark and real-user validation may refine them only through controlled decisions.
 
 ## Initial demonstration scenarios
 
@@ -193,10 +193,10 @@ The current approved direction is:
 - Git for local version control.
 - No Git remote during development.
 
-Proposed initial development dependencies (not yet installed):
+Approved development dependencies (installed):
 
-- `typescript`
-- `@types/node`
+- `typescript@6.0.3`
+- `@types/node@22.20.1`
 
 No other dependencies are approved. Additional dependencies may be reconsidered only if a verified requirement cannot reasonably be met with the platform or existing approved dependencies.
 
@@ -391,14 +391,12 @@ When repository evidence contradicts this file:
 
 ## Current status
 
+Mutable implementation progress, current phase, next phase, active task, and development agent details are tracked in `PROJECT_STATE.md`.
+
 - Product direction: Approved
 - Local workspace: Created
 - Local Git repository: Initialized
 - Git remote: None
 - External services: None
 - Paid services: None
-- Application dependencies: Not installed
-- Application code: Not started
-- Current phase: Phase 0 — Specification realignment (completing)
-- Next phase: Phase 1 — Core vertical slice
-- Development agent: Antigravity IDE with Claude Opus 4.6 Thinking
+- Application dependencies: typescript@6.0.3, @types/node@22.20.1 (zero runtime dependencies)

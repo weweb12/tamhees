@@ -1,6 +1,6 @@
 # Doubtful Memory — Architecture
 
-> **Status**: This document describes the proposed architecture. None of the components described here are implemented unless explicitly stated otherwise.
+> **Status**: This document describes the overall architecture. Phase 2 engine, CLI, local storage, evidence, controlled mutations, archive handling, and audit precedence are implemented. Retrieval budgets, lifecycle automation, adapters, MCP, dashboard, and benchmarks remain planned.
 
 ## Overview
 
@@ -61,7 +61,8 @@ There is exactly one canonical representation of each memory record: its JSON fi
 ├── audits/
 │   └── history.jsonl     # Append-only audit event log
 ├── episodes/             # Session episode records
-├── archive/              # Superseded or revoked records
+├── archive/
+│   └── memories/<memory-id>/  # Immutable pre-update/revoke snapshots
 └── runtime/              # Ephemeral runtime data (Git-ignored)
 ```
 
@@ -69,7 +70,7 @@ There is exactly one canonical representation of each memory record: its JSON fi
 
 1. **One record per file**: Each memory has exactly one canonical JSON file.
 2. **Atomic writes**: All writes use temporary-file-plus-rename to prevent corruption.
-3. **JSONL for append-only logs**: Audit history uses JSONL for safe concurrent appending.
+3. **Logical append-only audit history**: New JSONL batches are validated in memory and committed by one atomic file replacement. Multi-process locking is not yet implemented.
 4. **Deterministic ordering**: Serialized output uses sorted keys for Git-friendly diffs.
 5. **Schema versioning**: Every stored artifact includes a `schemaVersion` field.
 6. **No database**: Version 1 uses filesystem storage only.
@@ -78,7 +79,7 @@ There is exactly one canonical representation of each memory record: its JSON fi
 
 ## Authority model
 
-The system distinguishes seven levels of verification status for memory records:
+The system distinguishes eight statuses for memory verification:
 
 | Status | Meaning | Can become TRUST? | Can authorize scope changes? |
 |--------|---------|-------------------|------------------------------|
@@ -89,6 +90,7 @@ The system distinguishes seven levels of verification status for memory records:
 | `INFERRED` | Agent-generated inference | Only with additional evidence | No |
 | `UNKNOWN` | No evidence available | No | No |
 | `CONFLICTED` | Contradictory evidence exists | No | No |
+| `REVOKED` | Explicitly revoked or superseded | No | No |
 
 ### Authority rules
 
@@ -105,34 +107,35 @@ The system distinguishes seven levels of verification status for memory records:
 
 ### Revocation
 
-A `REVOKED` status prevents the record from authorizing any action. The revoked record is preserved in archive with a reference to its replacement. Audit metadata about the revocation is retained but the raw content of redacted records is not.
+A `REVOKED` status prevents the record from authorizing any action. The pre-revocation state is preserved in archive and the canonical record becomes a revoked tombstone. Audit metadata is retained. A `REDACT` operation is deliberately different: prohibited raw content is not copied into archive.
 
 ## Context compiler
 
 The context compiler assembles task-specific memory context packs for agent consumption.
 
-### Behavior (proposed)
+### Implemented Phase 2 behavior
 
 1. Accept a task description or query.
-2. Retrieve relevant memories ranked by relevance, freshness, and authority.
-3. Apply the configured budget limit (hard cap on context size).
+2. Retrieve relevant memories through deterministic lexical/tag matching.
+3. Apply the full audit precedence chain before serving memory.
 4. Include selection explanations: why each memory was selected, excluded, expired, conflicted, or demoted.
 5. Redact sensitive content before output.
 6. Return the context pack to the caller (stdout, memory, or temporary runtime file).
 
-### Invariants
+### Current invariants
 
-- Context packs have a hard configured budget.
 - Context packs are ephemeral by default — not permanently cached.
 - Generated context may be stored temporarily under Git-ignored `runtime/` only when necessary.
 - Runtime-generated sensitive context must never be committed.
 - The system explains selected, excluded, expired, conflicted, and demoted records.
 
+Hard budget enforcement and authority/freshness ranking remain Phase 3 work.
+
 ## Audit engine
 
 The audit engine evaluates memory records against deterministic rules.
 
-### Behavior (proposed)
+### Implemented Phase 2 behavior
 
 1. Accept a memory record and available evidence.
 2. Apply audit rules in defined precedence order.
@@ -152,16 +155,18 @@ The audit engine evaluates memory records against deterministic rules.
 
 The CLI is the primary human interface to the engine.
 
-### Proposed commands
+### Implemented commands
 
 | Command | Purpose |
 |---------|---------|
 | `gptbrain init` | Initialize `.gptbrain/` in the current project |
-| `gptbrain add` | Add a new memory record |
+| `gptbrain memory list` | List canonical memory records |
+| `gptbrain memory show <id>` | Show one canonical memory record |
+| `gptbrain memory apply --input <file>` | Apply a validated create, update, revoke, or redact candidate |
+| `gptbrain evidence list` | List evidence records |
+| `gptbrain evidence add --input <file>` | Add a validated evidence record |
 | `gptbrain audit` | Run audit on specified or all memories |
 | `gptbrain context` | Compile a task-specific context pack |
-| `gptbrain status` | Show current project memory status |
-| `gptbrain migrate` | Migrate from bootstrap Markdown memory |
 
 ### Invariants
 
@@ -266,7 +271,7 @@ The system maintains project memory state automatically. Users do not manually u
 
 ## Migration from bootstrap Markdown
 
-The current bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDIT.md`. These files will be migrated to `.gptbrain/` JSON format during Phase 1.
+The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDIT.md`. Migration to `.gptbrain/` JSON remains planned for the controlled lifecycle milestone. The Markdown sources will be preserved.
 
 ### Migration invariants
 

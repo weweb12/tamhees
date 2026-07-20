@@ -1,0 +1,478 @@
+#!/usr/bin/env node
+
+/**
+ * Doubtful Memory — gptbrain CLI
+ *
+ * The primary human interface to the engine.
+ *
+ * Exit codes:
+ *   0  Success
+ *   1  Operational or validation failure
+ *   2  Invalid usage
+ *
+ * No telemetry. No network access.
+ */
+
+import { resolve } from 'node:path';
+import { lstat, readFile } from 'node:fs/promises';
+import { systemClock } from './core/types.js';
+import { PRODUCT_NAME, CLI_NAME, STORAGE_DIR, ENGINE_VERSION } from './core/identity.js';
+import { initGptbrain, loadAllRecords } from './core/store.js';
+import {
+  compileContext,
+  formatContextAsJson,
+  formatContextAsMarkdown,
+} from './core/context.js';
+import {
+  runAudit,
+  writeAuditEvents,
+  formatAuditResult,
+} from './core/audit.js';
+import { loadAllEvidence, storeEvidenceRecord } from './core/evidence.js';
+import { applyUpdateCandidate } from './core/mutations.js';
+import { memoryForOutput } from './core/privacy.js';
+
+// ─── Argument parsing ───────────────────────────────────────
+
+const args = process.argv.slice(2);
+const command = args[0];
+const MAX_JSON_INPUT_BYTES = 1024 * 1024;
+
+function parseArgs(
+  allowedOptions: string[],
+  maxPositional: number,
+  startIndex = 1,
+): { options: Record<string, string>; positional: string[] } {
+  const options: Record<string, string> = {};
+  const positional: string[] = [];
+
+  for (let i = startIndex; i < args.length; i++) {
+    const arg = args[i]!;
+    if (arg === '--help' || arg === '--version') continue; // Handled globally/early
+
+    if (arg.startsWith('--')) {
+      if (!allowedOptions.includes(arg)) {
+        console.error(`Unknown option: ${arg}`);
+        console.error(`Run ${CLI_NAME} ${command} --help for usage.`);
+        process.exit(2);
+      }
+      if (options[arg] !== undefined) {
+        console.error(`Duplicate option: ${arg}`);
+        process.exit(2);
+      }
+      if (i + 1 >= args.length || args[i + 1]!.startsWith('--')) {
+        console.error(`Missing value for option: ${arg}`);
+        process.exit(2);
+      }
+      options[arg] = args[i + 1]!;
+      i++; // Skip the value
+    } else {
+      positional.push(arg);
+    }
+  }
+
+  if (positional.length > maxPositional) {
+    console.error(`Unexpected positional argument: ${positional[maxPositional]}`);
+    console.error(`Run ${CLI_NAME} ${command} --help for usage.`);
+    process.exit(2);
+  }
+
+  return { options, positional };
+}
+
+// ─── Help text ──────────────────────────────────────────────
+
+const MAIN_HELP = `${CLI_NAME} v${ENGINE_VERSION} — ${PRODUCT_NAME}: A project brain that knows when it might be wrong
+
+Usage: ${CLI_NAME} <command> [options]
+
+Commands:
+  init                Initialize ${STORAGE_DIR}/ in a project directory
+  memory              List, show, or apply controlled memory updates
+  evidence            List or add evidence records
+  context             Compile task-specific memory context
+  audit               Run audit on all memory records
+
+Options:
+  --help              Show this help
+  --version           Show version
+
+Run '${CLI_NAME} <command> --help' for command-specific help.
+
+No telemetry. No network access. Local-only operation.`;
+
+const INIT_HELP = `${CLI_NAME} init — Initialize ${STORAGE_DIR}/ storage
+
+Usage: ${CLI_NAME} init [directory]
+
+Arguments:
+  directory           Project directory to initialize (default: current directory)
+
+Behavior:
+  - Creates ${STORAGE_DIR}/ directory structure
+  - Creates one bootstrap memory record (non-authoritative)
+  - Is idempotent: running again does not destroy existing data
+  - Never overwrites valid existing data
+  - Stops with error if existing data is malformed
+
+Exit codes:
+  0  Success
+  1  Initialization failed
+  2  Invalid usage`;
+
+const CONTEXT_HELP = `${CLI_NAME} context — Compile task-specific memory context
+
+Usage: ${CLI_NAME} context --task "<description>" [options]
+
+Options:
+  --task <text>       Task description (required)
+  --format <type>     Output format: json or markdown (default: json)
+
+Behavior:
+  - Loads and validates canonical memory records
+  - Selects relevant records using audit-aware lexical/tag matching
+  - Excludes SECRET and FORGET_OR_REDACT content
+  - Does NOT persist the generated context pack
+  - Does NOT write task text into project memory
+
+Exit codes:
+  0  Success
+  1  Operational failure
+  2  Invalid usage`;
+
+const AUDIT_HELP = `${CLI_NAME} audit — Run audit on all memory records
+
+Usage: ${CLI_NAME} audit
+
+Behavior:
+  - Loads and validates all canonical records
+  - Applies implemented audit rules
+  - Appends privacy-safe audit events to ${STORAGE_DIR}/audits/history.jsonl
+  - Reports overall outcome and individual findings
+
+Exit codes:
+  0  All audited records satisfy TRUST conditions
+  1  Audit returned RECHECK, ASK_OWNER, BLOCK_ACTION, or FORGET_OR_REDACT
+  2  Invalid usage`;
+
+const MEMORY_HELP = `${CLI_NAME} memory — Controlled memory operations
+
+Usage:
+  ${CLI_NAME} memory list
+  ${CLI_NAME} memory show <memory-id>
+  ${CLI_NAME} memory apply --input <candidate.json>
+
+The input for apply follows the update-candidate contract in
+docs/PROTOCOL_SPECIFICATION.md and supports CREATE, UPDATE, REVOKE, or REDACT.
+All mutations validate authority, evidence, schema, privacy, archive behavior,
+audit history, and index consistency before reporting success.`;
+
+const EVIDENCE_HELP = `${CLI_NAME} evidence — Evidence record operations
+
+Usage:
+  ${CLI_NAME} evidence list
+  ${CLI_NAME} evidence add --input <evidence.json>
+
+Evidence is stored locally under ${STORAGE_DIR}/evidence/ after schema,
+reference, path, and secret-like-content validation.`;
+
+// ─── Main dispatch ──────────────────────────────────────────
+
+async function main(): Promise<void> {
+  if (args.includes('--version')) {
+    console.log(`${CLI_NAME} v${ENGINE_VERSION}`);
+    process.exit(0);
+  }
+
+  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit'].includes(command))) {
+    console.log(MAIN_HELP);
+    process.exit(0);
+  }
+
+  switch (command) {
+    case 'init':
+      await handleInit();
+      break;
+    case 'context':
+      await handleContext();
+      break;
+    case 'audit':
+      await handleAudit();
+      break;
+    case 'memory':
+      await handleMemory();
+      break;
+    case 'evidence':
+      await handleEvidence();
+      break;
+    default:
+      console.error(`Unknown command: ${command}`);
+      console.error(`Run ${CLI_NAME} --help for available commands.`);
+      process.exit(2);
+  }
+}
+
+// ─── Init handler ───────────────────────────────────────────
+
+async function handleInit(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(INIT_HELP);
+    process.exit(0);
+  }
+
+  const { positional } = parseArgs([], 1);
+  const targetDir = positional[0] ? resolve(positional[0]) : process.cwd();
+
+  console.log(`Initializing ${STORAGE_DIR}/ in ${targetDir}`);
+  console.log('');
+
+  const result = await initGptbrain(targetDir, systemClock);
+
+  if (result.created.length > 0) {
+    console.log('Created:');
+    for (const file of result.created) {
+      console.log(`  + ${file}`);
+    }
+  }
+
+  if (result.existing.length > 0) {
+    console.log('Already exists (preserved):');
+    for (const file of result.existing) {
+      console.log(`  = ${file}`);
+    }
+  }
+
+  if (result.bootstrapMemoryId) {
+    console.log('');
+    console.log(`Bootstrap memory: ${result.bootstrapMemoryId}`);
+  }
+
+  if (!result.success) {
+    console.error('');
+    console.error('Errors:');
+    for (const error of result.errors) {
+      console.error(`  ! ${error}`);
+    }
+    process.exit(1);
+  }
+
+  console.log('');
+  console.log('Initialization complete.');
+  process.exit(0);
+}
+
+// ─── Context handler ────────────────────────────────────────
+
+async function handleContext(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(CONTEXT_HELP);
+    process.exit(0);
+  }
+
+  const { options } = parseArgs(['--task', '--format'], 0);
+
+  const task = options['--task'];
+  if (!task) {
+    console.error('Missing required option: --task');
+    console.error(`Usage: ${CLI_NAME} context --task "<description>"`);
+    process.exit(2);
+  }
+
+  const format = options['--format'] || 'json';
+  if (format !== 'json' && format !== 'markdown') {
+    console.error(`Unknown format: ${format}. Use json or markdown.`);
+    process.exit(2);
+  }
+
+  const projectDir = process.cwd();
+  const { records, errors } = await loadAllRecords(projectDir);
+
+  if (errors.length > 0) {
+    for (const error of errors) {
+      console.error(`Error: ${error}`);
+    }
+    process.exit(1);
+  }
+
+  const evidenceResult = await loadAllEvidence(projectDir);
+  if (evidenceResult.errors.length > 0) {
+    for (const error of evidenceResult.errors) console.error(`Error: ${error}`);
+    process.exit(1);
+  }
+
+  const pack = compileContext(task, records, systemClock, evidenceResult.evidence);
+
+  if (format === 'markdown') {
+    console.log(formatContextAsMarkdown(pack));
+  } else {
+    console.log(formatContextAsJson(pack));
+  }
+
+  process.exit(0);
+}
+
+// ─── Audit handler ──────────────────────────────────────────
+
+async function handleAudit(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(AUDIT_HELP);
+    process.exit(0);
+  }
+
+  parseArgs([], 0); // No options or positional args allowed
+
+  const projectDir = process.cwd();
+  const { records, errors } = await loadAllRecords(projectDir);
+
+  if (errors.length > 0) {
+    for (const error of errors) {
+      console.error(`Error: ${error}`);
+    }
+    process.exit(1);
+  }
+
+  if (records.length === 0) {
+    console.log(`No memory records found. Run ${CLI_NAME} init first.`);
+    process.exit(0);
+  }
+
+  const evidenceResult = await loadAllEvidence(projectDir);
+  if (evidenceResult.errors.length > 0) {
+    for (const error of evidenceResult.errors) console.error(`Error: ${error}`);
+    process.exit(1);
+  }
+
+  const result = runAudit(records, systemClock, evidenceResult.evidence);
+
+  const formattedResult = formatAuditResult(result);
+  console.log(formattedResult);
+
+  // Write audit events to JSONL
+  try {
+    await writeAuditEvents(projectDir, result, records, systemClock, evidenceResult.evidence);
+  } catch (err: unknown) {
+    console.error(`Error writing audit events: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
+
+  // Exit code based on overall outcome
+  const exitCode = result.overallOutcome === 'TRUST' ? 0 : 1;
+  process.exit(exitCode);
+}
+
+// ─── Memory operations ─────────────────────────────────────
+
+async function handleMemory(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(MEMORY_HELP);
+    process.exit(0);
+  }
+  const subcommand = args[1];
+  if (subcommand === 'list') {
+    parseArgs([], 0, 2);
+    const loaded = await loadAllRecords(process.cwd());
+    if (loaded.errors.length > 0) return exitWithErrors(loaded.errors);
+    console.log(JSON.stringify(loaded.records.map(memoryForOutput), null, 2));
+    process.exit(0);
+  }
+  if (subcommand === 'show') {
+    const { positional } = parseArgs([], 1, 2);
+    const memoryId = positional[0];
+    if (!memoryId) return usageError(`Usage: ${CLI_NAME} memory show <memory-id>`);
+    const loaded = await loadAllRecords(process.cwd());
+    if (loaded.errors.length > 0) return exitWithErrors(loaded.errors);
+    const record = loaded.records.find((item) => item.id === memoryId);
+    if (!record) {
+      console.error(`Memory not found: ${memoryId}`);
+      process.exit(1);
+    }
+    console.log(JSON.stringify(memoryForOutput(record), null, 2));
+    process.exit(0);
+  }
+  if (subcommand === 'apply') {
+    const { options } = parseArgs(['--input'], 0, 2);
+    const inputPath = options['--input'];
+    if (!inputPath) return usageError(`Usage: ${CLI_NAME} memory apply --input <candidate.json>`);
+    let parsed: unknown;
+    try {
+      parsed = await readJsonInput(inputPath);
+    } catch {
+      console.error('Cannot read update candidate. Use a regular UTF-8 JSON file no larger than 1 MiB. Raw input was not echoed.');
+      process.exit(1);
+    }
+    const result = await applyUpdateCandidate(process.cwd(), parsed, systemClock);
+    if (!result.success) {
+      for (const item of result.errors) console.error(`Error [${item.code}] ${item.field || 'candidate'}: ${item.message}`);
+      process.exit(1);
+    }
+    console.log(JSON.stringify({ ...result, record: result.record ? memoryForOutput(result.record) : null }, null, 2));
+    process.exit(0);
+  }
+  usageError(`Unknown memory operation: ${subcommand ?? '<missing>'}. Run ${CLI_NAME} memory --help.`);
+}
+
+// ─── Evidence operations ───────────────────────────────────
+
+async function handleEvidence(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(EVIDENCE_HELP);
+    process.exit(0);
+  }
+  const subcommand = args[1];
+  if (subcommand === 'list') {
+    parseArgs([], 0, 2);
+    const loaded = await loadAllEvidence(process.cwd());
+    if (loaded.errors.length > 0) return exitWithErrors(loaded.errors);
+    console.log(JSON.stringify(loaded.evidence, null, 2));
+    process.exit(0);
+  }
+  if (subcommand === 'add') {
+    const { options } = parseArgs(['--input'], 0, 2);
+    const inputPath = options['--input'];
+    if (!inputPath) return usageError(`Usage: ${CLI_NAME} evidence add --input <evidence.json>`);
+    let parsed: unknown;
+    try {
+      parsed = await readJsonInput(inputPath);
+    } catch {
+      console.error('Cannot read evidence input. Use a regular UTF-8 JSON file no larger than 1 MiB. Raw input was not echoed.');
+      process.exit(1);
+    }
+    const result = await storeEvidenceRecord(process.cwd(), parsed);
+    if (!result.success) {
+      for (const item of result.errors) console.error(`Error [${item.code}] ${item.field || 'evidence'}: ${item.message}`);
+      process.exit(1);
+    }
+    console.log(JSON.stringify(result.record, null, 2));
+    process.exit(0);
+  }
+  usageError(`Unknown evidence operation: ${subcommand ?? '<missing>'}. Run ${CLI_NAME} evidence --help.`);
+}
+
+function exitWithErrors(errors: readonly string[]): never {
+  for (const error of errors) console.error(`Error: ${error}`);
+  process.exit(1);
+}
+
+function usageError(message: string): never {
+  console.error(message);
+  process.exit(2);
+}
+
+async function readJsonInput(inputPath: string): Promise<unknown> {
+  const path = resolve(inputPath);
+  const info = await lstat(path);
+  if (info.isSymbolicLink() || !info.isFile()) {
+    throw new Error('Input must be a regular file, not a symbolic link or directory.');
+  }
+  if (info.size > MAX_JSON_INPUT_BYTES) {
+    throw new Error(`Input exceeds the ${MAX_JSON_INPUT_BYTES}-byte safety limit.`);
+  }
+  return JSON.parse(await readFile(path, 'utf-8')) as unknown;
+}
+
+// ─── Entry point ────────────────────────────────────────────
+
+main().catch((err: unknown) => {
+  console.error(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
+  process.exit(1);
+});

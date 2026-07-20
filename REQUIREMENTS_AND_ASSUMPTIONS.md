@@ -30,8 +30,8 @@ An assumption must never silently become a requirement or fact.
 ## DM-REQ-ENGINE-001 - gptbrain CLI
 
 - Priority: MUST
-- Status: NOT_STARTED
-- Related decision: DM-DEC-014
+- Status: IMPLEMENTED
+- Related decision: DM-DEC-026
 
 The `gptbrain` CLI must be the primary human interface to the engine.
 
@@ -49,7 +49,7 @@ The `gptbrain` CLI must be the primary human interface to the engine.
 ## DM-REQ-ENGINE-002 - .gptbrain initialization
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-017
 
 The `gptbrain init` command must create the `.gptbrain/` directory structure.
@@ -67,7 +67,7 @@ The `gptbrain init` command must create the `.gptbrain/` directory structure.
 ## DM-REQ-ENGINE-003 - Atomic JSON memory storage
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Related decision: DM-DEC-017
 
 Each canonical memory must be stored as one atomic JSON file.
@@ -86,7 +86,7 @@ Each canonical memory must be stored as one atomic JSON file.
 ## DM-REQ-ENGINE-004 - Schema versioning and migration
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Related decision: DM-DEC-017
 
 Every stored artifact must include a schema version, and the engine must handle version differences.
@@ -105,7 +105,7 @@ Every stored artifact must include a schema version, and the engine must handle 
 ## DM-REQ-ENGINE-005 - Automatic pre-task retrieval
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Related decision: DM-DEC-013
 
 Before a task begins, the system must automatically retrieve relevant context.
@@ -159,7 +159,7 @@ Context packs must have a hard configured budget that is never exceeded.
 ## DM-REQ-ENGINE-008 - Selection and exclusion explanations
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Related decision: DM-DEC-021
 
 The context compiler must explain every selection and exclusion decision.
@@ -176,7 +176,7 @@ The context compiler must explain every selection and exclusion decision.
 ## DM-REQ-ENGINE-009 - Authority non-escalation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Related decision: DM-DEC-020
 
 The system must prevent automatic escalation of authority levels.
@@ -195,7 +195,7 @@ The system must prevent automatic escalation of authority levels.
 ## DM-REQ-ENGINE-010 - Candidate-memory validation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-020
 
 Proposed memory updates must be validated before acceptance.
@@ -213,7 +213,7 @@ Proposed memory updates must be validated before acceptance.
 ## DM-REQ-ENGINE-011 - Ephemeral context packs
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-021
 
 Generated context packs must be ephemeral by default.
@@ -390,7 +390,7 @@ The benchmark must include comparison against the original single-file GPTBrain.
 ## DM-REQ-CLAIM-001 - Stable claim identifier
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every memory claim must have a unique, stable identifier.
 
@@ -405,7 +405,7 @@ Every memory claim must have a unique, stable identifier.
 ## DM-REQ-CLAIM-002 - Claim statement
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every memory claim must contain a plain-language statement describing what is believed.
 
@@ -420,7 +420,7 @@ Every memory claim must contain a plain-language statement describing what is be
 ## DM-REQ-CLAIM-003 - Provenance and source
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 Every claim must identify where it came from.
 
@@ -435,7 +435,7 @@ Every claim must identify where it came from.
 ## DM-REQ-CLAIM-004 - Verification status
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every claim must have a controlled verification status.
 
@@ -462,7 +462,7 @@ Status values:
 ## DM-REQ-CLAIM-005 - Confidence
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 Every claim must contain a controlled confidence value.
 
@@ -480,7 +480,7 @@ Values: `HIGH`, `MEDIUM`, `LOW`.
 ## DM-REQ-CLAIM-006 - Freshness
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Claims must support a last-verification time and an optional review or expiration rule.
 
@@ -496,7 +496,7 @@ Claims must support a last-verification time and an optional review or expiratio
 ## DM-REQ-CLAIM-007 - Sensitivity
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Claims must include a sensitivity classification.
 
@@ -512,7 +512,7 @@ Claims must include a sensitivity classification.
 ## DM-REQ-CLAIM-008 - Permission to act
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every claim must state whether and how an agent may act based on it.
 
@@ -528,7 +528,7 @@ Every claim must state whether and how an agent may act based on it.
 ## DM-REQ-CLAIM-009 - Recheck method
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 A claim that may require verification should provide a practical recheck method.
 
@@ -545,7 +545,7 @@ A claim that may require verification should provide a practical recheck method.
 ## DM-REQ-AUDIT-001 - Five primary outcomes
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The engine must produce one primary outcome: `TRUST`, `RECHECK`, `ASK_OWNER`, `BLOCK_ACTION`, or `FORGET_OR_REDACT`.
 
@@ -561,7 +561,7 @@ The engine must produce one primary outcome: `TRUST`, `RECHECK`, `ASK_OWNER`, `B
 ## DM-REQ-AUDIT-002 - Evidence comparison
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The engine must compare remembered claims with relevant current evidence.
 
@@ -577,7 +577,7 @@ The engine must compare remembered claims with relevant current evidence.
 ## DM-REQ-AUDIT-003 - Explainable decisions
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every audit must explain why its outcome was selected.
 
@@ -597,7 +597,7 @@ The result includes:
 ## DM-REQ-AUDIT-004 - Deterministic behavior
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The core audit engine must be deterministic and independent from a hosted AI model.
 
@@ -613,7 +613,7 @@ The core audit engine must be deterministic and independent from a hosted AI mod
 ## DM-REQ-AUDIT-005 - Conflict safety
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 A material unresolved conflict must prevent `TRUST`.
 
@@ -629,7 +629,7 @@ A material unresolved conflict must prevent `TRUST`.
 ## DM-REQ-AUDIT-006 - Revocation safety
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 A revoked claim must not authorize action.
 
@@ -644,7 +644,7 @@ A revoked claim must not authorize action.
 ## DM-REQ-AUDIT-007 - Privacy-safe handling
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Secret-like or unnecessarily sensitive raw content must not be preserved in audit output, logs, exports, or persistent storage.
 
@@ -660,7 +660,7 @@ Secret-like or unnecessarily sensitive raw content must not be preserved in audi
 ## DM-REQ-AUDIT-008 - Rule traceability
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every audit rule must have a stable identifier and a human-readable description.
 
@@ -854,7 +854,7 @@ The dashboard opening must explain that project memory can be inaccurate, invasi
 ## DM-REQ-PROD-002 - Working interactive audit
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The application must execute a real audit using structured claim and evidence data.
 
@@ -870,7 +870,7 @@ The application must execute a real audit using structured claim and evidence da
 ## DM-REQ-PROD-003 - Multiple representative scenarios
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The application must include scenarios covering:
 
@@ -909,7 +909,7 @@ The application must be understandable and useful without knowledge of the Doo c
 ## DM-REQ-TECH-001 - Local operation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The core application must run locally without a backend, account, cloud database, or hosted model.
 
@@ -924,7 +924,7 @@ The core application must run locally without a backend, account, cloud database
 ## DM-REQ-TECH-002 - Type safety
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The application and audit engine must use TypeScript types for the claim schema, evidence, rules, findings, permissions, and outcomes.
 
@@ -939,7 +939,7 @@ The application and audit engine must use TypeScript types for the claim schema,
 ## DM-REQ-TECH-003 - Automated tests
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 Critical audit behavior must have automated tests.
 
@@ -983,7 +983,7 @@ The final Version 1 project must produce verified release artifacts.
 ## DM-REQ-TECH-005 - Controlled dependencies
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Every direct dependency must have a documented purpose and must not require a paid or hosted service for core operation.
 
@@ -1003,7 +1003,7 @@ Every direct dependency must have a documented purpose and must not require a pa
 ## DM-REQ-DOC-001 - Setup documentation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 A new user must be able to install and run the project locally using documented commands.
 
@@ -1020,7 +1020,7 @@ A new user must be able to install and run the project locally using documented 
 ## DM-REQ-DOC-002 - Architecture and protocol documentation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 Documentation must explain the system architecture, claim schema, audit rules, outcome priority, privacy behavior, and limitations.
 
@@ -1054,7 +1054,7 @@ Documentation must provide a short reproducible path through the primary contrad
 ## DM-REQ-QUAL-001 - No knowingly fake functionality
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 Controls and displayed results must represent real implemented behavior.
 
@@ -1070,7 +1070,7 @@ Controls and displayed results must represent real implemented behavior.
 ## DM-REQ-QUAL-002 - Cross-artifact consistency
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The application, tests, protocol, README, and submission description must not contradict one another.
 
@@ -1197,7 +1197,8 @@ If a requirement changes:
 
 - Total requirements defined: 60
 - Requirements verified: 0
-- Requirements in progress: 0
-- Requirements not started: 60
+- Requirements implemented: 21
+- Requirements in progress: 15
+- Requirements not started: 24
 - Assumptions recorded: 7
 - Assumptions fully verified: 0

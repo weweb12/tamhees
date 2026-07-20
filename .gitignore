@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# Coverage
+coverage/
+
+# npm debug logs
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ephemeral runtime data
+.gptbrain/runtime/
+
+# Atomic-write temporary files
+.gptbrain/**/*.tmp
+.gptbrain/**/*.temp

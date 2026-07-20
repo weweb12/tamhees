@@ -434,3 +434,167 @@ The Phase 0 specification realignment is consistent with the owner-approved corr
 Local development may proceed to Phase 1 (core vertical slice) following owner approval of the specification state.
 
 No external connection, cost-bearing service, or publication action is authorized.
+
+---
+
+# Audit DM-AUDIT-2026-07-19-001
+
+## Audit metadata
+
+- Date: 2026-07-19
+- Audit type: Manual bootstrap audit — Phase 1 checkpoint
+- Scope: DM-CLAIM-018 through DM-CLAIM-020, and Phase 1 completion state
+- Auditor: Project development process (manual)
+- Engine version: Not implemented for automated documentation scans
+- Repository state: Phase 1 implemented, pending final commit
+- Overall result: TRUST (with conditions)
+
+## Overall explanation
+
+Phase 1 (Core vertical slice) is implementation complete. The new claims accurately reflect the state of the codebase, which now contains a working CLI, memory engine, path-safety constraints, and core protocol types.
+
+**The production audit engine is partially implemented** but cannot automatically audit this Markdown file yet. This remains a manual bootstrap audit.
+
+## Claim findings
+
+### DM-CLAIM-018 - Temporary codename
+
+- Outcome: TRUST
+- Evidence: `src/core/identity.ts` centralizes `gptbrain`.
+- Finding: Confirmed. The codebase successfully avoids string-literal scattering for the temporary codenames.
+
+### DM-CLAIM-019 - Phase 1 approved dependencies
+
+- Outcome: TRUST
+- Evidence: `package.json` and DM-DEC-027.
+- Finding: Confirmed. Only `typescript` and `@types/node` are present. Zero runtime dependencies are preserved.
+
+### DM-CLAIM-020 - Phase 1 completion
+
+- Outcome: TRUST
+- Evidence: `src/` files and `test/` regression tests.
+- Finding: Confirmed. Phase 1 mechanisms are functional and all tests pass.
+
+## Privacy review
+
+- Real passwords detected: 0
+- Real API keys detected: 0
+- Access tokens detected: 0
+- Private cryptographic keys detected: 0
+- Payment information detected: 0
+
+### Privacy result
+
+No sensitive raw content was detected. The path safety gap has been closed comprehensively.
+
+## Audit conclusion
+
+The Phase 1 baseline is verified. The repository is ready for the owner's final manual inspection and the Phase 1 checkpoint commit. No new commands, external connections, or untested features may be introduced before the commit.
+
+---
+
+# Audit DM-AUDIT-2026-07-20-001
+
+## Audit metadata
+
+- Date: 2026-07-20
+- Audit type: Manual bootstrap audit — Corrective Phase 1 checkpoint
+- Scope: DM-AUDIT-2026-07-19-001 and Phase 1 completion state
+- Auditor: Project development process (manual)
+- Engine version: Not implemented for automated documentation scans
+- Repository state: Phase 1 implementation candidate
+- Overall result: RECHECK
+
+## Overall explanation
+
+This audit corrects the premature claims in DM-AUDIT-2026-07-19-001. The earlier audit was based on incomplete and inaccurate verification evidence. Repository tests support the implementation candidate, but final owner verification and commit remain pending.
+
+## Verification evidence
+
+- `npm ci` passed
+- `npm ls --all` confirmed the approved dependency tree
+- type-check passed
+- build passed
+- 51 tests passed
+- 0 failed
+- 0 skipped
+- DM-RULE-AUTH-001 passed its named regression test
+- malformed history is rejected and preserved
+- record/index/audit-history symlink targets remain byte-for-byte unchanged
+- healthy Phase 1 baseline returns RECHECK
+- no external service or runtime network dependency exists
+
+## Authority distinction
+
+This audit distinguishes TEST_VERIFIED repository behavior from OWNER_CONFIRMED authority. Do not give TRUST until owner approval.
+
+## Audit conclusion
+
+Phase 2 remains blocked until Phase 1 is committed.
+
+---
+
+# Audit DM-AUDIT-2026-07-20-002
+
+## Audit metadata
+
+- Date: 2026-07-20
+- Audit type: Phase 2 implementation and accelerated-delivery audit
+- Scope: DM-CLAIM-020 through DM-CLAIM-022; Phase 2 source, tests, protocol, and CLI
+- Auditor: Codex independent implementation/review process
+- Engine version: 0.2.0 candidate
+- Overall result: RECHECK
+
+## Overall explanation
+
+The Phase 1 implementation was independently re-run before extension: 51 tests passed with zero failures. Phase 2 then added controlled memory mutations, evidence storage, archive behavior, privacy guards, complete audit precedence, and CLI operations. The expanded suite passed 81 tests with zero failures and zero skipped tests under strict TypeScript settings.
+
+The implementation evidence supports the Phase 2 capability claim. The overall project result remains `RECHECK` only because the returned handoff has not yet been installed and committed in the owner's local Git repository.
+
+## Claim findings
+
+### DM-CLAIM-020 - Phase 1 progress claim
+
+- Outcome: BLOCK_ACTION
+- Finding: The progress wording is superseded by DM-CLAIM-021 and must not be used as the current project state.
+- Evidence checked: Phase 2 source tree and 81-test verification output.
+- Required action: Preserve as historical Phase 1 evidence; use DM-CLAIM-021 for current capability.
+
+### DM-CLAIM-021 - Phase 2 verified capability
+
+- Outcome: TRUST
+- Finding: Source inspection, strict type checking, build output, and 81 automated tests support the stated implementation boundary.
+- Evidence checked: `src/core/`, `src/cli.ts`, `test/`, package metadata, and `npm run verify`.
+- Permission consequence: Local owner installation and checkpoint preparation may proceed.
+- Required action: Re-run `npm ci` and `npm run verify` after replacing the owner's local files.
+
+### DM-CLAIM-022 - Accelerated milestone delivery
+
+- Outcome: TRUST
+- Finding: The claim reflects the owner's explicit request to finish quickly without sacrificing quality and is recorded in DM-DEC-029.
+- Permission consequence: Work may proceed in grouped milestones; mandatory deliverables may not be silently removed.
+- Required action: Obtain a separate owner decision before deferring any mandatory Version 1 deliverable.
+
+## Implementation evidence
+
+- TypeScript strict type check: PASS.
+- Production compilation: PASS.
+- Automated tests: 81 passed, 0 failed, 0 skipped, 0 todo.
+- Runtime dependencies: 0.
+- New external services or accounts: 0.
+- Runtime network imports: 0 detected.
+- Real secrets intentionally used in tests: 0; only obviously fake pattern fixtures were used.
+- Controlled redaction test: PASS; raw fake value absent from records, archive, and audit history after redaction.
+- Authority escalation test: PASS; failed mutation preserved index and audit history byte-for-byte.
+
+## Known limitations
+
+- Retrieval budget, token estimation, and authority/freshness ranking remain Phase 3.
+- Automatic pre-task/post-task lifecycle remains Phase 4.
+- Multi-process filesystem locking is not implemented; Phase 2 provides atomic single-process file and audit-batch replacement.
+- Pattern-based secret detection cannot prove content is safe and may require future refinement.
+- Owner evidence is a local trust workflow, not cryptographically signed identity proof.
+
+## Audit conclusion
+
+Phase 2 implementation is verified as a handoff candidate. Install it locally, rerun verification, and create the local checkpoint before beginning the accelerated Phases 3–4 milestone. No upload, remote configuration, external service, or publication is authorized.

@@ -256,14 +256,15 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - claim: The product name is Doubtful Memory. The engine and CLI command is gptbrain. The canonical local project directory is .gptbrain/. Do not use dm or .dm/.
 - source_type: Owner instruction
 - source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-014.
-- status: OWNER_CONFIRMED
+- status: REVOKED
+- superseded_by: DM-CLAIM-018
 - confidence: HIGH
 - last_verified: 2026-07-15
-- review_after: Only if the owner explicitly changes the naming
+- review_after: N/A — superseded
 - sensitivity: PUBLIC
-- action_permission: MAY_ACT
-- recheck_method: Check DM-DEC-014
-- notes: Preserves the GPTBrain lineage while using the Doubtful Memory product name.
+- action_permission: MUST_NOT_ACT
+- recheck_method: Check DM-DEC-026
+- notes: The permanent gptbrain naming assumption was replaced by the owner-confirmed temporary-codename direction. See DM-CLAIM-018.
 
 ---
 
@@ -274,12 +275,12 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - source_reference: Owner-approved repository audit corrections, 2026-07-15. `DECISIONS.md` DM-DEC-017, DM-DEC-018, DM-DEC-019.
 - status: OWNER_CONFIRMED
 - confidence: HIGH
-- last_verified: 2026-07-15
-- review_after: Before dependency installation or architecture change
+- last_verified: 2026-07-20
+- review_after: When updating the technology stack
 - sensitivity: PUBLIC
 - action_permission: MAY_ACT
-- recheck_method: Check DM-DEC-017, DM-DEC-018, DM-DEC-019
-- notes: Supersedes DM-CLAIM-004 regarding technical stack. Only typescript and @types/node as dev deps initially (not yet installed).
+- recheck_method: Check DM-DEC-017, DM-DEC-018, DM-DEC-019, DM-DEC-027
+- notes: The approved exact development dependencies are recorded in DM-CLAIM-019.
 
 ---
 
@@ -346,6 +347,85 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - notes: Do not remove or describe the challenge as irrelevant. Keep challenge and product architecturally separated.
 
 ---
+
+## DM-CLAIM-018
+
+- claim: The CLI and engine use the temporary codename `gptbrain` and storage uses `.gptbrain/`. These are centralized in `src/core/identity.ts` for a later planned rename.
+- source_type: Approved project decision
+- source_reference: `DECISIONS.md` DM-DEC-026
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-19
+- review_after: When preparing for the final product rename
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Check `src/core/identity.ts` and DM-DEC-026
+- notes: Do not hardcode these names in strings; use the identity constants.
+
+---
+
+## DM-CLAIM-019
+
+- claim: The exact approved Phase 1 development dependencies are `typescript@6.0.3` and `@types/node@22.20.1`. There are zero runtime dependencies.
+- source_type: Approved project decision
+- source_reference: `DECISIONS.md` DM-DEC-027
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-19
+- review_after: Before adding any new dependency
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check `package.json` and DM-DEC-027
+- notes: Supplements DM-CLAIM-013 with exact dependency versions. It does not supersede the broader technical-direction claim.
+
+---
+
+## DM-CLAIM-020
+
+- claim: Phase 1 (Core vertical slice) is implementation complete and pending final owner verification/commit. The CLI, engine, and storage mechanisms are working locally.
+- source_type: Repository inspection
+- source_reference: `package.json`, `src/`, `test/`, `npm run verify` output
+- status: REVOKED
+- superseded_by: DM-CLAIM-021
+- confidence: HIGH
+- last_verified: 2026-07-20
+- review_after: N/A — superseded by the independently verified Phase 2 capability claim
+- sensitivity: INTERNAL
+- action_permission: MUST_NOT_ACT
+- recheck_method: Run `npm run verify`
+- notes: Phase 1 was independently verified at 51 passing tests. Phase 2 now supersedes this progress claim; historical Phase 1 evidence remains valid.
+
+---
+
+## DM-CLAIM-021
+
+- claim: Phase 2 implements controlled memory creation, update, revocation, redaction, evidence storage, archive handling, full deterministic audit precedence, and CLI access with 81 passing tests and zero runtime dependencies.
+- source_type: Repository and test inspection
+- source_reference: `src/core/`, `src/cli.ts`, `test/`, `package.json`, and `npm run verify` output dated 2026-07-21
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-21
+- review_after: After any engine, protocol, dependency, or test-suite change
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Run `npm ci` followed by `npm run verify`
+- notes: Phase 2 is locally verified and included in the Phase 2 local checkpoint. This is implementation evidence, not owner confirmation of final release readiness.
+
+---
+
+## DM-CLAIM-022
+
+- claim: Remaining Version 1 work should be delivered through larger accelerated milestones while preserving all mandatory requirements and stop-gate evidence.
+- source_type: Owner instruction
+- source_reference: Owner direction on 2026-07-20 to finish as soon as possible without sloppy development; `DECISIONS.md` DM-DEC-029
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-20
+- review_after: If the owner changes the deadline, delivery method, or Version 1 scope
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Check the latest owner instruction and DM-DEC-029
+- notes: This changes delivery grouping, not the mandatory Version 1 scope. Deferring a deliverable still requires a separate owner decision.
 
 ## Claim maintenance rules
 
