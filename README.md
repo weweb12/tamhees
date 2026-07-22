@@ -35,9 +35,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.2.0 — Phases 1 and 2 are implemented and locally verified. Phase 2 is complete.**
+> **Version 0.3.0 — Phase 3 is complete and locally verified.**
 
-The local engine now provides validated memory creation, update, revocation, and redaction; evidence storage; archive preservation; deterministic audit precedence; secret-like-content rejection; context safety; and CLI access. The test suite contains 81 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
+The local engine now adds deterministic audit-aware retrieval and ranking, structured selection/exclusion explanations, strict context-pack validation, and hard estimated-token budget enforcement to the verified Phase 1–2 foundation. The current local suite contains 107 passing tests with zero failures, zero skipped tests, and zero todo tests. Phase 3 is complete and locally verified. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
 
 Implemented commands:
 
@@ -47,10 +47,10 @@ Implemented commands:
 - `gptbrain memory apply --input <candidate.json>`: Apply a controlled `CREATE`, `UPDATE`, `REVOKE`, or `REDACT` candidate.
 - `gptbrain evidence list`: List evidence records.
 - `gptbrain evidence add --input <evidence.json>`: Add validated evidence.
-- `gptbrain context --task "..."`: Compile an ephemeral, audit-aware context pack.
+- `gptbrain context --task "..." [--max-tokens <1-1000000>] [--format json|markdown]`: Compile an ephemeral, deterministically ranked context pack. The default hard budget is 2,048 estimated tokens.
 - `gptbrain audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
 
-Phases 3–9 remain. The next development milestone is accelerated Phases 3–4, beginning with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement. Later work covers automatic lifecycle hooks, agent adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
+Phase 3 is complete and locally verified. Phase 4 automatic pre-task/post-task lifecycle integration is next; later work covers adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
 
 ## Design principles
 
@@ -104,6 +104,12 @@ node dist/src/cli.js --help
 
 No API key, account, hosted model, database, or runtime network connection is required.
 
+### Phase 3 context budgets
+
+`--max-tokens` accepts a decimal positive integer from 1 through 1,000,000. If omitted, the default is 2,048. The budget covers only the canonical agent-consumable selected-memory payload: memory ID, redacted statement, audit outcome, verification status, confidence, and output-safe tags. Ranking diagnostics, exclusions, warnings, and budget metadata remain visible outside that bounded payload.
+
+Token counts use the deterministic local `utf8-bytes-ceil-div-4` estimator (UTF-8 byte length divided by four and rounded up, minimum one). This is a capacity estimate, not an exact vendor tokenizer. Complete memory statements are never truncated; when a ranked contribution does not fit, it and lower-ranked candidates are excluded as `over-budget`. A budget too small for one complete unit returns a valid explained empty pack.
+
 ## Controlled update workflow
 
 Coding agents should not edit `.gptbrain/` records directly. They submit a JSON update candidate matching `docs/PROTOCOL_SPECIFICATION.md`, then invoke:
@@ -120,7 +126,7 @@ Owner-confirmed promotion is intentionally two-step: create a lower-authority me
 
 ## Next planned work
 
-**Accelerated Milestone 2 (Phases 3–4)**: begin with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement, then implement Phase 4 automatic pre-task/post-task lifecycle finalization while preserving the existing authority and privacy gates.
+**Accelerated Milestone 2 (Phases 3–4)**: Phase 3 retrieval, ranking, explanations, strict context validation, and hard budget enforcement are complete and locally verified. Phase 4 automatic pre-task/post-task lifecycle finalization is the next development phase, preserving the existing authority and privacy gates.
 
 ## Runtime requirements
 

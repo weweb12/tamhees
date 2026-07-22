@@ -20,6 +20,14 @@ import {
   EVIDENCE_RELATIONSHIPS,
   EVIDENCE_TYPES,
   UPDATE_ACTIONS,
+  CONTEXT_EXCLUSION_REASONS,
+  FRESHNESS_RANK_STATES,
+  CONTEXT_BUDGET_SCOPE,
+  MAX_CONTEXT_MAX_TOKENS,
+  MIN_CONTEXT_MAX_TOKENS,
+  TOKEN_ESTIMATOR_NAME,
+  TOKEN_ESTIMATOR_VERSION,
+  type ContextPack,
   type EvidenceRecord,
   type MemoryRecord,
   type UpdateCandidate,
@@ -736,4 +744,416 @@ export function validateUpdateCandidate(data: unknown): ValidationResult {
 
 export function asValidUpdateCandidate(data: unknown): UpdateCandidate | null {
   return validateUpdateCandidate(data).valid ? data as UpdateCandidate : null;
+}
+
+// ─── Context-pack validation ───────────────────────────────
+
+function addContextUnknownFieldIssues(
+  object: Record<string, unknown>,
+  allowed: readonly string[],
+  prefix: string,
+  issues: ValidationIssue[],
+): void {
+  const allowedSet = new Set(allowed);
+  for (const key of Object.keys(object)) {
+    if (!allowedSet.has(key)) {
+      issues.push({
+        field: prefix ? `${prefix}.<unknown>` : '<unknown>',
+        code: 'UNKNOWN_FIELD',
+        message: 'An unknown field is not allowed in the context pack. Raw field names are not echoed.',
+      });
+    }
+  }
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return Number.isSafeInteger(value) && (value as number) >= 0;
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return Number.isSafeInteger(value) && (value as number) > 0;
+}
+
+export function validateContextPack(data: unknown): ValidationResult {
+  const issues: ValidationIssue[] = [];
+  if (!isObject(data)) {
+    return {
+      valid: false,
+      issues: [{ field: '', code: 'INVALID_ROOT', message: 'Context pack must be a non-null object.' }],
+    };
+  }
+
+  addContextUnknownFieldIssues(
+    data,
+    ['schemaVersion', 'taskDescription', 'selectionStrategy', 'selected', 'excluded', 'warnings', 'budget', 'generatedAt'],
+    '',
+    issues,
+  );
+  if (data['schemaVersion'] !== CURRENT_SCHEMA_VERSION) {
+    issues.push({ field: 'schemaVersion', code: 'UNSUPPORTED_SCHEMA', message: 'Context-pack schema version is unsupported.' });
+  }
+  if (!isNonEmptyString(data['taskDescription'])) {
+    issues.push({ field: 'taskDescription', code: 'MISSING_REQUIRED', message: 'taskDescription is required.' });
+  }
+  if (!isNonEmptyString(data['selectionStrategy'])) {
+    issues.push({ field: 'selectionStrategy', code: 'MISSING_REQUIRED', message: 'selectionStrategy is required.' });
+  }
+  if (!isIso8601(data['generatedAt'])) {
+    issues.push({ field: 'generatedAt', code: 'INVALID_TIMESTAMP', message: 'generatedAt must be an ISO-8601 UTC timestamp.' });
+  }
+  if (!isStringArray(data['warnings'])) {
+    issues.push({ field: 'warnings', code: 'INVALID_TYPE', message: 'warnings must be an array of strings.' });
+  }
+
+  const selectedIds: string[] = [];
+  let selectedTokenSum = 0;
+  if (!Array.isArray(data['selected'])) {
+    issues.push({ field: 'selected', code: 'INVALID_TYPE', message: 'selected must be an array.' });
+  } else {
+    data['selected'].forEach((item, index) => {
+      const prefix = `selected[${index}]`;
+      if (!isObject(item)) {
+        issues.push({ field: prefix, code: 'INVALID_TYPE', message: 'Selected entry must be an object.' });
+        return;
+      }
+      addContextUnknownFieldIssues(
+        item,
+        ['memoryId', 'statement', 'reason', 'auditOutcome', 'verificationStatus', 'confidence', 'tags', 'rank', 'ranking', 'estimatedTokens'],
+        prefix,
+        issues,
+      );
+      if (!isSafeArtifactId(item['memoryId'])) {
+        issues.push({ field: `${prefix}.memoryId`, code: 'UNSAFE_ID', message: 'memoryId must be a safe artifact ID.' });
+      } else {
+        selectedIds.push(item['memoryId']);
+      }
+      if (!isNonEmptyString(item['statement'])) {
+        issues.push({ field: `${prefix}.statement`, code: 'MISSING_REQUIRED', message: 'statement is required.' });
+      }
+      if (!isNonEmptyString(item['reason'])) {
+        issues.push({ field: `${prefix}.reason`, code: 'MISSING_REQUIRED', message: 'reason is required.' });
+      }
+      if (!isInVocabulary(item['auditOutcome'], AUDIT_OUTCOMES)) {
+        issues.push({ field: `${prefix}.auditOutcome`, code: 'INVALID_VOCABULARY', message: 'auditOutcome is invalid.' });
+      } else if (item['auditOutcome'] === 'BLOCK_ACTION' || item['auditOutcome'] === 'FORGET_OR_REDACT') {
+        issues.push({ field: `${prefix}.auditOutcome`, code: 'UNSAFE_SELECTION', message: 'Blocked or privacy-prohibited audit outcomes cannot appear in selected context.' });
+      }
+      if (!isInVocabulary(item['verificationStatus'], VERIFICATION_STATUSES)) {
+        issues.push({ field: `${prefix}.verificationStatus`, code: 'INVALID_VOCABULARY', message: 'verificationStatus is invalid.' });
+      }
+      if (!isInVocabulary(item['confidence'], CONFIDENCE_VALUES)) {
+        issues.push({ field: `${prefix}.confidence`, code: 'INVALID_VOCABULARY', message: 'confidence is invalid.' });
+      }
+      if (!isStringArray(item['tags'])) {
+        issues.push({ field: `${prefix}.tags`, code: 'INVALID_TYPE', message: 'tags must be an array of strings.' });
+      }
+      if (!isPositiveInteger(item['rank']) || item['rank'] !== index + 1) {
+        issues.push({ field: `${prefix}.rank`, code: 'INVALID_RANK', message: 'rank must be the one-based selected order.' });
+      }
+      if (!isPositiveInteger(item['estimatedTokens'])) {
+        issues.push({ field: `${prefix}.estimatedTokens`, code: 'INVALID_NUMBER', message: 'estimatedTokens must be a positive safe integer.' });
+      } else {
+        selectedTokenSum += item['estimatedTokens'];
+      }
+      const canonicalEstimate = estimateContextSelectionTokens(item);
+      if (canonicalEstimate !== null && item['estimatedTokens'] !== canonicalEstimate) {
+        issues.push({ field: `${prefix}.estimatedTokens`, code: 'INVALID_ARITHMETIC', message: 'estimatedTokens must equal the canonical selected-memory payload estimate.' });
+      }
+      validateContextRanking(item['ranking'], item, prefix, data['generatedAt'], issues);
+    });
+    for (let index = 1; index < data['selected'].length; index += 1) {
+      const previous = data['selected'][index - 1];
+      const current = data['selected'][index];
+      if (!isObject(previous) || !isObject(current)) continue;
+      const previousRanking = previous['ranking'];
+      const currentRanking = current['ranking'];
+      if (
+        !isObject(previousRanking)
+        || !isObject(currentRanking)
+        || !isNonNegativeInteger(previousRanking['totalScore'])
+        || !isNonNegativeInteger(currentRanking['totalScore'])
+        || !isSafeArtifactId(previous['memoryId'])
+        || !isSafeArtifactId(current['memoryId'])
+      ) continue;
+      const scoreOrderInvalid = previousRanking['totalScore'] < currentRanking['totalScore'];
+      const tieOrderInvalid = previousRanking['totalScore'] === currentRanking['totalScore']
+        && previous['memoryId'] > current['memoryId'];
+      if (scoreOrderInvalid || tieOrderInvalid) {
+        issues.push({
+          field: `selected[${index}].rank`,
+          code: 'INVALID_RANK',
+          message: 'Selected entries must be ordered by descending total score and then ascending ordinal memory ID.',
+        });
+      }
+    }
+  }
+
+  const excludedIds: string[] = [];
+  if (!Array.isArray(data['excluded'])) {
+    issues.push({ field: 'excluded', code: 'INVALID_TYPE', message: 'excluded must be an array.' });
+  } else {
+    data['excluded'].forEach((item, index) => {
+      const prefix = `excluded[${index}]`;
+      if (!isObject(item)) {
+        issues.push({ field: prefix, code: 'INVALID_TYPE', message: 'Excluded entry must be an object.' });
+        return;
+      }
+      addContextUnknownFieldIssues(item, ['memoryId', 'reasonCode', 'reason'], prefix, issues);
+      if (!isSafeArtifactId(item['memoryId'])) {
+        issues.push({ field: `${prefix}.memoryId`, code: 'UNSAFE_ID', message: 'memoryId must be a safe artifact ID.' });
+      } else {
+        excludedIds.push(item['memoryId']);
+      }
+      if (!isInVocabulary(item['reasonCode'], CONTEXT_EXCLUSION_REASONS)) {
+        issues.push({ field: `${prefix}.reasonCode`, code: 'INVALID_VOCABULARY', message: 'reasonCode is not an allowed exclusion reason.' });
+      }
+      if (!isNonEmptyString(item['reason'])) {
+        issues.push({ field: `${prefix}.reason`, code: 'MISSING_REQUIRED', message: 'reason is required.' });
+      }
+    });
+  }
+
+  validateContextBudget(data['budget'], selectedTokenSum, issues);
+  if (new Set(selectedIds).size !== selectedIds.length) {
+    issues.push({ field: 'selected', code: 'DUPLICATE_ID', message: 'selected must not contain duplicate memory IDs.' });
+  }
+  if (new Set(excludedIds).size !== excludedIds.length) {
+    issues.push({ field: 'excluded', code: 'DUPLICATE_ID', message: 'excluded must not contain duplicate memory IDs.' });
+  }
+  const excludedSet = new Set(excludedIds);
+  if (selectedIds.some((id) => excludedSet.has(id))) {
+    issues.push({ field: 'selected', code: 'ID_OVERLAP', message: 'A memory ID cannot appear in both selected and excluded.' });
+  }
+
+  return { valid: issues.length === 0, issues };
+}
+
+function validateContextRanking(
+  value: unknown,
+  selected: Record<string, unknown>,
+  prefix: string,
+  generatedAt: unknown,
+  issues: ValidationIssue[],
+): void {
+  if (!isObject(value)) {
+    issues.push({ field: `${prefix}.ranking`, code: 'INVALID_TYPE', message: 'ranking must be an object.' });
+    return;
+  }
+  addContextUnknownFieldIssues(value, ['relevance', 'authority', 'freshness', 'safety', 'totalScore', 'tieBreakerMemoryId'], `${prefix}.ranking`, issues);
+  const componentScores: number[] = [];
+
+  const relevance = value['relevance'];
+  if (!isObject(relevance)) {
+    issues.push({ field: `${prefix}.ranking.relevance`, code: 'INVALID_TYPE', message: 'relevance ranking must be an object.' });
+  } else {
+    addContextUnknownFieldIssues(relevance, ['score', 'matchedTagCount', 'matchedWordCount'], `${prefix}.ranking.relevance`, issues);
+    for (const key of ['score', 'matchedTagCount', 'matchedWordCount'] as const) {
+      if (!isNonNegativeInteger(relevance[key])) {
+        issues.push({ field: `${prefix}.ranking.relevance.${key}`, code: 'INVALID_NUMBER', message: `${key} must be a non-negative safe integer.` });
+      }
+    }
+    if (isNonNegativeInteger(relevance['score'])) {
+      componentScores.push(relevance['score']);
+      if (
+        isNonNegativeInteger(relevance['matchedTagCount'])
+        && isNonNegativeInteger(relevance['matchedWordCount'])
+        && relevance['score'] !== relevance['matchedTagCount'] * 20 + relevance['matchedWordCount'] * 10
+      ) {
+        issues.push({ field: `${prefix}.ranking.relevance.score`, code: 'INVALID_ARITHMETIC', message: 'Relevance score must equal the documented unique-tag and unique-word formula.' });
+      }
+    }
+  }
+
+  const authority = value['authority'];
+  if (!isObject(authority)) {
+    issues.push({ field: `${prefix}.ranking.authority`, code: 'INVALID_TYPE', message: 'authority ranking must be an object.' });
+  } else {
+    addContextUnknownFieldIssues(authority, ['score', 'verificationStatus'], `${prefix}.ranking.authority`, issues);
+    if (!isNonNegativeInteger(authority['score'])) {
+      issues.push({ field: `${prefix}.ranking.authority.score`, code: 'INVALID_NUMBER', message: 'authority score must be a non-negative safe integer.' });
+    } else {
+      componentScores.push(authority['score']);
+    }
+    if (!isInVocabulary(authority['verificationStatus'], VERIFICATION_STATUSES) || authority['verificationStatus'] !== selected['verificationStatus']) {
+      issues.push({ field: `${prefix}.ranking.authority.verificationStatus`, code: 'INCONSISTENT_VALUE', message: 'Authority verification status must match the selected entry.' });
+    } else if (isNonNegativeInteger(authority['score']) && authority['score'] !== expectedAuthorityScore(authority['verificationStatus'])) {
+      issues.push({ field: `${prefix}.ranking.authority.score`, code: 'INVALID_ARITHMETIC', message: 'Authority score must match the documented verification-status weight.' });
+    }
+  }
+
+  const freshness = value['freshness'];
+  if (!isObject(freshness)) {
+    issues.push({ field: `${prefix}.ranking.freshness`, code: 'INVALID_TYPE', message: 'freshness ranking must be an object.' });
+  } else {
+    addContextUnknownFieldIssues(freshness, ['score', 'state', 'ageDays', 'lastVerified'], `${prefix}.ranking.freshness`, issues);
+    if (!isNonNegativeInteger(freshness['score'])) {
+      issues.push({ field: `${prefix}.ranking.freshness.score`, code: 'INVALID_NUMBER', message: 'freshness score must be a non-negative safe integer.' });
+    } else {
+      componentScores.push(freshness['score']);
+    }
+    if (!isInVocabulary(freshness['state'], FRESHNESS_RANK_STATES)) {
+      issues.push({ field: `${prefix}.ranking.freshness.state`, code: 'INVALID_VOCABULARY', message: 'freshness state is invalid.' });
+    }
+    if (!isNonNegativeInteger(freshness['ageDays'])) {
+      issues.push({ field: `${prefix}.ranking.freshness.ageDays`, code: 'INVALID_NUMBER', message: 'ageDays must be a non-negative safe integer.' });
+    }
+    if (!isIso8601(freshness['lastVerified'])) {
+      issues.push({ field: `${prefix}.ranking.freshness.lastVerified`, code: 'INVALID_TIMESTAMP', message: 'lastVerified must be ISO-8601.' });
+    }
+    if (
+      isIso8601(generatedAt)
+      && isIso8601(freshness['lastVerified'])
+      && isNonNegativeInteger(freshness['ageDays'])
+      && isInVocabulary(freshness['state'], FRESHNESS_RANK_STATES)
+      && isNonNegativeInteger(freshness['score'])
+    ) {
+      const expectedAgeDays = Math.max(0, Math.floor((Date.parse(generatedAt) - Date.parse(freshness['lastVerified'])) / 86_400_000));
+      if (freshness['ageDays'] !== expectedAgeDays) {
+        issues.push({ field: `${prefix}.ranking.freshness.ageDays`, code: 'INVALID_ARITHMETIC', message: 'ageDays must be derived from generatedAt and lastVerified using complete UTC 24-hour intervals.' });
+      }
+      if (freshness['state'] === 'EXPIRED') {
+        issues.push({ field: `${prefix}.ranking.freshness.state`, code: 'UNSAFE_SELECTION', message: 'Expired memory cannot appear in selected context.' });
+      }
+      if (freshness['score'] !== expectedFreshnessScore(expectedAgeDays, freshness['state'])) {
+        issues.push({ field: `${prefix}.ranking.freshness.score`, code: 'INVALID_ARITHMETIC', message: 'Freshness score must match the documented age band and state penalty.' });
+      }
+    }
+  }
+
+  const safety = value['safety'];
+  if (!isObject(safety)) {
+    issues.push({ field: `${prefix}.ranking.safety`, code: 'INVALID_TYPE', message: 'safety ranking must be an object.' });
+  } else {
+    addContextUnknownFieldIssues(safety, ['score', 'auditOutcome', 'eligible'], `${prefix}.ranking.safety`, issues);
+    if (!isNonNegativeInteger(safety['score'])) {
+      issues.push({ field: `${prefix}.ranking.safety.score`, code: 'INVALID_NUMBER', message: 'safety score must be a non-negative safe integer.' });
+    } else {
+      componentScores.push(safety['score']);
+    }
+    if (!isInVocabulary(safety['auditOutcome'], AUDIT_OUTCOMES) || safety['auditOutcome'] !== selected['auditOutcome']) {
+      issues.push({ field: `${prefix}.ranking.safety.auditOutcome`, code: 'INCONSISTENT_VALUE', message: 'Safety audit outcome must match the selected entry.' });
+    } else if (isNonNegativeInteger(safety['score']) && safety['score'] !== expectedSafetyScore(safety['auditOutcome'])) {
+      issues.push({ field: `${prefix}.ranking.safety.score`, code: 'INVALID_ARITHMETIC', message: 'Safety score must match the documented audit-outcome weight.' });
+    }
+    if (safety['eligible'] !== true) {
+      issues.push({ field: `${prefix}.ranking.safety.eligible`, code: 'INCONSISTENT_VALUE', message: 'Selected entries must be safety eligible.' });
+    }
+  }
+
+  if (!isNonNegativeInteger(value['totalScore'])) {
+    issues.push({ field: `${prefix}.ranking.totalScore`, code: 'INVALID_NUMBER', message: 'totalScore must be a non-negative safe integer.' });
+  } else if (componentScores.length === 4 && value['totalScore'] !== componentScores.reduce((sum, score) => sum + score, 0)) {
+    issues.push({ field: `${prefix}.ranking.totalScore`, code: 'INVALID_ARITHMETIC', message: 'totalScore must equal the ranking component sum.' });
+  }
+  if (!isSafeArtifactId(value['tieBreakerMemoryId']) || value['tieBreakerMemoryId'] !== selected['memoryId']) {
+    issues.push({ field: `${prefix}.ranking.tieBreakerMemoryId`, code: 'INCONSISTENT_VALUE', message: 'tieBreakerMemoryId must match memoryId.' });
+  }
+}
+
+function expectedAuthorityScore(status: (typeof VERIFICATION_STATUSES)[number]): number {
+  switch (status) {
+    case 'OWNER_CONFIRMED': return 50;
+    case 'REPO_VERIFIED': return 40;
+    case 'TEST_VERIFIED': return 35;
+    case 'OBSERVED': return 25;
+    case 'INFERRED': return 10;
+    case 'UNKNOWN':
+    case 'CONFLICTED':
+    case 'REVOKED':
+      return 0;
+  }
+}
+
+function expectedSafetyScore(outcome: (typeof AUDIT_OUTCOMES)[number]): number {
+  switch (outcome) {
+    case 'TRUST': return 30;
+    case 'ASK_OWNER': return 10;
+    case 'RECHECK':
+    case 'BLOCK_ACTION':
+    case 'FORGET_OR_REDACT':
+      return 0;
+  }
+}
+
+function expectedFreshnessScore(ageDays: number, state: (typeof FRESHNESS_RANK_STATES)[number]): number {
+  const base = ageDays <= 7 ? 20 : ageDays <= 30 ? 15 : ageDays <= 90 ? 10 : ageDays <= 365 ? 5 : 0;
+  if (state === 'EXPIRED') return 0;
+  return state === 'DUE' || state === 'CONDITIONAL' ? Math.max(0, base - 10) : base;
+}
+
+function estimateContextSelectionTokens(value: Record<string, unknown>): number | null {
+  const memoryId = value['memoryId'];
+  const statement = value['statement'];
+  const auditOutcome = value['auditOutcome'];
+  const verificationStatus = value['verificationStatus'];
+  const confidence = value['confidence'];
+  const tags = value['tags'];
+  if (
+    !isSafeArtifactId(memoryId)
+    || !isNonEmptyString(statement)
+    || !isInVocabulary(auditOutcome, AUDIT_OUTCOMES)
+    || !isInVocabulary(verificationStatus, VERIFICATION_STATUSES)
+    || !isInVocabulary(confidence, CONFIDENCE_VALUES)
+    || !isStringArray(tags)
+  ) {
+    return null;
+  }
+  const payload = JSON.stringify({ memoryId, statement, auditOutcome, verificationStatus, confidence, tags });
+  return Math.max(1, Math.ceil(Buffer.byteLength(payload, 'utf8') / 4));
+}
+
+function validateContextBudget(value: unknown, selectedTokenSum: number, issues: ValidationIssue[]): void {
+  if (!isObject(value)) {
+    issues.push({ field: 'budget', code: 'INVALID_TYPE', message: 'budget must be an object.' });
+    return;
+  }
+  addContextUnknownFieldIssues(
+    value,
+    ['maxTokens', 'estimatedTokensUsed', 'estimatedTokensRemaining', 'compliant', 'estimator', 'scope'],
+    'budget',
+    issues,
+  );
+  const maxTokens = value['maxTokens'];
+  const used = value['estimatedTokensUsed'];
+  const remaining = value['estimatedTokensRemaining'];
+  if (!isPositiveInteger(maxTokens) || maxTokens < MIN_CONTEXT_MAX_TOKENS || maxTokens > MAX_CONTEXT_MAX_TOKENS) {
+    issues.push({ field: 'budget.maxTokens', code: 'INVALID_NUMBER', message: 'maxTokens is outside the accepted positive-integer range.' });
+  }
+  if (!isNonNegativeInteger(used)) {
+    issues.push({ field: 'budget.estimatedTokensUsed', code: 'INVALID_NUMBER', message: 'estimatedTokensUsed must be a non-negative safe integer.' });
+  }
+  if (!isNonNegativeInteger(remaining)) {
+    issues.push({ field: 'budget.estimatedTokensRemaining', code: 'INVALID_NUMBER', message: 'estimatedTokensRemaining must be a non-negative safe integer.' });
+  }
+  if (typeof value['compliant'] !== 'boolean') {
+    issues.push({ field: 'budget.compliant', code: 'INVALID_TYPE', message: 'compliant must be a boolean.' });
+  }
+  if (isPositiveInteger(maxTokens) && isNonNegativeInteger(used) && isNonNegativeInteger(remaining)) {
+    if (used !== selectedTokenSum) {
+      issues.push({ field: 'budget.estimatedTokensUsed', code: 'INVALID_ARITHMETIC', message: 'estimatedTokensUsed must equal the selected contribution sum.' });
+    }
+    if (remaining !== maxTokens - used || used > maxTokens || value['compliant'] !== true) {
+      issues.push({ field: 'budget', code: 'BUDGET_VIOLATION', message: 'Budget arithmetic or compliance is invalid.' });
+    }
+  }
+
+  const estimator = value['estimator'];
+  if (!isObject(estimator)) {
+    issues.push({ field: 'budget.estimator', code: 'INVALID_TYPE', message: 'estimator must be an object.' });
+  } else {
+    addContextUnknownFieldIssues(estimator, ['name', 'version'], 'budget.estimator', issues);
+    if (estimator['name'] !== TOKEN_ESTIMATOR_NAME) {
+      issues.push({ field: 'budget.estimator.name', code: 'INVALID_VOCABULARY', message: 'Estimator name is unsupported.' });
+    }
+    if (estimator['version'] !== TOKEN_ESTIMATOR_VERSION) {
+      issues.push({ field: 'budget.estimator.version', code: 'INVALID_VOCABULARY', message: 'Estimator version is unsupported.' });
+    }
+  }
+  if (value['scope'] !== CONTEXT_BUDGET_SCOPE) {
+    issues.push({ field: 'budget.scope', code: 'INVALID_VOCABULARY', message: 'Budget scope is unsupported.' });
+  }
+}
+
+export function asValidContextPack(data: unknown): ContextPack | null {
+  return validateContextPack(data).valid ? data as ContextPack : null;
 }

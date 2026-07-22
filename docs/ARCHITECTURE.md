@@ -1,6 +1,6 @@
 # Doubtful Memory — Architecture
 
-> **Status**: This document describes the overall architecture. Phase 2 engine, CLI, local storage, evidence, controlled mutations, archive handling, and audit precedence are implemented. Retrieval budgets, lifecycle automation, adapters, MCP, dashboard, and benchmarks remain planned.
+> **Status**: Phases 1–3 are complete and locally verified. Phase 3 provides deterministic retrieval, ranking, explanations, strict context-pack validation, and hard budget enforcement in Version 0.3.0. Lifecycle automation, adapters, MCP, dashboard, and benchmarks remain planned.
 
 ## Overview
 
@@ -111,26 +111,41 @@ A `REVOKED` status prevents the record from authorizing any action. The pre-revo
 
 ## Context compiler
 
-The context compiler assembles task-specific memory context packs for agent consumption.
+The Phase 3 context compiler is a pure, deterministic boundary that assembles task-specific memory context packs for agent consumption. It performs lexical/tag retrieval; it does not provide semantic retrieval.
 
-### Implemented Phase 2 behavior
+### Implemented Phase 3 flow
 
-1. Accept a task description or query.
-2. Retrieve relevant memories through deterministic lexical/tag matching.
-3. Apply the full audit precedence chain before serving memory.
-4. Include selection explanations: why each memory was selected, excluded, expired, conflicted, or demoted.
-5. Redact sensitive content before output.
-6. Return the context pack to the caller (stdout, memory, or temporary runtime file).
+1. Accept a task description, canonical records, evidence, fixed clock, and a validated estimated-token budget.
+2. Redact secret-like task input before deriving retrieval terms.
+3. Apply privacy, revocation, conflict, expiration, permission, and audit-safety gates before a record is eligible.
+4. Redact legacy `SENSITIVE` output before any statement, tag, or explanation is emitted.
+5. Compute additive relevance, authority, freshness, and safety scores.
+6. Sort by descending total score, then ordinal memory ID.
+7. Select the highest-ranked complete-memory prefix that fits the hard payload budget.
+8. Return strict JSON or Markdown diagnostics without persisting the pack.
 
-### Current invariants
+### Ranking boundaries
 
-- Context packs are ephemeral by default — not permanently cached.
-- Generated context may be stored temporarily under Git-ignored `runtime/` only when necessary.
+- Relevance is deterministic lexical/tag matching only: 20 points per unique normalized matched tag and 10 points per unique normalized matched task word found in an eligible non-sensitive statement.
+- Authority scores are `OWNER_CONFIRMED=50`, `REPO_VERIFIED=40`, `TEST_VERIFIED=35`, `OBSERVED=25`, `INFERRED=10`, and zero for unsupported terminal statuses.
+- Freshness scores are 20 (0–7 days), 15 (8–30), 10 (31–90), 5 (91–365), or 0 (older), using complete UTC 24-hour intervals from the compiler-generated timestamp supplied by its injected clock; due or conditional review subtracts 10 without going below zero.
+- Safety scores are `TRUST=30`, `ASK_OWNER=10`, and `RECHECK=0`. Blocked, revoked, conflicted, expired, and privacy-prohibited records are excluded before ranking.
+- High confidence never bypasses an authority, freshness, privacy, conflict, revocation, or permission gate.
+
+### Budget boundary
+
+The configurable range is 1 through 1,000,000 estimated tokens; the default is 2,048. The budget measures only canonical selected-memory contributions containing memory ID, redacted statement, audit outcome, verification status, confidence, and output-safe tags. Diagnostics, exclusions, warnings, and budget metadata are unbudgeted so safety explanations remain complete.
+
+The estimator is `utf8-bytes-ceil-div-4` version `1.0.0`: UTF-8 byte length divided by four and rounded up, with a minimum of one. It is deterministic and dependency-free, but it is an estimate rather than an exact vendor tokenizer. Statements are never truncated. If the next ranked complete contribution cannot fit, it and lower-ranked candidates receive `over-budget`; if none fit, the compiler returns a valid explained empty pack.
+
+### Invariants
+
+- Context packs are ephemeral and are not permanently cached.
+- Context generation performs no storage write and creates no context history.
 - Runtime-generated sensitive context must never be committed.
-- The system explains selected, excluded, expired, conflicted, and demoted records.
-
-Hard budget enforcement and authority/freshness ranking remain Phase 3 work.
-
+- Same records, task, evidence, configuration, and clock produce byte-equivalent output.
+- Context-pack runtime validation rejects unknown fields, unsupported vocabularies, unsafe selections, invalid numbers, drift from every documented ranking formula, non-canonical per-item token estimates, inconsistent budget arithmetic, duplicate IDs, and selected/excluded overlap.
+- No embeddings, hosted model, network service, locale-dependent comparison, random value, or tokenizer dependency is used.
 ## Audit engine
 
 The audit engine evaluates memory records against deterministic rules.
@@ -166,7 +181,7 @@ The CLI is the primary human interface to the engine.
 | `gptbrain evidence list` | List evidence records |
 | `gptbrain evidence add --input <file>` | Add a validated evidence record |
 | `gptbrain audit` | Run audit on specified or all memories |
-| `gptbrain context` | Compile a task-specific context pack |
+| `gptbrain context --task <text> [--max-tokens <n>] [--format json|markdown]` | Compile a deterministic, audit-aware, hard-budgeted task context pack |
 
 ### Invariants
 

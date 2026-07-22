@@ -1,6 +1,6 @@
 # Doubtful Memory — Protocol Specification
 
-> **Status**: Memory, evidence, update-candidate, audit-event, controlled mutation, archive, and audit-precedence contracts are implemented in Phase 2. Retrieval budgets, lifecycle automation, migration, adapters, and dashboard behavior remain planned and are tracked in `docs/IMPLEMENTATION_ROADMAP.md`.
+> **Status**: Phase 2 storage, evidence, mutation, archive, and audit-precedence contracts and Phase 3 retrieval, ranking, explanation, context-validation, and hard-budget contracts are implemented and locally verified in Version 0.3.0. Lifecycle automation, migration, adapters, and dashboard behavior remain planned.
 
 ## Overview
 
@@ -313,51 +313,94 @@ Audit rules are packaged in source code with stable IDs. They are not stored in 
 
 ## 12. Context-pack contract
 
-A context pack is the output of the context compiler for a specific task.
+A context pack is the ephemeral output of the deterministic lexical/tag context compiler for one task. Context generation does not alter the Phase 2 storage schema and does not write a pack to `.gptbrain/`.
 
 ```json
 {
   "schemaVersion": "1.0.0",
-  "taskDescription": "<what the task needs>",
-  "selectionStrategy": "<Phase 2: audit-aware deterministic lexical/tag selection>",
+  "taskDescription": "<task text, or a redaction marker>",
+  "selectionStrategy": "<canonical deterministic Phase 3 strategy>",
   "selected": [
     {
       "memoryId": "<id>",
-      "statement": "<the statement, redacted if sensitive>",
-      "reason": "<why selected>",
-      "auditOutcome": "<outcome>",
+      "statement": "<complete output-safe statement>",
+      "reason": "<plain-language final selection explanation>",
+      "auditOutcome": "TRUST | ASK_OWNER | RECHECK",
       "verificationStatus": "<status>",
       "confidence": "<confidence>",
-      "tags": ["<tag>"]
+      "tags": ["<output-safe tag>"],
+      "rank": 1,
+      "ranking": {
+        "relevance": { "score": 40, "matchedTagCount": 1, "matchedWordCount": 2 },
+        "authority": { "score": 40, "verificationStatus": "REPO_VERIFIED" },
+        "freshness": {
+          "score": 20,
+          "state": "CURRENT | DUE | EXPIRED | CONDITIONAL",
+          "ageDays": 0,
+          "lastVerified": "<ISO-8601 datetime>"
+        },
+        "safety": { "score": 30, "auditOutcome": "TRUST", "eligible": true },
+        "totalScore": 130,
+        "tieBreakerMemoryId": "<same memory ID>"
+      },
+      "estimatedTokens": 42
     }
   ],
   "excluded": [
     {
       "memoryId": "<id>",
-      "reason": "<why excluded: irrelevant | revoked | redacted>"
+      "reasonCode": "irrelevant | revoked | conflicted | redacted | blocked | expired | demoted | over-budget",
+      "reason": "<plain-language primary explanation>"
     }
   ],
-  "warnings": ["<any audit warnings>"],
+  "warnings": ["<privacy, ASK_OWNER, RECHECK, or empty-pack warning>"],
+  "budget": {
+    "maxTokens": 2048,
+    "estimatedTokensUsed": 42,
+    "estimatedTokensRemaining": 2006,
+    "compliant": true,
+    "estimator": { "name": "utf8-bytes-ceil-div-4", "version": "1.0.0" },
+    "scope": "selected-memory-agent-payload"
+  },
   "generatedAt": "<ISO-8601 datetime>"
 }
 ```
 
-### Phase 2 Context-pack fields
-- The structure above is the implemented canonical structure.
-- Retrieval uses deterministic lexical/tag filtering followed by the complete audit precedence chain.
-- Blocked, revoked, redacted, or irrelevant records have explicit exclusion reasons.
+### Retrieval and ranking contract
 
-### Later planned fields
-- **Budget and Ranking (Phase 3+)**: Fields such as `budget.maxTokens`, `budget.estimatedTokens`, and `budget.compliant` are planned for future phases when semantic search and strict capacity enforcement are added.
+1. Retrieval is lexical/tag based and must not be described as semantic.
+2. Safety gates run before ranking. `BLOCK_ACTION`, `FORGET_OR_REDACT`, `REVOKED`, conflicted, expired, secret-like, `SECRET`, and `FORGET_OR_REDACT` retention records are excluded.
+3. `ASK_OWNER` and `RECHECK` may remain eligible only with explicit warnings and safety penalties.
+4. Relevance score = 20 × unique normalized matched tags + 10 × unique normalized matched task words found in a non-sensitive statement. Repeated terms and case variants count once. Sensitive statement values do not influence lexical scoring.
+5. Authority score = 50 `OWNER_CONFIRMED`, 40 `REPO_VERIFIED`, 35 `TEST_VERIFIED`, 25 `OBSERVED`, 10 `INFERRED`, otherwise 0.
+6. Freshness score = 20 at 0–7 days, 15 at 8–30, 10 at 31–90, 5 at 91–365, and 0 when older. Age is measured in complete UTC 24-hour intervals between `lastVerified` and the pack `generatedAt` supplied by the injected clock. Due or conditional review subtracts 10, to a minimum of zero. Expired records remain excluded.
+7. Safety score = 30 `TRUST`, 10 `ASK_OWNER`, and 0 `RECHECK`.
+8. Total score is the additive sum. Sort descending by total, then ascending by ordinal memory ID. Locale-aware comparison, randomness, models, embeddings, and network search are prohibited.
+9. Same records, task, evidence, configuration, and clock must produce byte-equivalent formatted JSON.
 
-### Context-pack rules
+### Token estimator and hard-budget contract
 
-1. The pack explains every selection and exclusion decision.
-2. Context packs are ephemeral by default — not permanently cached.
-3. Generated context is returned in memory/stdout or stored temporarily under Git-ignored runtime storage.
-4. Sensitive material is redacted before inclusion.
-5. No real secrets appear in context output.
-6. Phase 3 adds a hard configured budget that must never be exceeded.
+1. `--max-tokens` accepts decimal positive integers from 1 through 1,000,000. Omission uses 2,048.
+2. `utf8-bytes-ceil-div-4` version `1.0.0` estimates `max(1, ceil(UTF8ByteLength(text) / 4))`. It is explicitly an estimate, not an exact vendor tokenizer.
+3. The hard budget covers the serialized canonical selected-memory agent payload only: `memoryId`, redacted `statement`, `auditOutcome`, `verificationStatus`, `confidence`, and output-safe `tags`.
+4. Ranking diagnostics, exclusion diagnostics, warnings, and budget metadata are outside the bounded agent payload so explanations remain complete.
+5. Enforcement occurs after safety filtering and deterministic ranking.
+6. Selection is the highest-ranked prefix of complete contributions that fits. A statement is never truncated.
+7. When the next complete unit cannot fit, it and all lower-ranked candidates are excluded as `over-budget`.
+8. A budget too small for the first unit returns a valid empty pack with an explicit warning and exclusion explanation.
+9. `estimatedTokensUsed` equals the sum of selected contribution estimates; remaining equals maximum minus used; used must never exceed maximum; `compliant` must be true for valid generated output.
+
+### Runtime validation contract
+
+Context validation is strict and fail-closed. It rejects unknown fields, unsupported controlled values, unsafe IDs, unsafe selected outcomes, invalid timestamps, invalid or unsafe numerical values, incorrect rank order, drift from the documented relevance, authority, freshness, safety, or total-score formulas, non-canonical selected-contribution estimates, invalid budget arithmetic or compliance, duplicate selected IDs, duplicate excluded IDs, and any ID present in both sets. It recomputes each selected estimate from the exact canonical payload fields before validating the aggregate budget. Validation errors use structural field paths and controlled messages; unknown raw field names and raw task or memory values are not echoed.
+
+### Privacy and ephemerality rules
+
+1. Secret-like task input is redacted before word extraction and cannot influence retrieval.
+2. Raw `SENSITIVE` or `SECRET` values never appear in statements, tags, explanations, warnings, JSON, or Markdown.
+3. Context packs are returned in memory/stdout and are not persisted by default.
+4. No context history accumulates.
+5. No telemetry, runtime network call, hosted tokenizer, or external service is introduced.
 
 ---
 

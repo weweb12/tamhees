@@ -1,6 +1,6 @@
 {
   "name": "doubtful-memory",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "A project brain that knows when it might be wrong — local-first memory auditing for AI coding agents",

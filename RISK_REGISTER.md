@@ -883,6 +883,16 @@ Restore from the latest commit. Review and correct the agent's behavior. Add str
 - `DM-RISK-024` remains OPEN. DM-DEC-029 reduces handoff overhead by grouping remaining phases without removing mandatory gates.
 - No risk status was silently changed to CONTROLLED or CLOSED based only on the implementing agent's own report.
 
+## Phase 3 risk review - 2026-07-22
+
+- `DM-RISK-003` remains OPEN. Ranking weights and precedence are now explicit, deterministic, and tested, but benchmark and user validation remain required.
+- `DM-RISK-004` remains OPEN with stronger controls. Secret-like task input cannot influence retrieval; privacy gates run before ranking; sensitive output is redacted; pattern detection remains intentionally incomplete.
+- `DM-RISK-013` remains OPEN with stronger controls. Deterministic lexical/tag retrieval and explanation tests reduce regressions, but Phase 7 precision/recall benchmarks have not run and retrieval is not semantic.
+- `DM-RISK-014` remains OPEN with reduced implementation uncertainty. Blocked, revoked, conflicted, expired, secret-like, and irrelevant records have controlled exclusions; `ASK_OWNER` and `RECHECK` are penalized and warned; broader benchmark fixtures remain pending.
+- `DM-RISK-020` remains OPEN. The estimator and ranking use local linear processing with zero runtime dependencies, but performance benchmarking is Phase 7 work.
+- `DM-RISK-021` remains OPEN with stronger controls. Context generation performs no writes, temporary-project tests confirm no context history, and generated packs remain stdout/in-memory only.
+- `DM-RISK-023` remains OPEN. Budget help, validation, JSON, Markdown, and invalid-argument paths are tested, but independent user-usability testing has not occurred.
+- No risk status was silently changed to CONTROLLED or CLOSED based only on implementation tests.
 ## Current risk summary
 
 ### Highest-priority open risks

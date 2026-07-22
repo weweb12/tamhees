@@ -98,6 +98,32 @@ export type EvidenceType = (typeof EVIDENCE_TYPES)[number];
 export const UPDATE_ACTIONS = ['CREATE', 'UPDATE', 'REVOKE', 'REDACT'] as const;
 export type UpdateAction = (typeof UPDATE_ACTIONS)[number];
 
+export const CONTEXT_EXCLUSION_REASONS = [
+  'irrelevant',
+  'revoked',
+  'conflicted',
+  'redacted',
+  'blocked',
+  'expired',
+  'demoted',
+  'over-budget',
+] as const;
+export type ContextExclusionReason = (typeof CONTEXT_EXCLUSION_REASONS)[number];
+
+export const FRESHNESS_RANK_STATES = [
+  'CURRENT',
+  'DUE',
+  'EXPIRED',
+  'CONDITIONAL',
+] as const;
+export type FreshnessRankState = (typeof FRESHNESS_RANK_STATES)[number];
+
+export const DEFAULT_CONTEXT_MAX_TOKENS = 2048;
+export const MIN_CONTEXT_MAX_TOKENS = 1;
+export const MAX_CONTEXT_MAX_TOKENS = 1_000_000;
+export const TOKEN_ESTIMATOR_NAME = 'utf8-bytes-ceil-div-4';
+export const TOKEN_ESTIMATOR_VERSION = '1.0.0';
+export const CONTEXT_BUDGET_SCOPE = 'selected-memory-agent-payload';
 // ─── Memory record ──────────────────────────────────────────
 
 export interface MemorySource {
@@ -230,6 +256,39 @@ export interface MutationResult {
 
 // ─── Context pack ───────────────────────────────────────────
 
+export interface ContextRelevanceRank {
+  readonly score: number;
+  readonly matchedTagCount: number;
+  readonly matchedWordCount: number;
+}
+
+export interface ContextAuthorityRank {
+  readonly score: number;
+  readonly verificationStatus: VerificationStatus;
+}
+
+export interface ContextFreshnessRank {
+  readonly score: number;
+  readonly state: FreshnessRankState;
+  readonly ageDays: number;
+  readonly lastVerified: string;
+}
+
+export interface ContextSafetyRank {
+  readonly score: number;
+  readonly auditOutcome: AuditOutcome;
+  readonly eligible: boolean;
+}
+
+export interface ContextRanking {
+  readonly relevance: ContextRelevanceRank;
+  readonly authority: ContextAuthorityRank;
+  readonly freshness: ContextFreshnessRank;
+  readonly safety: ContextSafetyRank;
+  readonly totalScore: number;
+  readonly tieBreakerMemoryId: string;
+}
+
 export interface ContextSelection {
   readonly memoryId: string;
   readonly statement: string;
@@ -238,11 +297,29 @@ export interface ContextSelection {
   readonly verificationStatus: VerificationStatus;
   readonly confidence: Confidence;
   readonly tags: readonly string[];
+  readonly rank: number;
+  readonly ranking: ContextRanking;
+  readonly estimatedTokens: number;
 }
 
 export interface ContextExclusion {
   readonly memoryId: string;
+  readonly reasonCode: ContextExclusionReason;
   readonly reason: string;
+}
+
+export interface ContextBudgetEstimator {
+  readonly name: string;
+  readonly version: string;
+}
+
+export interface ContextBudget {
+  readonly maxTokens: number;
+  readonly estimatedTokensUsed: number;
+  readonly estimatedTokensRemaining: number;
+  readonly compliant: boolean;
+  readonly estimator: ContextBudgetEstimator;
+  readonly scope: string;
 }
 
 export interface ContextPack {
@@ -252,6 +329,7 @@ export interface ContextPack {
   readonly selected: readonly ContextSelection[];
   readonly excluded: readonly ContextExclusion[];
   readonly warnings: readonly string[];
+  readonly budget: ContextBudget;
   readonly generatedAt: string; // ISO-8601
 }
 

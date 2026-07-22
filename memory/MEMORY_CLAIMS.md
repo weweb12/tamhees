@@ -427,6 +427,22 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - recheck_method: Check the latest owner instruction and DM-DEC-029
 - notes: This changes delivery grouping, not the mandatory Version 1 scope. Deferring a deliverable still requires a separate owner decision.
 
+## DM-CLAIM-023
+
+- claim: Version 0.3.0 implements deterministic audit-aware lexical/tag retrieval, explainable relevance/authority/freshness/safety ranking, strict context-pack validation, and hard estimated-token budget enforcement while preserving Phase 2 storage compatibility, ephemerality, privacy gates, and zero runtime dependencies.
+- source_type: Repository and test inspection
+- source_reference: `src/core/context.ts`, `src/core/types.ts`, `src/core/validation.ts`, `src/cli.ts`, `test/phase3-context.test.ts`, package metadata, and `npm run verify` output dated 2026-07-22
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-22
+- review_after: After any retrieval formula, audit rule, estimator, budget, context schema, dependency, or test-suite change
+- sensitivity: INTERNAL
+- action_permission: MAY_ACT
+- recheck_method: Run `npm ci`, `npm run verify`, temporary-project CLI budget checks, and Git diff verification
+- notes: Phase 3 implementation and independent local verification pass. This claim is test-verified implementation evidence, not OWNER_CONFIRMED release readiness. Automatic lifecycle integration remains Phase 4.
+
+---
+
 ## Claim maintenance rules
 
 1. Do not silently change the meaning of a claim.

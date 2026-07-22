@@ -15,7 +15,12 @@
 
 import { resolve } from 'node:path';
 import { lstat, readFile } from 'node:fs/promises';
-import { systemClock } from './core/types.js';
+import {
+  DEFAULT_CONTEXT_MAX_TOKENS,
+  MAX_CONTEXT_MAX_TOKENS,
+  MIN_CONTEXT_MAX_TOKENS,
+  systemClock,
+} from './core/types.js';
 import { PRODUCT_NAME, CLI_NAME, STORAGE_DIR, ENGINE_VERSION } from './core/identity.js';
 import { initGptbrain, loadAllRecords } from './core/store.js';
 import {
@@ -31,6 +36,7 @@ import {
 import { loadAllEvidence, storeEvidenceRecord } from './core/evidence.js';
 import { applyUpdateCandidate } from './core/mutations.js';
 import { memoryForOutput } from './core/privacy.js';
+import { validateContextPack } from './core/validation.js';
 
 // ─── Argument parsing ───────────────────────────────────────
 
@@ -127,10 +133,14 @@ Usage: ${CLI_NAME} context --task "<description>" [options]
 Options:
   --task <text>       Task description (required)
   --format <type>     Output format: json or markdown (default: json)
+  --max-tokens <n>    Hard estimated-token budget (default: ${DEFAULT_CONTEXT_MAX_TOKENS}; range: ${MIN_CONTEXT_MAX_TOKENS}-${MAX_CONTEXT_MAX_TOKENS})
 
 Behavior:
   - Loads and validates canonical memory records
-  - Selects relevant records using audit-aware lexical/tag matching
+  - Ranks eligible records deterministically by relevance, authority, freshness, and safety
+  - Enforces the budget on the canonical selected-memory agent payload
+  - Uses the documented UTF-8-byte estimator, not a vendor tokenizer
+  - May return a valid empty pack when no complete memory contribution fits
   - Excludes SECRET and FORGET_OR_REDACT content
   - Does NOT persist the generated context pack
   - Does NOT write task text into project memory
@@ -269,7 +279,7 @@ async function handleContext(): Promise<void> {
     process.exit(0);
   }
 
-  const { options } = parseArgs(['--task', '--format'], 0);
+  const { options } = parseArgs(['--task', '--format', '--max-tokens'], 0);
 
   const task = options['--task'];
   if (!task) {
@@ -283,6 +293,11 @@ async function handleContext(): Promise<void> {
     console.error(`Unknown format: ${format}. Use json or markdown.`);
     process.exit(2);
   }
+
+  const maxTokensText = options['--max-tokens'];
+  const maxTokens = maxTokensText === undefined
+    ? DEFAULT_CONTEXT_MAX_TOKENS
+    : parseContextMaxTokens(maxTokensText);
 
   const projectDir = process.cwd();
   const { records, errors } = await loadAllRecords(projectDir);
@@ -300,7 +315,12 @@ async function handleContext(): Promise<void> {
     process.exit(1);
   }
 
-  const pack = compileContext(task, records, systemClock, evidenceResult.evidence);
+  const pack = compileContext(task, records, systemClock, evidenceResult.evidence, { maxTokens });
+  const validation = validateContextPack(pack);
+  if (!validation.valid) {
+    console.error('Generated context pack failed internal validation. Raw context content was not echoed.');
+    process.exit(1);
+  }
 
   if (format === 'markdown') {
     console.log(formatContextAsMarkdown(pack));
@@ -309,6 +329,17 @@ async function handleContext(): Promise<void> {
   }
 
   process.exit(0);
+}
+
+function parseContextMaxTokens(value: string): number {
+  if (!/^[1-9]\d*$/.test(value)) {
+    usageError(`--max-tokens must be a positive integer from ${MIN_CONTEXT_MAX_TOKENS} to ${MAX_CONTEXT_MAX_TOKENS}.`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < MIN_CONTEXT_MAX_TOKENS || parsed > MAX_CONTEXT_MAX_TOKENS) {
+    usageError(`--max-tokens must be a positive integer from ${MIN_CONTEXT_MAX_TOKENS} to ${MAX_CONTEXT_MAX_TOKENS}.`);
+  }
+  return parsed;
 }
 
 // ─── Audit handler ──────────────────────────────────────────

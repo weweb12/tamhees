@@ -106,7 +106,7 @@ Every stored artifact must include a schema version, and the engine must handle 
 
 - Priority: MUST
 - Status: IN_PROGRESS
-- Related decision: DM-DEC-013
+- Related decisions: DM-DEC-013, DM-DEC-030
 
 Before a task begins, the system must automatically retrieve relevant context.
 
@@ -117,6 +117,8 @@ Before a task begins, the system must automatically retrieve relevant context.
 - The retrieval applies the configured budget limit.
 - The output includes selection and exclusion explanations.
 - Sensitive content is redacted before output.
+
+Phase 3 implements the deterministic retrieval command, ranking, explanations, and budget portion. Status remains `IN_PROGRESS` because automatic pre-task lifecycle invocation belongs to Phase 4 and is not implemented.
 
 ---
 
@@ -141,8 +143,8 @@ After a task, proposed memory updates must be validated through authority rules.
 ## DM-REQ-ENGINE-007 - Context-budget enforcement
 
 - Priority: MUST
-- Status: NOT_STARTED
-- Related decision: DM-DEC-021
+- Status: IMPLEMENTED
+- Related decisions: DM-DEC-021, DM-DEC-030
 
 Context packs must have a hard configured budget that is never exceeded.
 
@@ -159,15 +161,15 @@ Context packs must have a hard configured budget that is never exceeded.
 ## DM-REQ-ENGINE-008 - Selection and exclusion explanations
 
 - Priority: MUST
-- Status: IN_PROGRESS
-- Related decision: DM-DEC-021
+- Status: IMPLEMENTED
+- Related decisions: DM-DEC-021, DM-DEC-030
 
 The context compiler must explain every selection and exclusion decision.
 
 ### Acceptance criteria
 
 - Every selected memory includes a reason for selection.
-- Every excluded memory includes a reason: irrelevant, expired, conflicted, demoted, over-budget, or redacted.
+- Every excluded memory includes a controlled reason: irrelevant, revoked, conflicted, redacted, blocked, expired, demoted, or over-budget.
 - Expired, conflicted, and demoted records are explicitly identified.
 - Explanations are included in the context-pack output.
 
@@ -1197,8 +1199,8 @@ If a requirement changes:
 
 - Total requirements defined: 60
 - Requirements verified: 0
-- Requirements implemented: 21
-- Requirements in progress: 15
-- Requirements not started: 24
+- Requirements implemented: 23
+- Requirements in progress: 14
+- Requirements not started: 23
 - Assumptions recorded: 7
 - Assumptions fully verified: 0

@@ -11,33 +11,34 @@ During development, AI agents must update PROJECT_STATE.md after material work. 
 ## Status summary
 
 - Project: Doubtful Memory
-- Current phase: Phase 2 — Complete and locally verified; combined Phase 1–2 local checkpoint.
+- Current phase: Phase 3 — complete and locally verified.
 - Overall status: In progress
 - Development environment: Windows, local-only, Node 24.
 - Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest verified checkpoint: Phase 2 local checkpoint
+- Latest verified checkpoint: Phase 3 local checkpoint
 - Git remote: None
 - Repository upload/publication: None
 - External services: None
 - Paid services: None
 - Application dependencies: None (zero runtime dependencies)
-- Application code: Phase 2 engine core, CLI, strict validation, evidence storage, controlled mutations, archive handling, privacy guards, context safety, and full audit precedence implemented.
+- Application code: Phase 1–3 locally verified, including deterministic retrieval, ranking, explanations, strict context-pack validation, privacy filtering, and hard budget enforcement.
 - Packages:
   - typescript@6.0.3
   - @types/node@22.20.1
   - zero runtime dependencies
 - CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
-- Current verified test evidence:
-  - 81 passed
+- Current local verification evidence:
+  - 107 passed
   - 0 failed
   - 0 skipped
-- Last updated: 2026-07-21
+  - 0 todo
+- Last updated: 2026-07-22
 
 ## Current objective
 
-Begin the accelerated Phases 3–4 milestone with Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement.
+Phase 3 retrieval, ranking, explanations, strict context validation, and hard budget enforcement are complete and locally verified. Preserve this local checkpoint and do not begin Phase 4 within the Phase 3 checkpoint task.
 
 ## Completed work
 
@@ -80,11 +81,18 @@ Begin the accelerated Phases 3–4 milestone with Phase 3 retrieval, ranking, se
 - Phase 2: Added `memory` and `evidence` CLI operations.
 - Phase 2: Expanded verification to 81 passing tests with zero failures or skips.
 - Phase 2: Installed and locally verified the combined Phase 1–2 checkpoint with typecheck, build, 81 tests, archive-safety checks, and the temporary-directory CLI smoke workflow passing.
+- Phase 3: Advanced package and engine version to 0.3.0 without changing storage schema 1.0.0.
+- Phase 3: Implemented deterministic additive relevance, authority, freshness, and safety ranking with ordinal memory-ID tie-breaking.
+- Phase 3: Added strict context-pack runtime validation and controlled exclusion reasons.
+- Phase 3: Added configurable hard budget enforcement for the canonical selected-memory agent payload using the dependency-free UTF-8 byte estimator.
+- Phase 3: Preserved privacy-first filtering, redaction, ephemerality, and zero runtime dependencies.
+- Phase 3: Expanded the suite from 81 to 107 tests; independent local typecheck, build, and all tests pass.
 
 ## Current files in focus
 
-- The verified Phase 1–2 local checkpoint.
-- Phase 3 has not started; its next scope is retrieval, ranking, explanations, and budget enforcement.
+- The verified Phase 1–3 local checkpoint.
+- Phase 4 lifecycle design is the next development focus.
+- Phase 4 automatic lifecycle work has not started.
 
 ## Locked constraints
 
@@ -142,13 +150,17 @@ Phase 2 (Complete memory store and audit rules) is complete and locally verified
 - Full Phase 2 audit precedence produces deterministic outcomes.
 - Documentation accurately reflects implemented behavior and limitations.
 
+## Phase 3 completion status
+
+Phase 3 retrieval, ranking, explanations, context-pack validation, and hard estimated-token budget enforcement are complete and independently verified locally. This is test-verified implementation evidence and does not elevate any memory claim to `OWNER_CONFIRMED`.
+
 ## Next phase
 
-Accelerated Milestone 2: Phases 3–4 (budgeted retrieval plus automatic lifecycle).
+Phase 4 — controlled automatic pre-task retrieval and post-task finalization lifecycle.
 
 ## Next immediate action
 
-Begin Phase 3 retrieval, ranking, selection/exclusion explanations, and hard budget enforcement. Do not add an external service or runtime dependency, upload the repository, or configure a remote without explicit owner approval.
+Begin Phase 4 controlled automatic pre-task retrieval and post-task finalization lifecycle work from the Phase 3 local checkpoint. Do not add an external service or runtime dependency, upload the repository, or configure a remote without explicit owner approval.
 
 ## Safe restart instructions
 

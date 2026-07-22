@@ -510,26 +510,27 @@ describe('Phase 2 audit precedence and context safety', () => {
       tags: ['database'],
     });
     const pack = compileContext('change database architecture', [blocked, sensitive], clock2);
-    assert.ok(pack.excluded.some((item) => item.memoryId === blocked.id && item.reason.startsWith('blocked:')));
+    assert.ok(pack.excluded.some((item) => item.memoryId === blocked.id && item.reasonCode === 'conflicted'));
     assert.equal(pack.selected.find((item) => item.memoryId === sensitive.id)?.statement, '[REDACTED — SENSITIVE content]');
     assert.ok(pack.warnings.some((warning) => warning.includes(blocked.id)));
   });
 
   it('context explains stale selections and never echoes secret-like task input', () => {
-    const expired = memory('DM-MEM-CONTEXT-EXPIRED', {
+    const dueForReview = memory('DM-MEM-CONTEXT-DUE', {
       statement: 'Database migration guidance.',
       source: { type: 'REPOSITORY_STATE', reference: 'database/config' },
       verificationStatus: 'REPO_VERIFIED',
       confidence: 'HIGH',
-      freshness: { lastVerified: TIME_1, expiresAfter: '2026-07-20T08:30:00.000Z' },
+      freshness: { lastVerified: TIME_1, reviewAfter: '2026-07-20T08:30:00.000Z' },
       tags: ['database'],
     });
-    const normal = compileContext('review database migration', [expired], clock2);
-    assert.ok(normal.selected[0]?.reason.includes('expired'));
-    assert.ok(normal.warnings.some((warning) => warning.includes('requires recheck')));
+    const normal = compileContext('review database migration', [dueForReview], clock2);
+    assert.equal(normal.selected[0]?.auditOutcome, 'RECHECK');
+    assert.ok(normal.selected[0]?.reason.includes('review was due'));
+    assert.ok(normal.warnings.some((warning) => warning.includes('RECHECK')));
 
     const fakeSecretTask = 'deploy with api_key=dm_example_secret_1122334455';
-    const redacted = compileContext(fakeSecretTask, [expired], clock2);
+    const redacted = compileContext(fakeSecretTask, [dueForReview], clock2);
     assert.ok(!JSON.stringify(redacted).includes(fakeSecretTask));
     assert.ok(redacted.taskDescription.startsWith('[REDACTED'));
     assert.equal(redacted.selected.length, 0);

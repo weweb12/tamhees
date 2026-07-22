@@ -941,6 +941,46 @@ Run independent review and full documentation reconciliation once per grouped mi
 
 ---
 
+## DM-DEC-030 - Deterministic Phase 3 ranking and bounded payload contract
+
+- Date: 2026-07-22
+- Status: APPROVED
+- Category: Architecture and protocol
+
+### Context
+
+Phase 3 requires useful retrieval, complete safety explanations, and a hard context limit without embeddings, external services, random behavior, locale-dependent ordering, or a tokenizer dependency. Bounding the entire diagnostic document would make safety explanations compete with agent-consumable memory content.
+
+### Decision
+
+- Use deterministic lexical/tag retrieval; do not claim semantic retrieval.
+- Apply privacy, revocation, conflict, expiration, permission, and audit-safety gates before ranking.
+- Rank eligible memories with an additive score: relevance (20 per unique normalized matched tag plus 10 per unique normalized matched task word found in the statement), authority (`OWNER_CONFIRMED=50`, `REPO_VERIFIED=40`, `TEST_VERIFIED=35`, `OBSERVED=25`, `INFERRED=10`, otherwise 0), freshness (20/15/10/5/0 by age bands, with a 10-point due/conditional penalty), and safety (`TRUST=30`, `ASK_OWNER=10`, `RECHECK=0`).
+- Sort by descending total score and use ordinal memory ID as the final tie-breaker.
+- Permit `ASK_OWNER` and `RECHECK` only with explicit warnings and ranking penalties; never let confidence override a safety gate.
+- Define the hard budget scope as `selected-memory-agent-payload`: memory ID, redacted statement, audit outcome, verification status, confidence, and output-safe tags.
+- Keep diagnostics, exclusions, warnings, ranking details, and budget metadata outside that hard payload budget.
+- Estimate each canonical contribution with `utf8-bytes-ceil-div-4` version `1.0.0`: `max(1, ceil(UTF8 byte length / 4))`. This is an estimate, not an exact vendor tokenizer.
+- Accept budgets from 1 through 1,000,000 estimated tokens and default to 2,048.
+- Select the highest-ranked prefix of complete contributions. Never truncate statements. If the first contribution does not fit, return a valid explained empty pack.
+- Validate generated context packs strictly before CLI output.
+
+### Reasons
+
+- The additive formula is inspectable, deterministic, dependency-free, and testable.
+- Ordinal ID comparison is stable across locales and machines.
+- Separating bounded agent payload from diagnostics preserves both a hard capacity guarantee and complete safety explanations.
+- A valid empty pack fails safely when the configured capacity cannot represent one complete memory unit.
+
+### Consequences
+
+- Ranking weights and estimator behavior are protocol commitments and require a new decision to change materially.
+- Token estimates may differ from any particular model tokenizer and must be labeled accordingly.
+- Phase 3 context generation remains ephemeral and storage-schema compatible with Phase 2.
+- Automatic pre-task invocation and post-task finalization remain Phase 4 work.
+
+---
+
 ## Pending decisions
 
 The following matters are intentionally not decided yet:

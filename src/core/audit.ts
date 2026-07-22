@@ -56,7 +56,7 @@ export function auditRecord(
 ): AuditFinding | null {
   const relevant = evidence
     .filter((item) => item.memoryIds.includes(record.id))
-    .sort((a, b) => a.id.localeCompare(b.id));
+    .sort((a, b) => compareOrdinal(a.id, b.id));
   const evidenceIds = relevant.map((item) => item.id);
 
   if (record.sensitivity === 'SECRET') {
@@ -216,7 +216,7 @@ export function runAudit(
 ): AuditRunResult {
   const timestamp = clock();
   const findings = [...records]
-    .sort((a, b) => a.id.localeCompare(b.id))
+    .sort((a, b) => compareOrdinal(a.id, b.id))
     .map((record) => auditRecord(record, evidence, timestamp))
     .filter((item): item is AuditFinding => item !== null);
 
@@ -237,11 +237,11 @@ export async function writeAuditEvents(
   clock: Clock,
   evidence: readonly EvidenceRecord[] = [],
 ): Promise<void> {
-  const sorted = [...records].sort((a, b) => a.id.localeCompare(b.id));
+  const sorted = [...records].sort((a, b) => compareOrdinal(a.id, b.id));
   const events: AuditEvent[] = sorted.map((record) => {
     const itemEvidence = evidence
       .filter((item) => item.memoryIds.includes(record.id))
-      .sort((a, b) => a.id.localeCompare(b.id));
+      .sort((a, b) => compareOrdinal(a.id, b.id));
     const findingForRecord = result.findings.find((item) => item.recordId === record.id);
     const outcome = findingForRecord?.outcome ?? 'TRUST';
     return {
@@ -390,6 +390,10 @@ function determineOverallOutcome(findings: readonly AuditFinding[]): AuditOutcom
     if (findings.some((item) => item.outcome === outcome)) return outcome;
   }
   return 'TRUST';
+}
+
+function compareOrdinal(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function generateEventId(): string {

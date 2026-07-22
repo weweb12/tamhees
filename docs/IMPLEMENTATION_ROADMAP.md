@@ -2,7 +2,7 @@
 
 > **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
 
-> **Current Position**: Phases 1 and 2 are implemented and locally verified in the Phase 2 local checkpoint. The combined suite passes 81 tests with zero failures, zero skips, and zero todos. Phase 2 is complete, and Phase 3 retrieval, ranking, explanations, and budget enforcement is next.
+> **Current Position**: Phases 1, 2, and 3 are complete and locally verified in Version 0.3.0 with 107 passing tests, zero failures, zero skips, and zero todos. Phase 4 is next.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -150,39 +150,45 @@ All audit rules pass their tests, index consistency is verified, and the tempora
 
 ## Phase 3 — Retrieval, ranking, explanations, and budget enforcement
 
+Status: **IMPLEMENTATION CANDIDATE — PENDING OWNER VERIFICATION AND CHECKPOINT COMMIT**
+
 ### Outputs
 
-- Memory retrieval by relevance, freshness, and authority.
-- Context compiler with configurable budget.
-- Selection and exclusion explanations.
-- Token-size estimation.
-- Budget compliance enforcement.
-- Sensitive content redaction in context output.
+- [x] Deterministic lexical/tag relevance ranking.
+- [x] Explicit authority, freshness, and audit-safety ranking components.
+- [x] Ordinal memory-ID final tie-breaker.
+- [x] Context compiler with configurable 1–1,000,000 estimated-token budget and a 2,048 default.
+- [x] Versioned dependency-free UTF-8 byte estimator.
+- [x] Hard enforcement over the canonical selected-memory agent payload.
+- [x] Structured selection and controlled exclusion explanations.
+- [x] Strict runtime validation for context packs and budget arithmetic.
+- [x] Sensitive-content redaction and secret-like-input exclusion.
+- [x] JSON and Markdown formatting with ranking and budget diagnostics.
 
 ### Acceptance criteria
 
-- Retrieval returns relevant memories for a given task description.
-- Budget is never exceeded.
-- Every selected and excluded memory has an explanation.
-- Token estimates are within acceptable accuracy.
-- Sensitive content is redacted before output.
-- Context packs are ephemeral by default.
+- Retrieval ranks relevant memories by additive relevance, authority, freshness, and safety scores.
+- Same records, task, evidence, configuration, and clock produce byte-equivalent output.
+- Budgeted selected-memory payload never exceeds the configured estimate.
+- Every selected memory has structured ranking data, contribution estimate, and final reason.
+- Every excluded memory has a controlled reason and plain-language explanation.
+- Complete statements are never truncated; a too-small budget produces a valid explained empty pack.
+- Context packs remain ephemeral and no runtime network or external service is used.
 
 ### Tests
 
-- Retrieval precision and recall tests with fixture data.
-- Budget compliance tests at various limits.
-- Redaction tests with sensitive fixture data.
-- Explanation completeness tests.
+- 26 Phase 3 tests cover ranking precedence, duplicate-term normalization, deterministic tie-breaking, byte determinism, safety exclusions, warnings, explanations, budget boundaries, multiple budget sizes, Unicode and long-statement estimation, formula, rank-order, and canonical-estimate validation, formatting, CLI arguments, ephemerality, and network-free behavior.
+- The combined local suite contains 107 tests and passes with zero failures, zero skips, and zero todos.
 
 ### Stop gate
 
-All tests pass. Budget compliance is verified with fixtures. Owner approves.
+Implementation and independent local owner-verification pass. The local Phase 3 checkpoint commit is the stop gate before Phase 4 begins.
 
 ### Evidence required
 
-- Test output.
-- Example context pack with explanations.
+- Full `npm run verify` output.
+- Temporary-project CLI checks for default, small, JSON, Markdown, and invalid budgets.
+- Dependency tree, Git diff checks, and confirmation that context output was not persisted.
 
 ---
 
