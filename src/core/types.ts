@@ -124,6 +124,39 @@ export const MAX_CONTEXT_MAX_TOKENS = 1_000_000;
 export const TOKEN_ESTIMATOR_NAME = 'utf8-bytes-ceil-div-4';
 export const TOKEN_ESTIMATOR_VERSION = '1.0.0';
 export const CONTEXT_BUDGET_SCOPE = 'selected-memory-agent-payload';
+
+export const LIFECYCLE_STATUSES = [
+  'OPEN',
+  'FINALIZING',
+  'COMPLETED',
+  'COMPLETED_WITH_HELD_ITEMS',
+  'FAILED',
+] as const;
+export type LifecycleStatus = (typeof LIFECYCLE_STATUSES)[number];
+
+export const LIFECYCLE_PROPOSER_TYPES = ['AGENT', 'TOOL', 'OWNER'] as const;
+export type LifecycleProposerType = (typeof LIFECYCLE_PROPOSER_TYPES)[number];
+
+export const FINALIZATION_DISPOSITIONS = [
+  'APPLIED',
+  'HELD_FOR_OWNER',
+  'REJECTED',
+  'NO_CHANGE',
+] as const;
+export type FinalizationDisposition = (typeof FINALIZATION_DISPOSITIONS)[number];
+
+export const LIFECYCLE_REASON_CODES = [
+  'AUTHORIZED',
+  'OWNER_CONFIRMATION_REQUIRED',
+  'INSUFFICIENT_AUTHORITY',
+  'INVALID_CANDIDATE',
+  'MISSING_ARTIFACT',
+  'STALE_UPDATE',
+  'NO_MATERIAL_CHANGE',
+  'PRIVACY_REDACTION',
+  'MUTATION_FAILED',
+] as const;
+export type LifecycleReasonCode = (typeof LIFECYCLE_REASON_CODES)[number];
 // ─── Memory record ──────────────────────────────────────────
 
 export interface MemorySource {
@@ -334,6 +367,78 @@ export interface ContextPack {
 }
 
 // ─── Store artifacts ────────────────────────────────────────
+
+export interface LifecycleProposer {
+  readonly type: LifecycleProposerType;
+  readonly id: string;
+}
+
+export interface LifecycleFinalizationInput {
+  readonly schemaVersion: string;
+  readonly lifecycleId: string;
+  readonly proposer: LifecycleProposer;
+  readonly proposedUpdates: readonly UpdateCandidate[];
+  readonly reason?: string | undefined;
+}
+
+export interface LifecycleDispositionRecord {
+  readonly proposalIndex: number;
+  readonly action: UpdateAction;
+  readonly memoryId: string | null;
+  readonly disposition: FinalizationDisposition;
+  readonly reasonCode: LifecycleReasonCode;
+  readonly explanation: string;
+  readonly triggeredRules: readonly string[];
+  readonly storageChanged: boolean;
+  readonly auditReferences: readonly string[];
+  readonly recommendedAction: string;
+}
+
+export interface LifecycleFinalizationMetadata {
+  readonly fingerprint: string;
+  readonly proposer: LifecycleProposer;
+  readonly startedAt: string;
+  readonly completedAt?: string | undefined;
+  readonly dispositions: readonly LifecycleDispositionRecord[];
+}
+
+export interface LifecycleMetadata {
+  readonly schemaVersion: string;
+  readonly lifecycleId: string;
+  readonly status: LifecycleStatus;
+  readonly openedAt: string;
+  readonly updatedAt: string;
+  readonly selectedMemoryIds: readonly string[];
+  readonly exclusionReasonCodes: readonly ContextExclusionReason[];
+  readonly budget: ContextBudget;
+  readonly auditReferences: readonly string[];
+  readonly finalization?: LifecycleFinalizationMetadata | undefined;
+  readonly failureCode?: string | undefined;
+  readonly recoveryGuidance?: string | undefined;
+}
+
+export interface LifecycleBeginResult {
+  readonly success: boolean;
+  readonly lifecycleId: string | null;
+  readonly status: LifecycleStatus | null;
+  readonly openedAt: string | null;
+  readonly contextPack: ContextPack | null;
+  readonly auditReferences: readonly string[];
+  readonly errors: readonly ValidationIssue[];
+}
+
+export interface LifecycleFinalizeResult {
+  readonly success: boolean;
+  readonly lifecycleId: string | null;
+  readonly status: LifecycleStatus | null;
+  readonly dispositions: readonly LifecycleDispositionRecord[];
+  readonly storageChanged: boolean;
+  readonly auditReferences: readonly string[];
+  readonly recommendedAction: string;
+  readonly completedAt: string | null;
+  readonly alreadyFinalized: boolean;
+  readonly errors: readonly ValidationIssue[];
+}
 
 export interface GptbrainConfig {
   readonly schemaVersion: string;

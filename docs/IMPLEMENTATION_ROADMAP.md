@@ -2,7 +2,7 @@
 
 > **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
 
-> **Current Position**: Phases 1, 2, and 3 are complete and locally verified in Version 0.3.0 with 107 passing tests, zero failures, zero skips, and zero todos. Phase 4 is next.
+> **Current Position**: Phases 1–4 are checkpointed. Version 0.4.0 Phase 4 is independently verified locally with 150 passing tests, zero failures, zero skips, and zero todos. Phase 5 has not started.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -150,7 +150,7 @@ All audit rules pass their tests, index consistency is verified, and the tempora
 
 ## Phase 3 — Retrieval, ranking, explanations, and budget enforcement
 
-Status: **IMPLEMENTATION CANDIDATE — PENDING OWNER VERIFICATION AND CHECKPOINT COMMIT**
+Status: **COMPLETE AND LOCALLY VERIFIED — CHECKPOINTED**
 
 ### Outputs
 
@@ -194,39 +194,45 @@ Implementation and independent local owner-verification pass. The local Phase 3 
 
 ## Phase 4 — Controlled update/finalization lifecycle
 
+Status: **COMPLETE AND INDEPENDENTLY VERIFIED LOCALLY — CHECKPOINTED**
+
 ### Outputs
 
-- Automatic pre-task retrieval workflow.
-- Controlled post-task memory finalization.
-- Update-candidate validation through authority rules.
-- Automatic state maintenance (no manual owner maintenance per task).
-- Safe handling of proposed updates that exceed authority.
+- [x] Automatic Phase 3 retrieval through `lifecycle begin` with injected clock and ID generator.
+- [x] Ephemeral JSON/Markdown context; only safe lifecycle correlation metadata is persisted.
+- [x] Strict versioned `lifecycle finalize` envelope reusing canonical `UpdateCandidate` values.
+- [x] Deterministic `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, and `NO_CHANGE` classifications.
+- [x] Explicit lifecycle states, durable pre-mutation journal, idempotent completed replay, and fail-closed recovery.
+- [x] Canonical Phase 2 mutation, audit, archive, privacy, path-safety, and concurrency boundaries retained.
+- [x] One-time explicit-vocabulary bootstrap Markdown migration required by `DM-REQ-LIFE-002`.
+- [x] Version 0.4.0 with no runtime dependency, service, network, telemetry, or permanent context pack.
 
 ### Acceptance criteria
 
-- Pre-task retrieval produces a context pack automatically.
-- Post-task finalization validates proposed updates.
-- Authority non-escalation is enforced.
-- Owner decisions cannot be overridden automatically.
-- Material updates are auditable.
+- Pre-task retrieval produces budget-compliant safe context automatically and stores neither task text nor selected statements.
+- Finalization validates the whole request before mutation and classifies each structurally valid proposal.
+- Authorized proposals apply independently and deterministically; owner decisions are held, not approved.
+- Lower authority, generated evidence, stale state, missing artifacts, and raw restricted content fail safely.
+- Identical completed replay creates no duplicate memory or finalization audit event; different replay fails.
+- Interrupted finalization cannot replay automatically and includes explicit recovery guidance.
+- Bootstrap claims migrate without authority escalation or source-Markdown modification.
 
 ### Tests
 
-- Authority escalation rejection tests.
-- Finalization workflow tests.
-- Pre-task retrieval integration tests.
+- 43 Phase 4 tests cover begin privacy and budget behavior, safe metadata and timestamp invariants, ID validation, automatic application, held owner policy, rejection, mixed results, canonical fingerprint idempotency, injected journal/audit/marker interruptions, ambiguity, privacy precedence, strict unknown-field behavior, path-safe migration, rollback, and reconciliation.
+- The combined local suite contains 150 tests and passes with zero failures, zero skips, and zero todos.
 
 ### Stop gate
 
-All authority rules are tested. Lifecycle workflow is verified. Owner approves.
+Implementation and independent local owner-verification pass. The Phase 4 local checkpoint is complete; Phase 5 remains a separate, not-yet-started task.
 
 ### Evidence required
 
-- Test output.
-- Example lifecycle trace showing pre-task → task → post-task.
+- Full clean-install, typecheck, build, test, and verify output.
+- A real temporary-project trace with applied, held, and rejected proposals plus identical replay.
+- Dependency inspection, Git diff checks, and proof that no task, context pack, service, remote, or repository `.gptbrain/` was introduced.
 
 ---
-
 ## Phase 5 — Codex and Antigravity adapters
 
 ### Outputs

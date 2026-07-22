@@ -455,3 +455,19 @@ These vocabularies remain candidates until protocol design is approved. The stat
 8. Recheck permission before performing significant, external, costly, destructive, or privacy-sensitive actions.
 9. Preserve enough provenance for another person or agent to verify the claim.
 10. When authority is unclear, use `ASK_OWNER` rather than guessing.
+
+---
+
+## DM-CLAIM-024
+
+- claim: Version 0.4.0 implements a local controlled lifecycle with ephemeral pre-task context retrieval, privacy-safe lifecycle metadata, deterministic post-task dispositions, owner-policy holds, idempotent completed replay, fail-closed recovery journaling, and a one-time explicit-vocabulary bootstrap migration while retaining storage schema 1.0.0 and zero runtime dependencies.
+- source_type: Repository and test inspection
+- source_reference: `src/core/lifecycle.ts`, `src/core/migration.ts`, `src/core/validation.ts`, `src/cli.ts`, `test/phase4-lifecycle.test.ts`, package metadata, independent failure-injection review, isolated smoke workflows, and local 150-test verification output dated 2026-07-22
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-22
+- review_after: Recheck after lifecycle, migration, authority, privacy, storage, dependency, or test-suite changes.
+- sensitivity: INTERNAL
+- action_permission: ACT_WITH_CAUTION
+- recheck_method: Inspect the cited source, run the full suite and temporary-project lifecycle trace, and confirm the repository remains free of `.gptbrain/` runtime state.
+- notes: Phase 4 is independently verified locally and checkpointed. This TEST_VERIFIED evidence is not OWNER_CONFIRMED release readiness. Phase 5 adapters, multi-process locking, automatic interrupted-lifecycle recovery, and an owner-confirmation UI are not implemented.

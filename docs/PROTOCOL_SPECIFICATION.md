@@ -1,6 +1,6 @@
 # Doubtful Memory — Protocol Specification
 
-> **Status**: Phase 2 storage, evidence, mutation, archive, and audit-precedence contracts and Phase 3 retrieval, ranking, explanation, context-validation, and hard-budget contracts are implemented and locally verified in Version 0.3.0. Lifecycle automation, migration, adapters, and dashboard behavior remain planned.
+> **Status**: Version 0.4.0 implements the Phase 2 storage/mutation/audit, Phase 3 context, and Phase 4 controlled lifecycle plus bootstrap-migration contracts locally. Adapters, MCP, and dashboard behavior remain planned.
 
 ## Overview
 
@@ -488,3 +488,55 @@ Each audit event is appended to the JSONL audit log.
 4. Migration does not elevate `INFERRED` to `OWNER_CONFIRMED`.
 5. Migration produces an audit event recording the transformation.
 6. The original bootstrap files are preserved (not deleted during migration).
+
+---
+
+## Phase 4 lifecycle protocol
+
+### Begin contract
+
+Core signature: `beginLifecycle(projectDir, taskDescription, clock, idGenerator, { maxTokens })`.
+
+The operation rejects an empty or secret-like task before retrieval or persistence. On success it returns a lifecycle ID, `OPEN` status, opening timestamp, safe audit references, and the exact Phase 3 context pack. Only this metadata is persisted: `schemaVersion`, `lifecycleId`, `status`, `openedAt`, `updatedAt`, `selectedMemoryIds`, unique controlled `exclusionReasonCodes`, the Phase 3 `budget` summary, and `auditReferences`. Unknown fields and unsupported states fail strict runtime validation.
+
+### Finalization input
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "lc-<safe-id>",
+  "proposer": {
+    "type": "AGENT | TOOL | OWNER",
+    "id": "<safe-id>"
+  },
+  "proposedUpdates": ["<canonical UpdateCandidate>"],
+  "reason": "<optional privacy-safe reason>"
+}
+```
+
+The engine assigns the finalization time from its injected clock. Unknown fields, unknown vocabularies, unsafe IDs, unsupported schemas, malformed candidates, exact duplicates, ambiguous duplicate targets, secrets, and missing lifecycle artifacts are rejected before mutation. Candidate `proposedBy` must equal `proposer.id`.
+
+### Dispositions
+
+Each structurally valid candidate receives exactly one of:
+
+- `APPLIED / AUTHORIZED`: passed lifecycle policy and the canonical mutation boundary; storage changed.
+- `HELD_FOR_OWNER / OWNER_CONFIRMATION_REQUIRED`: touches an owner boundary without sufficient stored owner evidence; storage did not change.
+- `REJECTED`: invalid, stale, missing, unsafe, unauthorized, privacy-prohibited, or rejected by the canonical mutation boundary; storage did not change.
+- `NO_CHANGE / NO_MATERIAL_CHANGE`: canonical state already represents the proposal; storage did not change.
+
+Every disposition contains only its proposal index, action, safe memory ID, controlled disposition and reason code, privacy-safe explanation, triggered rules, storage-change flag, safe audit references, and recommended action. Rejected raw content is not copied into lifecycle state or audit output.
+
+### State, transaction, and recovery
+
+Legal transitions are `OPEN -> FINALIZING -> COMPLETED | COMPLETED_WITH_HELD_ITEMS`; a commit failure may produce `FAILED`. All proposal dispositions are planned before mutation. `APPLIED` items are independently executed in input order through the Phase 2 mutation API. The implementation guarantees atomic replacement only for individual controlled files and their existing mutation rollback boundary, not one atomic filesystem transaction for the batch.
+
+A durable `FINALIZING` journal precedes the first mutation and is rewritten after each attempt. Interrupted `FINALIZING` and `FAILED` states refuse automatic replay to prevent duplicate writes and require controlled inspection. An identical request against completed state returns the stored result idempotently without another mutation or audit row. Different content fails `ALREADY_FINALIZED`.
+
+### Authority and evidence rules
+
+Automatic verified status requires matching stored `SUPPORTS` evidence. Owner confirmation requires an `OWNER` proposer, `OWNER_CONFIRMED` candidate authority, and supporting `OWNER_INSTRUCTION` evidence for the affected memory. Repository or test evidence cannot approve owner-controlled scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload decisions. Context packs, generated summaries, lifecycle results, audit output, and engine summaries are never independent evidence. Lower authority cannot alter stronger canonical authority. Privacy rejection remains fail-closed and confidence creates no authority.
+
+### Bootstrap migration
+
+`migrateBootstrapClaims(projectDir, markdown, clock)` and `gptbrain migrate bootstrap` implement `DM-REQ-LIFE-002`. Only `## DM-CLAIM-NNN` sections and the documented legacy keys are accepted. Source, status, confidence, sensitivity, and permission vocabularies are mapped by explicit tables; malformed structure, duplicate IDs or fields, unsupported vocabulary, and existing-record collisions fail before migration completion. The CLI accepts only a regular UTF-8 source inside the project boundary and rejects symbolic-link or reparse-point components. IDs, verification status, confidence, sensitivity, permission, source reference, verification date, revocation, and relationships are preserved; where legacy `superseded_by` lists multiple IDs, the first remains `supersededBy` and additional IDs are retained as `relatedTo` because the canonical schema has one superseding target. The Markdown input is never changed or deleted. A SHA-256 source fingerprint plus `PREPARED`, `RECORDS_WRITTEN`, and `COMPLETED` markers makes completed replay idempotent, changed replay fail closed, and an audit/completion-marker interruption explicitly reconcilable without duplicate records or audit events.

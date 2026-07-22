@@ -6,31 +6,32 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Automatic lifecycle maintenance does not exist yet.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.4.0 now provides independently verified controlled begin/finalize operations.
 
 ## Status summary
 
 - Project: Doubtful Memory
-- Current phase: Phase 3 — complete and locally verified.
+- Current phase: Phase 4 — complete, independently verified locally, and checkpointed.
 - Overall status: In progress
 - Development environment: Windows, local-only, Node 24.
 - Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest verified checkpoint: Phase 3 local checkpoint
+- Latest committed checkpoint: Phase 4 local checkpoint
+- Current unstaged candidate: None after the Phase 4 checkpoint
 - Git remote: None
 - Repository upload/publication: None
 - External services: None
 - Paid services: None
 - Application dependencies: None (zero runtime dependencies)
-- Application code: Phase 1–3 locally verified, including deterministic retrieval, ranking, explanations, strict context-pack validation, privacy filtering, and hard budget enforcement.
+- Application code: Phases 1–4 implemented, independently verified locally, and checkpointed.
 - Packages:
   - typescript@6.0.3
   - @types/node@22.20.1
   - zero runtime dependencies
 - CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
 - Current local verification evidence:
-  - 107 passed
+  - 150 passed
   - 0 failed
   - 0 skipped
   - 0 todo
@@ -38,7 +39,7 @@ During development, AI agents must update PROJECT_STATE.md after material work. 
 
 ## Current objective
 
-Phase 3 retrieval, ranking, explanations, strict context validation, and hard budget enforcement are complete and locally verified. Preserve this local checkpoint and do not begin Phase 4 within the Phase 3 checkpoint task.
+Phase 4 controlled lifecycle begin/finalize and the required bootstrap migration are independently verified locally and ready as the completed Phase 4 checkpoint. Phase 5 has not started.
 
 ## Completed work
 
@@ -70,6 +71,7 @@ Phase 3 retrieval, ranking, explanations, strict context validation, and hard bu
 - Phase 1: Implemented strict CLI argument parsing.
 - Phase 1: Created `gptbrain init`, `gptbrain context`, and `gptbrain audit` commands.
 - Phase 1: Comprehensive `node:test` regression suite independently verified at 51 passing tests.
+
 - Phase 1: `PROTOCOL_SPECIFICATION.md` updated to match canonical schema (DM-DEC-025).
 - Phase 2: Implemented controlled `CREATE`, `UPDATE`, `REVOKE`, and `REDACT` operations.
 - Phase 2: Implemented strict update-candidate and evidence-record validation.
@@ -88,11 +90,16 @@ Phase 3 retrieval, ranking, explanations, strict context validation, and hard bu
 - Phase 3: Preserved privacy-first filtering, redaction, ephemerality, and zero runtime dependencies.
 - Phase 3: Expanded the suite from 81 to 107 tests; independent local typecheck, build, and all tests pass.
 
+- Phase 4: Advanced package and engine version to 0.4.0 while retaining storage schema 1.0.0.
+- Phase 4: Added lifecycle begin with automatic Phase 3 context retrieval and privacy-safe correlation metadata only.
+- Phase 4: Added strict finalization classification, owner holds, deterministic independent application, durable recovery journal, and completed-input idempotency.
+- Phase 4: Added the `DM-REQ-LIFE-002` one-time bootstrap Markdown migration with explicit legacy mapping, staged recovery markers, and no authority escalation.
+- Phase 4: Expanded the suite from 107 to 150 tests; independent local typecheck, build, tests, and isolated smoke workflows pass.
 ## Current files in focus
 
-- The verified Phase 1–3 local checkpoint.
-- Phase 4 lifecycle design is the next development focus.
-- Phase 4 automatic lifecycle work has not started.
+- The verified Phase 1–4 local checkpoint.
+- Phase 4 lifecycle and bootstrap migration are complete and independently verified locally.
+- Phase 5 adapter work has not started.
 
 ## Locked constraints
 
@@ -156,11 +163,11 @@ Phase 3 retrieval, ranking, explanations, context-pack validation, and hard esti
 
 ## Next phase
 
-Phase 4 — controlled automatic pre-task retrieval and post-task finalization lifecycle.
+Phase 5 — Codex and Antigravity adapters. Phase 4 verification and checkpointing are complete; Phase 5 has not started.
 
 ## Next immediate action
 
-Begin Phase 4 controlled automatic pre-task retrieval and post-task finalization lifecycle work from the Phase 3 local checkpoint. Do not add an external service or runtime dependency, upload the repository, or configure a remote without explicit owner approval.
+Begin Phase 5 adapter work only in a new, explicitly authorized task. Do not add a dependency or external service, upload, or configure a remote without prior owner approval.
 
 ## Safe restart instructions
 
@@ -171,3 +178,7 @@ When resuming work:
 3. Check `git status`.
 4. Review the current objective and blockers.
 5. Perform only the next immediate action unless the project state is updated first.
+
+## Phase 4 completion status
+
+Version 0.4.0 lifecycle and migration behavior is complete and independently verified locally with 150 passing tests, zero failures, zero skips, and zero todos. This is test-verified implementation evidence, not release approval or automatic owner confirmation.

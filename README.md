@@ -35,9 +35,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.3.0 — Phase 3 is complete and locally verified.**
+> **Version 0.4.0 — Phase 4 is complete, independently verified locally, and checkpointed.**
 
-The local engine now adds deterministic audit-aware retrieval and ranking, structured selection/exclusion explanations, strict context-pack validation, and hard estimated-token budget enforcement to the verified Phase 1–2 foundation. The current local suite contains 107 passing tests with zero failures, zero skipped tests, and zero todo tests. Phase 3 is complete and locally verified. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
+The local engine now includes the verified Phase 1–4 foundation, controlled lifecycle begin/finalize operations, and a narrow one-time bootstrap migration. The current local suite contains 150 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
 
 Implemented commands:
 
@@ -49,8 +49,11 @@ Implemented commands:
 - `gptbrain evidence add --input <evidence.json>`: Add validated evidence.
 - `gptbrain context --task "..." [--max-tokens <1-1000000>] [--format json|markdown]`: Compile an ephemeral, deterministically ranked context pack. The default hard budget is 2,048 estimated tokens.
 - `gptbrain audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
+- `gptbrain lifecycle begin --task "..." [--max-tokens <n>] [--format json|markdown]`: Retrieve ephemeral safe context and open a lifecycle.
+- `gptbrain lifecycle finalize --input <finalization.json> [--format json|markdown]`: Classify and safely process proposed updates.
+- `gptbrain migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
 
-Phase 3 is complete and locally verified. Phase 4 automatic pre-task/post-task lifecycle integration is next; later work covers adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
+Phases 1–4 are checkpointed and independently verified locally. Phase 5 adapters have not started. Later work covers adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
 
 ## Design principles
 
@@ -124,9 +127,28 @@ The `examples/` files are safe templates for coding agents. Copy and edit them f
 
 Owner-confirmed promotion is intentionally two-step: create a lower-authority memory, attach explicit owner-instruction evidence, then propose the promotion. An agent's claim that it has owner authority is not sufficient by itself.
 
+## Phase 4 controlled lifecycle
+
+`lifecycle begin` validates local storage, invokes the Phase 3 compiler, and returns a lifecycle ID plus JSON or Markdown context. The task and complete context pack are ephemeral. Only selected memory IDs, controlled exclusion codes, budget arithmetic, timestamps, state, and safe audit references are stored in `.gptbrain/episodes/`.
+
+`lifecycle finalize` accepts this strict envelope and reuses Phase 2 `UpdateCandidate` objects:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "lc-example",
+  "proposer": { "type": "AGENT", "id": "safe-agent-id" },
+  "proposedUpdates": [],
+  "reason": "Optional privacy-safe reason"
+}
+```
+
+Every candidate receives `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, or `NO_CHANGE`. Authorized items are applied independently in input order through the canonical mutation boundary. The engine journals `FINALIZING` before mutation; interrupted work requires controlled recovery and is never replayed automatically. Identical completed input is idempotent, while different replay is rejected. Owner-policy proposals without sufficient owner evidence are held and cannot mutate memory.
+
+`migrate bootstrap` is the one-time deterministic migration for the documented Markdown claim ledger. It maps legacy vocabulary explicitly, validates every claim before writing, preserves IDs and authority, retains the source Markdown, rejects unsafe source paths, and uses staged recovery markers to reconcile an audit/completion interruption without duplication.
 ## Next planned work
 
-**Accelerated Milestone 2 (Phases 3–4)**: Phase 3 retrieval, ranking, explanations, strict context validation, and hard budget enforcement are complete and locally verified. Phase 4 automatic pre-task/post-task lifecycle finalization is the next development phase, preserving the existing authority and privacy gates.
+**Accelerated Milestone 2 (Phases 3–4)**: Complete and independently verified locally. The exact next development milestone is Phase 5 adapter work; it has not started.
 
 ## Runtime requirements
 

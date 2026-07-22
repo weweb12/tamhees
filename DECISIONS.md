@@ -981,6 +981,35 @@ Phase 3 requires useful retrieval, complete safety explanations, and a hard cont
 
 ---
 
+## DM-DEC-031 - Durable lifecycle journal and independent proposal application
+
+- Date: 2026-07-22
+- Status: APPROVED
+- Category: Architecture, safety, and protocol
+
+### Context
+
+Phase 4 must automate retrieval and routine memory maintenance without persisting task context, weakening authority, or claiming filesystem-wide transactions that the local JSON store does not provide.
+
+### Decision
+
+- Store only privacy-safe lifecycle correlation metadata under `.gptbrain/episodes/`; never store task text, selected statements, evidence content, or generated context packs.
+- Use the explicit state machine `OPEN -> FINALIZING -> COMPLETED | COMPLETED_WITH_HELD_ITEMS`, with `FAILED` reserved for controlled recovery.
+- Validate the whole request and classify every structurally valid proposal before mutation.
+- Apply authorized proposals independently in deterministic input order through the existing Phase 2 mutation boundary. `HELD_FOR_OWNER`, `REJECTED`, and `NO_CHANGE` proposals never mutate canonical memory.
+- Write a recovery journal before the first mutation and after every attempted mutation. An interrupted `FINALIZING` lifecycle cannot replay automatically; controlled inspection is required.
+- Treat an identical completed finalization as idempotent and reject different content as `ALREADY_FINALIZED`.
+- Require stored, independent evidence for automatic verified-state proposals; engine-generated context, summaries, lifecycle results, and audit output are not independent evidence.
+- Implement the live `DM-REQ-LIFE-002` migration in Phase 4 as a narrow, one-time, explicit-vocabulary import that preserves the Markdown source.
+
+### Consequences
+
+- Phase 4 does not claim multi-file filesystem atomicity or multi-process locking.
+- A crash after a canonical mutation but before its journal update fails closed for manual recovery rather than risking duplicate application.
+- Owner confirmation is a held disposition and future interface concern; there is no weak approval shortcut or interactive prompt.
+- The storage schema remains `1.0.0`; engine and package version become `0.4.0`.
+
+---
 ## Pending decisions
 
 The following matters are intentionally not decided yet:

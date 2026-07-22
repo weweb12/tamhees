@@ -30,7 +30,7 @@ export const ENGINE_AUDITOR = 'gptbrain-engine' as const;
 export const ATOMIC_TEMP_PREFIX = '.gptbrain-tmp-' as const;
 
 /** Engine version — matches package.json version. */
-export const ENGINE_VERSION = '0.3.0' as const;
+export const ENGINE_VERSION = '0.4.0' as const;
 
 /** Current schema version for all stored artifacts. */
 export const CURRENT_SCHEMA_VERSION = '1.0.0' as const;

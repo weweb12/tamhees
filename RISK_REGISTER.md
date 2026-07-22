@@ -949,3 +949,12 @@ Review this register:
 - Before production build.
 - Before any external publication.
 - Whenever a risk occurs or a major decision changes.
+
+## Phase 4 implementation-candidate risk review - 2026-07-22
+
+- `DM-RISK-004` remains OPEN. Phase 4 rejects secret-like task/finalization input before retrieval or persistence and never stores task text or context statements; pattern-based detection still cannot prove arbitrary content safe.
+- `DM-RISK-015` remains OPEN with stronger controls. Automatic finalization now plans all dispositions first, applies only authorized candidates through the canonical mutation boundary, journals recovery state, and makes completed replay idempotent. Filesystem-wide batch atomicity is not claimed.
+- `DM-RISK-016` remains OPEN with stronger controls. Owner-policy proposals are held, lower authority is rejected, and generated engine artifacts are not independent evidence; future adapters must still prove they cannot bypass the core.
+- `DM-RISK-022` remains OPEN. Per-file atomic writes, mutation rollback, and lifecycle recovery journaling reduce single-process divergence, but multi-process locking and automatic recovery from an interrupted `FINALIZING` state are not implemented.
+- `DM-RISK-023` remains OPEN. Lifecycle CLI help and automated tests exist, but no independent user-usability assessment or approval interface exists.
+- `DM-RISK-025` remains OPEN. The narrow bootstrap parser rejects ambiguity and preserves source Markdown, but independent verification against the full live ledger is required before checkpointing.

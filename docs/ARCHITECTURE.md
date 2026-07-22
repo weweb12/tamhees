@@ -1,6 +1,6 @@
 # Doubtful Memory — Architecture
 
-> **Status**: Phases 1–3 are complete and locally verified. Phase 3 provides deterministic retrieval, ranking, explanations, strict context-pack validation, and hard budget enforcement in Version 0.3.0. Lifecycle automation, adapters, MCP, dashboard, and benchmarks remain planned.
+> **Status**: Phases 1–4 are checkpointed and independently verified locally. Adapters, MCP, dashboard, and benchmarks remain planned; Phase 5 has not started.
 
 ## Overview
 
@@ -308,3 +308,21 @@ The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDI
 8. **No runtime network**: Everything operates locally after dependency installation.
 9. **Auditable history**: Append-only JSONL for audit events.
 10. **Schema versioning**: Every stored artifact is versioned for migration.
+
+## Phase 4 controlled lifecycle architecture
+
+The interface-neutral lifecycle engine lives in `src/core/lifecycle.ts`; the CLI only parses inputs and formats results. `beginLifecycle` accepts an injected clock and ID generator, calls the Phase 3 context compiler, returns its pack ephemerally, and writes only safe correlation metadata beneath `.gptbrain/episodes/`. Task text, selected statements, evidence contents, and generated JSON or Markdown are never stored in lifecycle state.
+
+Legal states are:
+
+```text
+OPEN -> FINALIZING -> COMPLETED
+                   -> COMPLETED_WITH_HELD_ITEMS
+                   -> FAILED (controlled recovery only)
+```
+
+Finalization first scans the whole request for secret-like content, validates its strict schema, loads all controlled artifacts, and determines every disposition. Eligible proposals are then applied independently in deterministic input order through `applyUpdateCandidate`. This is deliberately not described as a filesystem-wide atomic batch. A `FINALIZING` journal is durable before mutation and updated after every attempt. Interrupted `FINALIZING` or `FAILED` state blocks automatic replay and supplies recovery guidance. Completed identical input returns the saved result without new writes; different replay fails `ALREADY_FINALIZED`.
+
+Authority is non-escalating. Stored supporting evidence must match any automatic verified status. Repository and test evidence cannot authorize owner-policy terms; engine-generated context, summaries, lifecycle results, audit output, or engine summaries never qualify as independent evidence. Insufficiently authorized scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload proposals are `HELD_FOR_OWNER` and cannot change canonical state. A future adapter or approval UI must call the same core boundary.
+
+`src/core/migration.ts` implements the controlled lifecycle-milestone migration required by `DM-REQ-LIFE-002` and the prior architecture plan. It recognizes only numbered claim sections and documented fields, maps every legacy source vocabulary explicitly, validates all resulting canonical records before writing, preserves original Markdown, and uses a source fingerprint plus safe marker for one-time idempotency. It does not add a parser dependency or elevate authority.

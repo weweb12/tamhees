@@ -27,6 +27,10 @@ import {
   MIN_CONTEXT_MAX_TOKENS,
   TOKEN_ESTIMATOR_NAME,
   TOKEN_ESTIMATOR_VERSION,
+  LIFECYCLE_STATUSES,
+  LIFECYCLE_PROPOSER_TYPES,
+  FINALIZATION_DISPOSITIONS,
+  LIFECYCLE_REASON_CODES,
   type ContextPack,
   type EvidenceRecord,
   type MemoryRecord,
@@ -1156,4 +1160,123 @@ function validateContextBudget(value: unknown, selectedTokenSum: number, issues:
 
 export function asValidContextPack(data: unknown): ContextPack | null {
   return validateContextPack(data).valid ? data as ContextPack : null;
+}
+
+// --- Phase 4 controlled lifecycle validation ---
+function addLifecycleUnknownFieldIssues(object: Record<string, unknown>, allowed: readonly string[], prefix: string, issues: ValidationIssue[]): void {
+  const allowedSet = new Set(allowed);
+  for (const key of Object.keys(object)) if (!allowedSet.has(key)) issues.push({
+    field: prefix ? `${prefix}.<unknown>` : '<unknown>', code: 'UNKNOWN_FIELD',
+    message: 'An unknown field is not allowed in a lifecycle artifact. Raw field names are not echoed.',
+  });
+}
+
+export function validateLifecycleFinalizationInput(data: unknown): ValidationResult {
+  const issues: ValidationIssue[] = [];
+  if (!isObject(data)) return { valid: false, issues: [{ field: '', code: 'INVALID_ROOT', message: 'Lifecycle finalization must be a non-null object.' }] };
+  addLifecycleUnknownFieldIssues(data, ['schemaVersion', 'lifecycleId', 'proposer', 'proposedUpdates', 'reason'], '', issues);
+  if (data['schemaVersion'] !== CURRENT_SCHEMA_VERSION) issues.push({ field: 'schemaVersion', code: 'UNSUPPORTED_SCHEMA', message: 'Lifecycle schema version is unsupported.' });
+  if (!isSafeArtifactId(data['lifecycleId'])) issues.push({ field: 'lifecycleId', code: 'UNSAFE_ID', message: 'lifecycleId must be a safe artifact identifier.' });
+  validateLifecycleProposer(data['proposer'], 'proposer', issues);
+  if (!Array.isArray(data['proposedUpdates'])) {
+    issues.push({ field: 'proposedUpdates', code: 'INVALID_TYPE', message: 'proposedUpdates must be an array.' });
+  } else {
+    const fingerprints = new Set<string>();
+    const targets = new Set<string>();
+    data['proposedUpdates'].forEach((candidate, index) => {
+      const result = validateUpdateCandidate(candidate);
+      for (const problem of result.issues) issues.push({ ...problem, field: `proposedUpdates[${index}]${problem.field ? `.${problem.field}` : ''}` });
+      const fingerprint = JSON.stringify(candidate);
+      if (fingerprints.has(fingerprint)) issues.push({ field: `proposedUpdates[${index}]`, code: 'DUPLICATE_PROPOSAL', message: 'Exact duplicate proposals are not allowed.' });
+      fingerprints.add(fingerprint);
+      if (isObject(candidate)) {
+        const proposed = candidate['proposedRecord'];
+        const target = typeof candidate['memoryId'] === 'string' ? candidate['memoryId'] : isObject(proposed) && typeof proposed['id'] === 'string' ? proposed['id'] : null;
+        if (target && targets.has(target)) issues.push({ field: `proposedUpdates[${index}]`, code: 'AMBIGUOUS_TARGET', message: 'A lifecycle may contain only one proposal per target memory.' });
+        if (target) targets.add(target);
+      }
+    });
+  }
+  if (data['reason'] !== undefined && !isNonEmptyString(data['reason'])) issues.push({ field: 'reason', code: 'INVALID_TYPE', message: 'reason must be a non-empty string if present.' });
+  return { valid: issues.length === 0, issues };
+}
+
+function validateLifecycleProposer(value: unknown, prefix: string, issues: ValidationIssue[]): void {
+  if (!isObject(value)) { issues.push({ field: prefix, code: 'INVALID_TYPE', message: 'proposer must be an object.' }); return; }
+  addLifecycleUnknownFieldIssues(value, ['type', 'id'], prefix, issues);
+  if (!isInVocabulary(value['type'], LIFECYCLE_PROPOSER_TYPES)) issues.push({ field: `${prefix}.type`, code: 'INVALID_VOCABULARY', message: 'proposer type is invalid.' });
+  if (!isSafeArtifactId(value['id'])) issues.push({ field: `${prefix}.id`, code: 'UNSAFE_ID', message: 'proposer id must be a safe artifact identifier.' });
+}
+
+export function validateLifecycleMetadata(data: unknown): ValidationResult {
+  const issues: ValidationIssue[] = [];
+  if (!isObject(data)) return { valid: false, issues: [{ field: '', code: 'INVALID_ROOT', message: 'Lifecycle metadata must be a non-null object.' }] };
+  addLifecycleUnknownFieldIssues(data, ['schemaVersion','lifecycleId','status','openedAt','updatedAt','selectedMemoryIds','exclusionReasonCodes','budget','auditReferences','finalization','failureCode','recoveryGuidance'], '', issues);
+  if (data['schemaVersion'] !== CURRENT_SCHEMA_VERSION) issues.push({ field: 'schemaVersion', code: 'UNSUPPORTED_SCHEMA', message: 'Lifecycle schema version is unsupported.' });
+  if (!isSafeArtifactId(data['lifecycleId'])) issues.push({ field: 'lifecycleId', code: 'UNSAFE_ID', message: 'lifecycleId must be safe.' });
+  if (!isInVocabulary(data['status'], LIFECYCLE_STATUSES)) issues.push({ field: 'status', code: 'INVALID_VOCABULARY', message: 'Lifecycle status is invalid.' });
+  if (!isIso8601(data['openedAt'])) issues.push({ field: 'openedAt', code: 'INVALID_TIMESTAMP', message: 'openedAt must be ISO-8601 UTC.' });
+  if (!isIso8601(data['updatedAt'])) issues.push({ field: 'updatedAt', code: 'INVALID_TIMESTAMP', message: 'updatedAt must be ISO-8601 UTC.' });
+  if (isIso8601(data['openedAt']) && isIso8601(data['updatedAt']) && Date.parse(data['updatedAt']) < Date.parse(data['openedAt'])) issues.push({ field: 'updatedAt', code: 'INVALID_TIMESTAMP_ORDER', message: 'updatedAt cannot precede openedAt.' });
+  validateSafeUniqueArray(data['selectedMemoryIds'], 'selectedMemoryIds', issues);
+  if (!Array.isArray(data['exclusionReasonCodes']) || !data['exclusionReasonCodes'].every((item) => isInVocabulary(item, CONTEXT_EXCLUSION_REASONS)) || new Set(data['exclusionReasonCodes']).size !== data['exclusionReasonCodes'].length) issues.push({ field: 'exclusionReasonCodes', code: 'INVALID_TYPE', message: 'exclusionReasonCodes must contain unique controlled values.' });
+  validateLifecycleBudget(data['budget'], issues);
+  validateSafeUniqueArray(data['auditReferences'], 'auditReferences', issues);
+  if (Array.isArray(data['auditReferences']) && data['auditReferences'].length === 0) issues.push({ field: 'auditReferences', code: 'MISSING_REQUIRED', message: 'Lifecycle metadata requires at least one audit reference.' });
+  const status = data['status'];
+  if (status === 'OPEN' && (data['finalization'] !== undefined || data['failureCode'] !== undefined || data['recoveryGuidance'] !== undefined)) issues.push({ field: 'status', code: 'INVALID_STATE', message: 'OPEN metadata cannot contain finalization or failure state.' });
+  if (status === 'FINALIZING' || status === 'COMPLETED' || status === 'COMPLETED_WITH_HELD_ITEMS' || status === 'FAILED') validateFinalizationMetadata(data['finalization'], status, data, issues);
+  if (status === 'FAILED' && (!isNonEmptyString(data['failureCode']) || !isNonEmptyString(data['recoveryGuidance']))) issues.push({ field: 'failureCode', code: 'INVALID_STATE', message: 'FAILED metadata requires a failure code and recovery guidance.' });
+  if (status !== 'FAILED' && (data['failureCode'] !== undefined || data['recoveryGuidance'] !== undefined)) issues.push({ field: 'failureCode', code: 'INVALID_STATE', message: 'Failure fields are allowed only in FAILED state.' });
+  return { valid: issues.length === 0, issues };
+}
+function validateSafeUniqueArray(value: unknown, field: string, issues: ValidationIssue[]): void {
+  if (!Array.isArray(value) || !value.every(isSafeArtifactId) || new Set(value).size !== value.length) issues.push({ field, code: 'INVALID_TYPE', message: `${field} must contain unique safe artifact identifiers.` });
+}
+function validateLifecycleBudget(value: unknown, issues: ValidationIssue[]): void {
+  if (!isObject(value)) { issues.push({ field: 'budget', code: 'INVALID_TYPE', message: 'budget must be an object.' }); return; }
+  addLifecycleUnknownFieldIssues(value, ['maxTokens','estimatedTokensUsed','estimatedTokensRemaining','compliant','estimator','scope'], 'budget', issues);
+  const max = value['maxTokens'], used = value['estimatedTokensUsed'], remaining = value['estimatedTokensRemaining'];
+  if (!isPositiveInteger(max) || (max as number) > MAX_CONTEXT_MAX_TOKENS) issues.push({ field: 'budget.maxTokens', code: 'INVALID_NUMBER', message: 'maxTokens is outside the supported range.' });
+  if (!isNonNegativeInteger(used) || !isNonNegativeInteger(remaining)) issues.push({ field: 'budget', code: 'INVALID_NUMBER', message: 'Budget token values must be non-negative safe integers.' });
+  if (typeof max === 'number' && typeof used === 'number' && typeof remaining === 'number' && max - used !== remaining) issues.push({ field: 'budget', code: 'INVALID_ARITHMETIC', message: 'Budget arithmetic is inconsistent.' });
+  if (typeof value['compliant'] !== 'boolean' || (typeof max === 'number' && typeof used === 'number' && value['compliant'] !== (used <= max))) issues.push({ field: 'budget.compliant', code: 'INVALID_ARITHMETIC', message: 'Budget compliance is inconsistent.' });
+  if (value['scope'] !== CONTEXT_BUDGET_SCOPE) issues.push({ field: 'budget.scope', code: 'INVALID_VOCABULARY', message: 'Budget scope is invalid.' });
+  const estimator = value['estimator'];
+  if (!isObject(estimator) || estimator['name'] !== TOKEN_ESTIMATOR_NAME || estimator['version'] !== TOKEN_ESTIMATOR_VERSION || Object.keys(estimator).some((key) => key !== 'name' && key !== 'version')) issues.push({ field: 'budget.estimator', code: 'INVALID_VALUE', message: 'Budget estimator metadata is invalid.' });
+}
+function validateFinalizationMetadata(value: unknown, status: unknown, metadata: Record<string, unknown>, issues: ValidationIssue[]): void {
+  if (!isObject(value)) { issues.push({ field: 'finalization', code: 'INVALID_STATE', message: 'This lifecycle state requires finalization metadata.' }); return; }
+  addLifecycleUnknownFieldIssues(value, ['fingerprint','proposer','startedAt','completedAt','dispositions'], 'finalization', issues);
+  if (typeof value['fingerprint'] !== 'string' || !/^[a-f0-9]{64}$/.test(value['fingerprint'])) issues.push({ field: 'finalization.fingerprint', code: 'INVALID_VALUE', message: 'Finalization fingerprint must be SHA-256 hexadecimal.' });
+  validateLifecycleProposer(value['proposer'], 'finalization.proposer', issues);
+  if (!isIso8601(value['startedAt'])) issues.push({ field: 'finalization.startedAt', code: 'INVALID_TIMESTAMP', message: 'startedAt must be ISO-8601 UTC.' });
+  const terminal = status === 'COMPLETED' || status === 'COMPLETED_WITH_HELD_ITEMS';
+  if (terminal ? !isIso8601(value['completedAt']) : value['completedAt'] !== undefined) issues.push({ field: 'finalization.completedAt', code: 'INVALID_STATE', message: 'completedAt is required only for completed lifecycle states.' });
+  if (!Array.isArray(value['dispositions'])) { issues.push({ field: 'finalization.dispositions', code: 'INVALID_TYPE', message: 'dispositions must be an array.' }); return; }
+  if (isIso8601(value['startedAt']) && isIso8601(metadata['openedAt']) && Date.parse(value['startedAt']) < Date.parse(metadata['openedAt'])) issues.push({ field: 'finalization.startedAt', code: 'INVALID_TIMESTAMP_ORDER', message: 'startedAt cannot precede openedAt.' });
+  if (isIso8601(value['startedAt']) && isIso8601(metadata['updatedAt']) && Date.parse(metadata['updatedAt']) < Date.parse(value['startedAt'])) issues.push({ field: 'updatedAt', code: 'INVALID_TIMESTAMP_ORDER', message: 'updatedAt cannot precede startedAt.' });
+  if (terminal && isIso8601(value['completedAt']) && isIso8601(value['startedAt']) && Date.parse(value['completedAt']) < Date.parse(value['startedAt'])) issues.push({ field: 'finalization.completedAt', code: 'INVALID_TIMESTAMP_ORDER', message: 'completedAt cannot precede startedAt.' });
+  if (terminal && isIso8601(value['completedAt']) && isIso8601(metadata['updatedAt']) && Date.parse(value['completedAt']) !== Date.parse(metadata['updatedAt'])) issues.push({ field: 'updatedAt', code: 'INVALID_TIMESTAMP_ORDER', message: 'Terminal updatedAt must equal completedAt.' });
+  value['dispositions'].forEach((item,index) => validateDisposition(item,index,terminal,issues));
+  if (status === 'COMPLETED' && value['dispositions'].some((item) => isObject(item) && item['disposition'] === 'HELD_FOR_OWNER')) issues.push({ field: 'status', code: 'INVALID_STATE', message: 'Held items require COMPLETED_WITH_HELD_ITEMS.' });
+  if (status === 'COMPLETED_WITH_HELD_ITEMS' && !value['dispositions'].some((item) => isObject(item) && item['disposition'] === 'HELD_FOR_OWNER')) issues.push({ field: 'status', code: 'INVALID_STATE', message: 'COMPLETED_WITH_HELD_ITEMS requires a held disposition.' });
+}
+function validateDisposition(value: unknown, index: number, terminal: boolean, issues: ValidationIssue[]): void {
+  const p=`finalization.dispositions[${index}]`;
+  if (!isObject(value)) { issues.push({ field:p, code:'INVALID_TYPE', message:'Disposition must be an object.'}); return; }
+  addLifecycleUnknownFieldIssues(value,['proposalIndex','action','memoryId','disposition','reasonCode','explanation','triggeredRules','storageChanged','auditReferences','recommendedAction'],p,issues);
+  if (!isNonNegativeInteger(value['proposalIndex'])) issues.push({field:`${p}.proposalIndex`,code:'INVALID_NUMBER',message:'proposalIndex must be non-negative.'});
+  else if (value['proposalIndex'] !== index) issues.push({field:p+'.proposalIndex',code:'INVALID_STATE',message:'proposalIndex must match its deterministic array position.'});
+  if (!isInVocabulary(value['action'],UPDATE_ACTIONS)) issues.push({field:`${p}.action`,code:'INVALID_VOCABULARY',message:'action is invalid.'});
+  if (value['memoryId'] !== null && !isSafeArtifactId(value['memoryId'])) issues.push({field:`${p}.memoryId`,code:'UNSAFE_ID',message:'memoryId must be null or safe.'});
+  if (!isInVocabulary(value['disposition'],FINALIZATION_DISPOSITIONS)) issues.push({field:`${p}.disposition`,code:'INVALID_VOCABULARY',message:'disposition is invalid.'});
+  if (!isInVocabulary(value['reasonCode'],LIFECYCLE_REASON_CODES)) issues.push({field:`${p}.reasonCode`,code:'INVALID_VOCABULARY',message:'reasonCode is invalid.'});
+  if (!isNonEmptyString(value['explanation']) || !isNonEmptyString(value['recommendedAction'])) issues.push({field:p,code:'MISSING_REQUIRED',message:'Disposition explanations and recommended actions are required.'});
+  if (!isNonEmptyStringArray(value['triggeredRules']) || new Set(value['triggeredRules']).size !== value['triggeredRules'].length) issues.push({field:`${p}.triggeredRules`,code:'INVALID_TYPE',message:'triggeredRules must contain unique non-empty strings.'});
+  if (typeof value['storageChanged'] !== 'boolean') issues.push({field:`${p}.storageChanged`,code:'INVALID_TYPE',message:'storageChanged must be boolean.'});
+  validateSafeUniqueArray(value['auditReferences'],`${p}.auditReferences`,issues);
+  if (value['disposition'] !== 'APPLIED' && value['storageChanged'] === true) issues.push({field:p+'.storageChanged',code:'INVALID_STATE',message:'Only APPLIED dispositions may report a storage change.'});
+  if (terminal && value['disposition'] === 'APPLIED' && value['storageChanged'] !== true) issues.push({field:p+'.storageChanged',code:'INVALID_STATE',message:'Terminal APPLIED dispositions must account for a completed storage change.'});
+  if (terminal && Array.isArray(value['auditReferences']) && value['auditReferences'].length === 0) issues.push({field:p+'.auditReferences',code:'MISSING_REQUIRED',message:'Terminal dispositions require a finalization audit reference.'});
 }

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "lc-replace-with-begin-result",
+  "proposer": {
+    "type": "AGENT",
+    "id": "example-agent"
+  },
+  "proposedUpdates": [],
+  "reason": "Finalize a local task with no memory changes."
+}

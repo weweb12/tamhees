@@ -18,9 +18,9 @@ An audit does not automatically change a claim. Material changes must be verifie
 
 ## Audit limitations
 
-These audits are manual project-control audits. The production audit engine is not implemented. This file must not falsely imply that automated audit behavior exists.
+These entries are manual project-control audits distinct from runtime audit events. The implemented engine writes runtime events under `.gptbrain/audits/`; this ledger must not imply that a manual review is an automated or independent owner confirmation.
 
-When the engine is implemented, it will produce audit events in `.gptbrain/audits/history.jsonl`. These manual audits serve as the bootstrap record.
+The engine produces runtime events in `.gptbrain/audits/history.jsonl`. These historical and current manual entries remain the preserved bootstrap project-control record.
 
 ---
 
@@ -667,3 +667,51 @@ The overall implementation result is `TRUST` for the local Phase 3 checkpoint. T
 ## Audit conclusion
 
 Phase 3 is complete and independently verified locally. The local checkpoint commit is authorized by this audit; Phase 4 implementation, upload, remote configuration, external service, and publication remain outside this checkpoint.
+
+---
+
+# Audit DM-AUDIT-2026-07-22-002
+
+## Audit metadata
+
+- Date: 2026-07-22
+- Audit type: Phase 4 implementation-candidate verification
+- Scope: DM-CLAIM-024; lifecycle, migration, CLI, schema, authority, privacy, dependency, and persistence boundaries
+- Auditor: Codex implementation verification process
+- Engine version: 0.4.0
+- Repository state: Unstaged Phase 4 candidate pending independent owner verification
+- Overall result: RECHECK
+
+## Overall explanation
+
+Source inspection and 133 passing local tests support the implemented Phase 4 boundary. Lifecycle begin invokes Phase 3 retrieval without persisting raw task text or context statements. Finalization uses strict validation, controlled dispositions, the canonical mutation API, safe owner holds, durable recovery metadata, and completed-input idempotency. The live architecture and `DM-REQ-LIFE-002` require bootstrap migration in this milestone, so the candidate includes a narrow explicit-vocabulary importer that preserves the Markdown source.
+
+`RECHECK` is appropriate because this is implementation-agent evidence before the required independent owner-verification checkpoint and commit. It does not elevate DM-CLAIM-024 or any other claim to `OWNER_CONFIRMED`.
+
+## Implementation evidence
+
+- Typecheck: passed.
+- Build: passed.
+- Automated tests: 133 passed, 0 failed, 0 skipped, 0 todo.
+- Inherited tests preserved: 107.
+- New Phase 4 tests: 26.
+- Runtime dependencies: 0.
+- Approved direct development dependencies: `typescript@6.0.3`, `@types/node@22.20.1`.
+- Storage schema: unchanged at `1.0.0`.
+- Runtime network, telemetry, external service, remote, and upload: none.
+
+## Permission consequence
+
+The unstaged Phase 4 candidate may proceed to independent owner verification. Phase 5, staging, commit, upload, remote configuration, external integration, and publication remain outside this implementation task.
+
+## Remaining limitations
+
+- Independent owner verification and checkpointing are pending.
+- Multi-process locking and automatic recovery of interrupted finalization are not implemented.
+- Authorized batch items apply independently; no filesystem-wide atomicity is claimed.
+- Held items require a later safe owner-confirmation interface; there is no automatic approval shortcut.
+- Pattern-based secret detection cannot prove all arbitrary content safe.
+
+## Recommended action
+
+Perform an independent clean-install and temporary-project owner-verification checkpoint against this unstaged candidate. If it passes, update only current candidate wording as needed and create the Phase 4 local checkpoint before beginning Phase 5.

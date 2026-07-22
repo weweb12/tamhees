@@ -105,7 +105,7 @@ Every stored artifact must include a schema version, and the engine must handle 
 ## DM-REQ-ENGINE-005 - Automatic pre-task retrieval
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 - Related decisions: DM-DEC-013, DM-DEC-030
 
 Before a task begins, the system must automatically retrieve relevant context.
@@ -118,14 +118,14 @@ Before a task begins, the system must automatically retrieve relevant context.
 - The output includes selection and exclusion explanations.
 - Sensitive content is redacted before output.
 
-Phase 3 implements the deterministic retrieval command, ranking, explanations, and budget portion. Status remains `IN_PROGRESS` because automatic pre-task lifecycle invocation belongs to Phase 4 and is not implemented.
+Version 0.4.0 implements this boundary through `lifecycle begin`: it invokes the Phase 3 compiler, returns the context ephemerally, and persists only privacy-safe correlation metadata.
 
 ---
 
 ## DM-REQ-ENGINE-006 - Controlled post-task finalization
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-020
 
 After a task, proposed memory updates must be validated through authority rules.
@@ -680,7 +680,7 @@ Every audit rule must have a stable identifier and a human-readable description.
 ## DM-REQ-LIFE-001 - Automatic state maintenance
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-020
 
 Users must not be required to manually update routine state after every task.
@@ -692,12 +692,14 @@ Users must not be required to manually update routine state after every task.
 - The system maintains state through controlled lifecycle operations.
 - Manual intervention is required only for owner-level decisions.
 
+Version 0.4.0 implements explicit begin/finalize lifecycle operations. It holds owner-level proposals without changing canonical memory; an approval UI remains a later interface concern.
+
 ---
 
 ## DM-REQ-LIFE-002 - Safe migration from bootstrap Markdown
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The system must safely migrate from the bootstrap `memory/MEMORY_CLAIMS.md` format to `.gptbrain/` JSON storage.
 
@@ -708,6 +710,8 @@ The system must safely migrate from the bootstrap `memory/MEMORY_CLAIMS.md` form
 - Superseded claims remain visible with REVOKED status.
 - Migration produces an audit event.
 - The bootstrap Markdown files are preserved (not deleted during migration).
+
+Version 0.4.0 provides the strict one-time migrate bootstrap engine and CLI boundary. It validates all claims before migration writes, maps legacy vocabulary explicitly, requires a path-safe in-project CLI source, preserves source Markdown, and uses staged markers to roll back pre-audit failures or reconcile an audit/completion-marker interruption without duplication. Changed, ambiguous, duplicate-ID, and incompatible-store inputs fail closed.
 
 ---
 
@@ -1199,8 +1203,8 @@ If a requirement changes:
 
 - Total requirements defined: 60
 - Requirements verified: 0
-- Requirements implemented: 23
-- Requirements in progress: 14
-- Requirements not started: 23
+- Requirements implemented: 27
+- Requirements in progress: 13
+- Requirements not started: 20
 - Assumptions recorded: 7
 - Assumptions fully verified: 0

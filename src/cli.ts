@@ -37,6 +37,8 @@ import { loadAllEvidence, storeEvidenceRecord } from './core/evidence.js';
 import { applyUpdateCandidate } from './core/mutations.js';
 import { memoryForOutput } from './core/privacy.js';
 import { validateContextPack } from './core/validation.js';
+import { beginLifecycle, finalizeLifecycle, formatLifecycleBeginAsMarkdown, formatLifecycleFinalizeAsMarkdown, randomLifecycleId } from './core/lifecycle.js';
+import { loadBootstrapMigrationSource, migrateBootstrapClaims } from './core/migration.js';
 
 // ─── Argument parsing ───────────────────────────────────────
 
@@ -98,6 +100,8 @@ Commands:
   evidence            List or add evidence records
   context             Compile task-specific memory context
   audit               Run audit on all memory records
+  lifecycle           Begin or finalize a controlled task lifecycle
+  migrate             Run a controlled one-time bootstrap migration
 
 Options:
   --help              Show this help
@@ -194,7 +198,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit'].includes(command))) {
+  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate'].includes(command))) {
     console.log(MAIN_HELP);
     process.exit(0);
   }
@@ -214,6 +218,12 @@ async function main(): Promise<void> {
       break;
     case 'evidence':
       await handleEvidence();
+      break;
+    case 'lifecycle':
+      await handleLifecycle();
+      break;
+    case 'migrate':
+      await handleMigrate();
       break;
     default:
       console.error(`Unknown command: ${command}`);
@@ -503,6 +513,39 @@ async function readJsonInput(inputPath: string): Promise<unknown> {
 
 // ─── Entry point ────────────────────────────────────────────
 
+// Phase 4 controlled lifecycle and bootstrap migration.
+async function handleLifecycle(): Promise<void> {
+  const subcommand = args[1];
+  if (args.includes('--help')) {
+    console.log(`${CLI_NAME} lifecycle\n\nUsage:\n  ${CLI_NAME} lifecycle begin --task "<description>" [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} lifecycle finalize --input <finalization.json> [--format json|markdown]\n\nTask text and generated context are returned ephemerally and are not persisted.`);
+    process.exit(0);
+  }
+  if (subcommand === 'begin') {
+    const { options } = parseArgs(['--task','--max-tokens','--format'],0,2);
+    const task=options['--task']; if(!task) return usageError(`Usage: ${CLI_NAME} lifecycle begin --task "<description>"`);
+    const format=options['--format']??'json'; if(format!=='json'&&format!=='markdown') return usageError('Lifecycle format must be json or markdown.');
+    const maxTokens=options['--max-tokens']===undefined?DEFAULT_CONTEXT_MAX_TOKENS:parseContextMaxTokens(options['--max-tokens']);
+    const result=await beginLifecycle(process.cwd(),task,systemClock,randomLifecycleId,{maxTokens});
+    console.log(format==='markdown'?formatLifecycleBeginAsMarkdown(result):JSON.stringify(result,null,2)); process.exit(result.success?0:1);
+  }
+  if (subcommand === 'finalize') {
+    const { options }=parseArgs(['--input','--format'],0,2); const input=options['--input']; if(!input)return usageError(`Usage: ${CLI_NAME} lifecycle finalize --input <finalization.json>`);
+    const format=options['--format']??'json'; if(format!=='json'&&format!=='markdown')return usageError('Lifecycle format must be json or markdown.');
+    let parsed:unknown; try{parsed=await readJsonInput(input);}catch{console.error('Cannot read lifecycle input. Use a regular UTF-8 JSON file no larger than 1 MiB. Raw input was not echoed.');process.exit(1);}
+    const result=await finalizeLifecycle(process.cwd(),parsed,systemClock); console.log(format==='markdown'?formatLifecycleFinalizeAsMarkdown(result):JSON.stringify(result,null,2)); process.exit(result.success?0:1);
+  }
+  usageError(`Unknown lifecycle operation: ${subcommand??'<missing>'}. Run ${CLI_NAME} lifecycle --help.`);
+}
+
+async function handleMigrate(): Promise<void> {
+  if(args.includes('--help')){console.log(`${CLI_NAME} migrate bootstrap [--input <markdown-file>]\n\nImports the preserved bootstrap claim ledger once. The source Markdown is not modified or deleted.`);process.exit(0);}
+  const subcommand=args[1]; if(subcommand!=='bootstrap')return usageError(`Usage: ${CLI_NAME} migrate bootstrap [--input <markdown-file>]`);
+  const {options}=parseArgs(['--input'],0,2); const input=resolve(options['--input']??joinPath('memory','MEMORY_CLAIMS.md'));
+  const source=await loadBootstrapMigrationSource(process.cwd(),input);
+  if(!source.success||source.markdown===null){console.log(JSON.stringify(source,null,2));process.exit(1);}
+  const result=await migrateBootstrapClaims(process.cwd(),source.markdown,systemClock); console.log(JSON.stringify(result,null,2));process.exit(result.success?0:1);
+}
+function joinPath(...parts:string[]):string{return resolve(process.cwd(),...parts);}
 main().catch((err: unknown) => {
   console.error(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
