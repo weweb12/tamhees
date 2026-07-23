@@ -1068,13 +1068,28 @@ Independent owner verification found that the Phase 3 matcher used undocumented 
 - Phase 8 remains outside this checkpoint.
 
 ---
+## DM-DEC-034 - Dependency-free loopback dashboard boundary
+
+- Date: 2026-07-24
+- Status: APPROVED
+- Category: Architecture, dependency, privacy, security, and user interface
+
+### Decision
+
+Version 0.8.0 uses a Node built-in HTTP server bound exactly to `127.0.0.1`, local HTML/CSS/browser JavaScript, safe fixed fixtures, canonical audit/context functions, and the SHA-256-checked committed Version 0.7.0 benchmark. It adds no dependency, external resource, hosted backend, account, telemetry, database, model, upload, or deployment. APIs are narrow and read-only; strict methods, routes, schemas, origins, body limits, traversal refusal, privacy-safe errors, and restrictive security headers are mandatory. No dashboard execution may mutate source storage or persist a context pack.
+
+### Consequences
+
+The prior static-only note is superseded only by this local loopback interface; external networking remains prohibited. Package and engine advance to `0.8.0`; storage remains `1.0.0`; `gptbrain` remains temporary. Independent visual, keyboard, responsive, and security review is still required. Phase 9 remains out of scope.
+
+---
 ## Pending decisions
 
 The following matters are intentionally not decided yet:
 
 - Final visual identity.
 - Exact package versions (beyond typescript and @types/node).
-- Dashboard dependency approval (deferred to Phase 8).
+- Any future dashboard framework or third-party package; Phase 8 adds none under DM-DEC-034.
 - Import and export behavior.
 - Whether users may create custom scenarios in Version 1.
 - Final hosting platform.

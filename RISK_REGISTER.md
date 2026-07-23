@@ -973,3 +973,16 @@ Review this register:
 - `DM-RISK-021` remains OPEN with stronger controls. Complete isolated smokes persist no task, context, held/rejected proposal content, or secret and leave no repository `.gptbrain/` state.
 - `DM-RISK-025` remains OPEN. The independent checkpoint used explicit staging and destructive-path checks; no upload, remote, dependency, or Phase 8 work was introduced.
 - No risk was silently changed to CONTROLLED or CLOSED based only on this local checkpoint.
+
+## Phase 8 implementation-candidate risk review - 2026-07-24
+
+- `DM-RISK-004`, `DM-RISK-009`, `DM-RISK-010`, `DM-RISK-011`, `DM-RISK-021`, `DM-RISK-024`, and `DM-RISK-025` remain OPEN. Canonical results, redacted fixture output, no persistence, strict local security, semantic controls, responsive contracts, and current documentation strengthen controls, but independent visual, assistive-technology, device, comprehension, and release review remain pending.
+- No risk was changed to CONTROLLED or CLOSED from local tests alone.
+## Phase 8 independent owner-verification risk review - 2026-07-24
+
+- `DM-RISK-004` remains OPEN. Fake secret-shaped input is rejected before browser output and privacy-safe errors were verified, but pattern-based detection cannot prove every arbitrary value safe.
+- `DM-RISK-009`, `DM-RISK-010`, and `DM-RISK-011` remain OPEN with stronger controls. Independent Chromium review verified text-and-symbol outcomes, native controls, logical keyboard traversal, visible focus, a concise live announcement, responsive layouts, and reasonable contrast. Real screen-reader, other assistive-technology, physical-device, and independent comprehension testing remain pending.
+- `DM-RISK-021` remains OPEN with stronger controls. All seven live scenarios, adversarial API checks, and repository manifests showed no persisted context, `.gptbrain/`, secret, or source mutation.
+- `DM-RISK-024` remains OPEN. The local dashboard and fixture-based judge story are independently reviewable, but external judge comprehension and release presentation are not yet verified.
+- `DM-RISK-025` remains OPEN. The checkpoint uses exact staging and excludes generated assets, screenshots, temporary profiles, runtime files, and dependency directories; publication and remote configuration remain unauthorized.
+- No risk was changed to CONTROLLED or CLOSED from this local checkpoint alone.

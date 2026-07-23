@@ -200,7 +200,7 @@ Approved development dependencies (installed):
 
 No other dependencies are approved. Additional dependencies may be reconsidered only if a verified requirement cannot reasonably be met with the platform or existing approved dependencies.
 
-Dashboard dependencies (React, Vite, etc.) are deferred until the core engine passes its release gates.
+The Version 1 dashboard uses Node built-in HTTP bound only to `127.0.0.1`, local assets, safe deterministic fixtures, and canonical engine functions. It requires no framework, hosted backend, external resource, telemetry, or runtime dependency.
 
 The MCP SDK was reviewed and rejected for Version 0.7.0. The local stdio MCP adapter uses Node.js built-ins under DM-DEC-032.
 

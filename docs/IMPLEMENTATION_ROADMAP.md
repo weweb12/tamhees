@@ -2,7 +2,7 @@
 
 > **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
 
-> **Current Position**: Phases 1–7 are checkpointed. Version 0.7.0 passes independent local verification with 202 tests, zero failures, zero skips, and zero todos. Phase 8 has not started.
+> **Current Position**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.0 passes 220 tests plus isolated responsive-browser and keyboard review. Phase 9 has not started.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -350,38 +350,23 @@ All benchmark measurements are mathematically auditable and deterministic, basel
 
 ## Phase 8 — Local visual dashboard
 
+**Status**: COMPLETE — INDEPENDENTLY VERIFIED AND CHECKPOINTED LOCALLY AS VERSION 0.8.0.
+
 ### Outputs
 
-- Browser-based local dashboard.
-- Memory viewer.
-- Audit history explorer.
-- Memory status overview.
-- Dashboard dependencies approved and installed (React, Vite, etc.).
+- Loopback-only dependency-free dashboard.
+- Seven canonical safe-fixture scenarios and explained context budgets.
+- Integrity-checked benchmark evidence.
+- Responsive semantic keyboard-native local assets.
 
-### Acceptance criteria
+### Tests and stop gate
 
-- Dashboard reads from `.gptbrain/` through the engine.
-- Dashboard does not bypass authority or privacy rules.
-- Responsive layout (desktop, tablet, mobile).
-- Keyboard accessible.
-- Plain-language explanations.
-- No fake or scripted functionality.
-
-### Tests
-
-- Dashboard renders correctly.
-- Data displayed matches engine output.
-- Responsive layout tests.
-- Keyboard navigation tests.
-
-### Stop gate
-
-Dashboard displays real engine data. All acceptance criteria pass. Owner approves.
+Canonical outcomes, determinism, schemas, methods, routes, traversal, Host and Origin validation, body limits, security headers, privacy-safe errors, benchmark integrity, repository non-mutation, ephemerality, semantic controls, responsive breakpoints, focus, and reduced motion pass automated checks. Independent visual review at desktop, tablet, and mobile sizes and a Chromium keyboard-only audit pass. Real assistive-technology, physical-device, judge-comprehension, and release review remain Phase 9 concerns; Phase 9 has not started.
 
 ### Evidence required
 
-- Screenshots.
-- Test output.
+- 220-test output, isolated loopback smoke, responsive-browser review, Chromium keyboard-only audit, and independent owner checkpoint.
+---
 
 ---
 

@@ -1,6 +1,6 @@
 # Doubtful Memory — Architecture
 
-> **Status**: Phases 1–7 are implemented, independently verified locally, and checkpointed in Version 0.7.0. Phase 8 dashboard work has not started.
+> **Status**: Phases 1–8 are independently verified and checkpointed locally as Version 0.8.0. Phase 9 has not started.
 
 ## Overview
 
@@ -235,16 +235,9 @@ The local MCP adapter provides a stdio-based Model Context Protocol interface.
 
 ## Dashboard boundary
 
-The local visual dashboard is a browser-based interface for viewing project memory, audit history, and memory status.
+Version 0.8.0 serves local semantic assets from Node built-in HTTP on `127.0.0.1`. `src/dashboard/scenarios.ts` delegates safe fixtures to `auditRecord` and `compileContext`; `benchmark.ts` verifies and reads the committed artifact; `server.ts` enforces routing, schemas, limits, origin, privacy-safe errors, and security headers. UI code owns presentation only.
 
-### Invariants
-
-- The dashboard is a Version 1 release deliverable, not post-Version-1.
-- Dashboard implementation is deferred until the core engine passes its release gates.
-- Dashboard dependencies (React, Vite, etc.) are deferred until core engine gates pass.
-- The dashboard reads from the same `.gptbrain/` storage through the engine.
-- The dashboard does not bypass engine authority or privacy rules.
-
+The dashboard has zero runtime dependencies, no external requests or resources, no browser persistence, and no canonical mutation. It rejects traversal-like or query-bearing targets, unexpected Host or Origin values, unknown routes, unsupported methods and media types, oversized or interrupted bodies, malformed or duplicate-key JSON, and unknown fields. Safe fixtures demonstrate canonical behavior but do not expose arbitrary live repository data.
 ## Privacy boundary
 
 ### Invariants
@@ -261,8 +254,8 @@ The local visual dashboard is a browser-based interface for viewing project memo
 
 ### Invariants
 
-1. The core engine, CLI, adapters, and dashboard operate without network access after initial dependency installation.
-2. No runtime HTTP requests.
+1. Core, CLI, adapters, and benchmark perform no networking. The dashboard permits only browser-to-127.0.0.1 HTTP.
+2. No external runtime HTTP requests.
 3. No external API calls.
 4. No telemetry or analytics.
 5. No license-check pings.

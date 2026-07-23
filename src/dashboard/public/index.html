@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Doubtful Memory is a local project-memory auditor for AI coding agents.">
+  <title>Doubtful Memory — Local audit demonstration</title>
+  <link rel="stylesheet" href="/assets/dashboard.css">
+  <script src="/assets/dashboard.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the demonstration</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Doubtful Memory home">
+      <span class="brand-mark" aria-hidden="true">?</span>
+      <span>Doubtful Memory</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#problem">Problem</a>
+      <a href="#live-audit">Live audit</a>
+      <a href="#benchmark">Evidence</a>
+      <a href="#limits">Limitations</a>
+    </nav>
+    <details class="mobile-nav">
+      <summary>Sections</summary>
+      <div>
+        <a href="#problem">Problem</a>
+        <a href="#live-audit">Live audit</a>
+        <a href="#benchmark">Evidence</a>
+        <a href="#limits">Limitations</a>
+      </div>
+    </details>
+    <span class="local-pill"><span aria-hidden="true">●</span> Local process</span>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">DOUBTFUL MEMORY / LOCAL AI MEMORY AUDITOR</p>
+        <h1 id="hero-title">A project brain that knows when it might be wrong.</h1>
+        <p class="hero-lede">AI coding agents remember decisions to move faster. But old, inferred, or sensitive memory can become inaccurate, invasive, and overconfident. Doubtful Memory checks a claim before it is allowed to control an action.</p>
+        <div class="hero-actions">
+          <button class="button button-primary" id="hero-run" type="button">Run the contradiction audit <span aria-hidden="true">→</span></button>
+          <a class="button button-secondary" href="#how-it-works">See how it works</a>
+        </div>
+        <ul class="trust-strip" aria-label="Product boundaries">
+          <li>Local-only</li>
+          <li>Deterministic</li>
+          <li>No API key</li>
+          <li>Zero runtime dependencies</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-label="Memory and evidence converge in an audit that blocks an unsafe action">
+        <div class="signal-card memory-signal">
+          <span class="signal-label">MEMORY / OWNER DECISION</span>
+          <strong>“Use SQLite.”</strong>
+          <span>Last checked 193 days ago</span>
+        </div>
+        <div class="signal-line line-left" aria-hidden="true"></div>
+        <div class="audit-orbit">
+          <span class="orbit-label">AUDIT CORE</span>
+          <span class="orbit-symbol" aria-hidden="true">≠</span>
+          <strong>CONFLICT</strong>
+        </div>
+        <div class="signal-line line-right" aria-hidden="true"></div>
+        <div class="signal-card evidence-signal">
+          <span class="signal-label">CURRENT EVIDENCE / REPOSITORY</span>
+          <strong>“Supabase configured.”</strong>
+          <span>Observed in current files</span>
+        </div>
+        <div class="hero-outcome">
+          <span aria-hidden="true">⊘</span>
+          <div><small>ACTION GATE</small><strong>BLOCK_ACTION</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="problem-section section" id="problem" aria-labelledby="problem-title">
+      <div class="section-heading">
+        <p class="eyebrow">THE FAILURE MODE</p>
+        <h2 id="problem-title">Remembering is not the same as knowing.</h2>
+        <p>A memory file can preserve a sentence for months. It cannot prove that the sentence is still true, appropriately sourced, or safe to act on.</p>
+      </div>
+      <div class="comparison-grid">
+        <article class="comparison-card ordinary-card">
+          <p class="card-index">01 / ORDINARY MEMORY</p>
+          <h3>Continuity without verification</h3>
+          <blockquote>“This project uses SQLite.”</blockquote>
+          <ul class="check-list negative-list">
+            <li><span aria-hidden="true">×</span> Source may be missing</li>
+            <li><span aria-hidden="true">×</span> Project changes can go unnoticed</li>
+            <li><span aria-hidden="true">×</span> Confidence can look like authority</li>
+          </ul>
+        </article>
+        <article class="comparison-card doubtful-card">
+          <p class="card-index">02 / DOUBTFUL MEMORY</p>
+          <h3>Continuity with an action gate</h3>
+          <blockquote>Claim + provenance + freshness + permission</blockquote>
+          <ul class="check-list">
+            <li><span aria-hidden="true">✓</span> Compares current evidence</li>
+            <li><span aria-hidden="true">✓</span> Separates confidence from authority</li>
+            <li><span aria-hidden="true">✓</span> Explains why action is allowed or blocked</li>
+          </ul>
+        </article>
+      </div>
+      <div class="failure-grid" aria-label="Three project memory failure modes">
+        <article>
+          <span class="failure-number">01</span>
+          <h3>Inaccurate</h3>
+          <p>The project changed. The memory did not.</p>
+          <span class="outcome-chip outcome-block">⊘ BLOCK_ACTION</span>
+        </article>
+        <article>
+          <span class="failure-number">02</span>
+          <h3>Invasive</h3>
+          <p>Useful context should never become secret storage.</p>
+          <span class="outcome-chip outcome-forget">⌫ FORGET_OR_REDACT</span>
+        </article>
+        <article>
+          <span class="failure-number">03</span>
+          <h3>Overconfident</h3>
+          <p>An agent inference is not an owner decision.</p>
+          <span class="outcome-chip outcome-ask">? ASK_OWNER</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="audit-section section" id="live-audit" aria-labelledby="audit-title">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="eyebrow">LIVE / CANONICAL ENGINE</p>
+          <h2 id="audit-title">Make memory prove itself.</h2>
+        </div>
+        <p>Every scenario below executes the real deterministic audit and context compiler using safe fixed fixtures. No outcome is selected by the interface.</p>
+      </div>
+
+      <div class="scenario-shell">
+        <aside class="scenario-rail" aria-labelledby="scenario-label">
+          <div class="rail-heading">
+            <span id="scenario-label">Choose a scenario</span>
+            <span id="scenario-count" aria-hidden="true"></span>
+          </div>
+          <div id="scenario-list" class="scenario-list" role="group" aria-labelledby="scenario-label"></div>
+        </aside>
+
+        <div class="audit-workbench">
+          <div class="workbench-header">
+            <div>
+              <p class="eyebrow" id="scenario-concept">CONFLICTING REPOSITORY EVIDENCE</p>
+              <h3 id="scenario-title">The database decision no longer matches reality</h3>
+              <p id="scenario-summary">Memory says SQLite while current repository evidence points to Supabase.</p>
+            </div>
+            <span class="fixture-badge">SAFE FIXTURE</span>
+          </div>
+
+          <div class="budget-control">
+            <label for="budget-input">Context budget <strong><output id="budget-output" for="budget-input">240</output> estimated tokens</strong></label>
+            <input id="budget-input" type="range" min="40" max="360" step="10" value="240">
+            <span>Adjust before running to see deterministic whole-record exclusions.</span>
+          </div>
+
+          <div class="audit-controls">
+            <button class="button button-primary" id="run-audit" type="button">Run audit <span aria-hidden="true">→</span></button>
+            <button class="button button-quiet" id="reset-audit" type="button">Reset scenario</button>
+          </div>
+
+          <div id="audit-progress" class="audit-progress" hidden aria-hidden="true">
+            <span>Provenance</span><i></i><span>Evidence</span><i></i><span>Permission</span><i></i><span>Outcome</span>
+          </div>
+
+          <div id="audit-result" class="result-placeholder" tabindex="-1" role="region" aria-label="Audit result">
+            <span class="placeholder-mark" aria-hidden="true">?</span>
+            <h4>Ready to audit</h4>
+            <p>Run the scenario to see the engine outcome, evidence trace, action consequence, and budgeted context.</p>
+          </div>
+          <p class="sr-only" id="result-announcement" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section architecture-section" id="how-it-works" aria-labelledby="architecture-title">
+      <div class="section-heading">
+        <p class="eyebrow">ONE LOCAL SOURCE OF TRUTH</p>
+        <h2 id="architecture-title">Thin interfaces. One set of rules.</h2>
+        <p>The dashboard presents canonical engine results. It does not own ranking, privacy, authority, lifecycle, or audit policy.</p>
+      </div>
+      <div class="architecture-layout">
+        <div class="architecture-stack" aria-label="Doubtful Memory local architecture">
+          <div class="architecture-row agent-row">
+            <span>Codex</span><span>Antigravity</span><span>Claude</span><span>Generic</span><span>MCP</span>
+          </div>
+          <div class="architecture-connector" aria-hidden="true">↓ thin adapters ↓</div>
+          <div class="architecture-core">
+            <span class="eyebrow">TEMPORARY CODENAME / GPTBRAIN</span>
+            <strong>Canonical deterministic engine</strong>
+            <div><span>Audit</span><span>Context</span><span>Lifecycle</span><span>Privacy</span></div>
+          </div>
+          <div class="architecture-connector" aria-hidden="true">↓ local files ↓</div>
+          <div class="architecture-store">
+            <strong>.gptbrain/</strong>
+            <span>JSON records · evidence · append-only audit metadata</span>
+          </div>
+        </div>
+        <div class="invariant-list">
+          <article><span>01</span><div><h3>Provenance stays attached</h3><p>A claim records where it came from and what supports or contradicts it.</p></div></article>
+          <article><span>02</span><div><h3>Authority cannot silently rise</h3><p>Repository facts and tests verify behavior; only explicit owner evidence authorizes owner decisions.</p></div></article>
+          <article><span>03</span><div><h3>Context remains ephemeral</h3><p>Task-specific context is returned in memory and is not persisted as a pack.</p></div></article>
+          <article><span>04</span><div><h3>Nothing leaves the machine</h3><p>No hosted model, telemetry, account, cloud database, or runtime external request is required.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section section" id="benchmark" aria-labelledby="benchmark-title">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="eyebrow">COMMITTED EVIDENCE / VERSION 0.7.0</p>
+          <h2 id="benchmark-title">Compare the memory strategies.</h2>
+        </div>
+        <p>The table is loaded from the integrity-checked deterministic benchmark artifact. Undefined classification metrics remain N/A rather than receiving invented credit.</p>
+      </div>
+      <div class="benchmark-highlight">
+        <div><strong id="metric-outcome">—</strong><span>Doubtful Memory exact outcomes</span></div>
+        <div><strong id="metric-precision">—</strong><span>Micro retrieval precision</span></div>
+        <div><strong id="metric-exposure">—</strong><span>Unsafe / secret exposures</span></div>
+        <div><strong id="metric-budget">—</strong><span>Hard-budget compliance</span></div>
+      </div>
+      <div class="table-wrap" role="region" aria-label="Benchmark comparison" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Configuration</th>
+              <th scope="col">Precision</th>
+              <th scope="col">Recall</th>
+              <th scope="col">Abstention</th>
+              <th scope="col">Budget</th>
+              <th scope="col">Exact outcome</th>
+              <th scope="col">Unsafe / secret</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark-body">
+            <tr><td colspan="7">Loading the local benchmark artifact…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="benchmark-note" id="benchmark-note">The two Doubtful Memory recall misses are safe relevant records excluded by the hard context budget.</p>
+      <details class="methodology">
+        <summary>View benchmark methodology</summary>
+        <div id="benchmark-methodology">
+          <p>Ground truth is fixture-authored independently of production output. Metrics expose their numerators and denominators.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section integration-section" aria-labelledby="integration-title">
+      <div class="section-heading">
+        <p class="eyebrow">USE IT BEFORE AN AGENT CHANGES YOUR PROJECT</p>
+        <h2 id="integration-title">One memory protocol, five local entry points.</h2>
+      </div>
+      <div class="integration-grid">
+        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Codex</h3><p>Managed AGENTS.md guidance and canonical lifecycle calls.</p></article>
+        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Antigravity</h3><p>Workspace rules backed by the same engine boundary.</p></article>
+        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Claude Code</h3><p>Managed CLAUDE.md integration without copied policy logic.</p></article>
+        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Generic</h3><p>Tool-neutral instructions for local agent workflows.</p></article>
+        <article><span class="verified-tag">LIMITED SUBSET · TESTED</span><h3>Local MCP</h3><p>Four strict JSON-RPC tools over stdio, with no HTTP listener.</p></article>
+      </div>
+    </section>
+
+    <section class="limits-section section" id="limits" aria-labelledby="limits-title">
+      <div class="section-heading">
+        <p class="eyebrow">HONEST BY DESIGN</p>
+        <h2 id="limits-title">A system that doubts memory should state its own limits.</h2>
+      </div>
+      <div class="limits-grid">
+        <article><strong>Lexical, not semantic</strong><p>Retrieval matches normalized words and tags. It does not understand intent like a human.</p></article>
+        <article><strong>Estimated tokens</strong><p>The local byte-based estimate can differ from a provider-specific tokenizer.</p></article>
+        <article><strong>Defensive patterns</strong><p>Secret-like detection reduces risk but cannot identify every possible credential.</p></article>
+        <article><strong>Workflow cooperation</strong><p>The engine cannot force an unrelated coding agent to obey unless that workflow invokes it.</p></article>
+        <article><strong>Unsigned owner evidence</strong><p>Owner evidence is not cryptographically signed in Version 1.</p></article>
+        <article><strong>Unverified challenge detail</strong><p>The detailed Doo judging criteria and submission fields remain unverified.</p></article>
+      </div>
+      <div class="closing-statement">
+        <p>Doubtful Memory does not make AI memory perfect.</p>
+        <strong>It makes memory accountable.</strong>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><span class="brand-mark" aria-hidden="true">?</span><strong>Doubtful Memory</strong></div>
+    <p>Local demonstration · no upload · no telemetry · no external resources</p>
+    <p>Repository remains local. Publication requires owner approval.</p>
+  </footer>
+
+  <noscript>
+    <p class="noscript">JavaScript is required to execute the local engine demonstration. No external script is used.</p>
+  </noscript>
+</body>
+</html>

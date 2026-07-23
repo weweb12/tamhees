@@ -841,3 +841,80 @@ The corrected Version 0.7.0 Phases 5–7 scope may be committed as one local che
 ## Recommended action
 
 Create the local Phases 5–7 checkpoint commit, then begin Phase 8 only in a new explicitly authorized task starting with dashboard planning and dependency review.
+
+---
+
+# Audit DM-AUDIT-2026-07-24-005
+
+## Audit metadata
+
+- Date: 2026-07-24
+- Audit type: Phase 8 local implementation-candidate verification
+- Scope: DM-CLAIM-027 and the dashboard engine, benchmark, HTTP, privacy, accessibility, dependency, and mutation boundaries
+- Auditor: Codex implementation process
+- Engine version: 0.8.0
+- Repository state: Unstaged candidate pending independent owner review
+- Overall result: TRUST (local implementation evidence only)
+
+## Evidence
+
+- Seven scenarios call production audit/context functions and return the required outcomes, rules, evidence, consequences, next steps, selections, exclusions, and budgets.
+- Loopback routing, strict schemas, body limit, traversal/origin/method refusal, security headers, privacy-safe errors, benchmark integrity, deterministic output, no repository mutation, no `.gptbrain/`, and no context persistence pass.
+- 202 inherited plus 14 Phase 8 tests: 216 passed, 0 failed, 0 skipped, 0 todo. Typecheck and build pass.
+- Runtime dependencies remain zero; direct development dependencies remain TypeScript 6.0.3 and @types/node 22.20.1.
+- No remote, upload, deployment, external resource, telemetry, browser persistence, or Phase 9 work exists.
+
+## Limitations and permission
+
+Lexical retrieval, approximate tokens, incomplete pattern detection, safe fixture scope, and the need for independent visual/device/assistive-technology review remain explicit. This candidate may proceed to independent owner verification but is not authorized for staging, commit, publication, remote configuration, or Phase 9.
+
+## Recommended action
+
+Independently verify the unstaged Phase 8 candidate and do not begin Phase 9.
+---
+
+# Audit DM-AUDIT-2026-07-24-006
+
+## Audit metadata
+
+- Date: 2026-07-24
+- Audit type: Independent owner-verification and corrective Phase 8 checkpoint
+- Scope: DM-CLAIM-027; canonical dashboard scenarios, benchmark integrity, HTTP and browser boundaries, repository isolation, visual behavior, keyboard accessibility, dependencies, documentation, and Git state
+- Auditor: Codex independent owner-verification process
+- Engine version: 0.8.0
+- Repository state: Independently verified and authorized for the local Phase 8 checkpoint commit
+- Overall result: TRUST (implementation evidence only)
+
+## Corrective findings
+
+1. Request routing accepted query-bearing targets, JSON-like media types, duplicate top-level JSON keys, Host confusion, and mismatched loopback origins. The server now requires exact origin-form paths, the exact JSON media type, unique top-level keys, the actual loopback Host and port, and the exact printed Origin.
+2. An oversized declared body was not rejected before retention. The server now refuses declared lengths over 16,384 bytes before retaining content, drains the request, and keeps the received-body cap for chunked input.
+3. Scenario buttons overwrote native button semantics with `role="listitem"`; the scenario collection now uses an accessible group while buttons retain their native role.
+4. Tablet/mobile navigation was hidden instead of available. A native disclosure is now present, and its closed panel is explicitly hidden across browser implementations.
+5. Initial load announced a reset, live results repeated too much content, and result busy/region state was incomplete. Initial load is silent, the announcement is concise, and focus moves to a labelled result region with explicit busy state.
+6. Faint small text and the long benchmark hash caused contrast and mobile page-overflow defects. Contrast was increased and the hash wraps while the wide table remains intentionally region-scrolled.
+
+## Verification evidence
+
+- Inherited Phase 1–7 tests: 202.
+- Original Phase 8 candidate tests: 14.
+- Independent Phase 8 suite after focused additions: 18.
+- Final automated suite: 220 passed, 0 failed, 0 skipped, 0 todo.
+- Typecheck, build, clean install, full verification, focused dashboard verification, dependency tree, and diff checks: PASS.
+- Seven live scenarios return exactly `BLOCK_ACTION`, `RECHECK`, `BLOCK_ACTION`, `ASK_OWNER`, `FORGET_OR_REDACT`, `TRUST`, and `TRUST`; repeated requests are byte-equivalent.
+- The dashboard calls canonical `auditRecord` and `compileContext`; browser code contains no audit, authority, privacy, ranking, freshness, or budget policy copy.
+- Benchmark JSON is loaded only after SHA-256 `aab7fc8a775d024256b7c6e53d19b426fed98702702a3b89b39bc6408a948eab` verification; altered artifacts are rejected.
+- Loopback-only binding, exact URL/port, strict Host/Origin/routes/methods/media/schema/body limits, traversal refusal, allowlisted assets, restrictive headers, privacy-safe errors, interrupted-body recovery, and no CORS: PASS.
+- No external resource, telemetry, analytics, hosted font, cloud integration, browser persistence, unsafe dynamic rendering, context persistence, repository `.gptbrain/`, or source mutation exists.
+- Browser visual review at 1440×900, 1024×768, and 390×844 found no required-content clipping, page-level overflow, overlap, or broken control; table overflow remains scoped to its labelled region.
+- A native Chromium keyboard-only flow traversed controls, selected the privacy scenario, adjusted the budget, ran `FORGET_OR_REDACT`, moved focus to the result, Shift+Tabbed to reset, restored visible focus to Run, and opened the mobile Sections disclosure.
+- Runtime dependencies: 0. Direct development dependencies remain exactly `typescript@6.0.3` and `@types/node@22.20.1`.
+- Requirement ledger count remains mechanically verified at 60 unique IDs: 48 IMPLEMENTED, 12 IN_PROGRESS, 0 VERIFIED. No status was elevated from test evidence alone.
+
+## Limitations and permission
+
+Retrieval remains exact lexical/tag matching, token accounting remains an estimate, secret detection remains pattern-based, MCP remains a deliberately limited local stdio subset, and the dashboard remains a safe fixed-fixture demonstration. Real assistive-technology, physical-device, independent judge-comprehension, external benchmark validity, release, and publication review remain pending. This audit authorizes only the local Phase 8 checkpoint commit; it does not provide OWNER_CONFIRMED release approval, remote configuration, publication authority, or permission to begin Phase 9.
+
+## Recommended action
+
+Create the local Phase 8 checkpoint commit. Begin Phase 9 only in a new explicitly authorized release-hardening task; do not push, publish, deploy, or configure a remote from this checkpoint.

@@ -501,3 +501,19 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - action_permission: ACT_WITH_CAUTION
 - recheck_method: Run `npm ci`, the full verification suite, benchmark generation twice, isolated adapter/MCP/retrieval smokes, dependency/network inspection, and Git diff checks.
 - notes: This supplements DM-CLAIM-025 with independent corrective evidence. It does not elevate the milestone to OWNER_CONFIRMED release approval. Phase 8 has not started.
+
+---
+
+## DM-CLAIM-027
+
+- claim: Version 0.8.0 implements a dependency-free 127.0.0.1 dashboard with seven canonical safe-fixture scenarios, SHA-256-checked benchmark evidence, strict security/privacy boundaries, no repository mutation, and no persisted context.
+- source_type: Repository and test inspection
+- source_reference: `src/dashboard/`, `test/phase8-dashboard.test.ts`, package metadata, DM-DEC-034, local 220-test output, isolated live browser review, and Chromium keyboard review dated 2026-07-24
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-24
+- review_after: After dashboard, engine, benchmark, security, dependency, privacy, accessibility, or build changes
+- sensitivity: INTERNAL
+- action_permission: ACT_WITH_CAUTION
+- recheck_method: Run clean install, full verification, focused dashboard verification, isolated loopback smoke, mutation/dependency/Git checks
+- notes: Independently verified local Phase 8 checkpoint evidence; not OWNER_CONFIRMED release approval, publication authority, or proof of real assistive-technology or physical-device compatibility. Phase 9 has not started.

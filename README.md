@@ -35,9 +35,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.7.0 — Phases 5–7 are complete, independently verified locally, and checkpointed.**
+> **Version 0.8.0 — Phase 8 is independently verified and checkpointed locally. Phase 9 has not started.**
 
-The local engine retains the verified Phase 1–4 foundation and now adds five equivalent adapters, project-local managed instruction installation, a dependency-free local stdio MCP server, corrected positive-relevance eligibility, and a deterministic four-configuration benchmark. The current local suite contains 202 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
+The verified Phase 1–7 foundation now includes a dependency-free, loopback-only dashboard with seven real deterministic scenarios and an integrity-checked benchmark view. The independently reviewed suite contains 220 passing tests with zero failures, skips, or todos. No remote, upload, external service, telemetry, or runtime dependency exists. `gptbrain` and `.gptbrain/` remain temporary codenames.
 
 Implemented commands:
 
@@ -54,9 +54,11 @@ Implemented commands:
 - `gptbrain migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
 - `gptbrain adapter list|status|install|remove|begin|finalize`: Manage and invoke the five project-local adapters.
 - `gptbrain mcp serve`: Run the local JSON-RPC 2.0 stdio MCP server at protocol revision `2025-11-25`.
-- `gptbrain benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic four-configuration benchmark.
+- `gptbrain benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic benchmark.
+- `npm run dashboard`: Build and start the dashboard on `http://127.0.0.1:8787/` without opening a browser.
+- `npm run verify:dashboard`: Verify dashboard and core integration.
 
-Phases 1–7 are checkpointed and independently verified locally. Phase 8 dashboard work has not started. No remote, upload, external service, telemetry, or runtime dependency has been added.
+Phases 1–8 are independently verified and checkpointed locally. Phase 9 and publication remain pending separate owner authorization.
 
 ## Design principles
 
@@ -106,10 +108,12 @@ npm ci
 npm run verify
 npm run build
 npm run benchmark
+npm run verify:dashboard
+npm run dashboard
 node dist/src/cli.js --help
 ```
 
-No API key, account, hosted model, database, or runtime network connection is required.
+No API key, account, hosted model, database, or external runtime network is required. The dashboard uses only local loopback HTTP.
 
 ### Phase 3 context budgets
 
@@ -161,9 +165,20 @@ The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.
 
 `npm run benchmark` regenerates `benchmark/results/v0.7.0.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Doubtful Memory compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Doubtful Memory records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
 
+## Phase 8 local dashboard
+
+```powershell
+npm ci
+npm run verify
+npm run dashboard
+```
+
+Open the exact printed `http://127.0.0.1:8787/` URL. For the primary demonstration, select **Repository conflict**, run the audit, and inspect `BLOCK_ACTION`, `DM-RULE-CONFLICT-001`, the contradictory evidence, action consequence, owner next step, and `conflicted` context exclusion. The remaining scenarios cover stale, revoked, inferred, secret-like, budget-constrained, and supported memory.
+
+Fixtures are fake and fixed. Results come from production audit/context functions, benchmark values come from the SHA-256-checked committed artifact, and execution creates no repository memory or persisted context.
 ## Next planned work
 
-**Accelerated Milestone 3 (Phases 5–7)**: Complete, independently verified locally, and checkpointed. The exact next development action is Phase 8 local visual dashboard planning and dependency review; no dashboard dependency is approved yet.
+**Phase 8**: Independently verified and checkpointed locally as Version 0.8.0. Next: begin Phase 9 only through a separately authorized release-hardening task. Publication has not started.
 
 ## Runtime requirements
 

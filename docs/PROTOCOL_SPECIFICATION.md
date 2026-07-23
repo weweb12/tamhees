@@ -1,6 +1,6 @@
 # Doubtful Memory — Protocol Specification
 
-> **Status**: Version 0.7.0 implements the Phase 2 storage/mutation/audit, Phase 3 context, Phase 4 lifecycle/migration, Phase 5–6 adapters and local stdio MCP, and Phase 7 deterministic benchmark contracts locally. Dashboard behavior remains planned for Phase 8.
+> **Status**: Version 0.8.0 Phase 8 and the Phase 1–7 contracts are independently verified and checkpointed locally. Phase 9 has not started.
 
 ## Overview
 
@@ -553,3 +553,9 @@ The MCP surface uses JSON-RPC 2.0 over local stdio with protocol revision `2025-
 ## Version 0.7.0 deterministic benchmark contract
 
 Benchmark Version 2.0.0 runs the fixed configuration order `NO_MEMORY`, `MONOLITHIC_GPTBRAIN`, `SIMPLE_SPLIT_FILES`, and `DOUBTFUL_MEMORY` over one shared 22-scenario fixture catalogue. Ground-truth relevance, safety-adjusted relevance, authority, freshness, escalation, abstention, unsafe exposure, and secret labels are authored in the fixture and are never generated or rewritten by engine output. Every scenario reports TP, FP, FN, selected count, relevant count, precision, and recall; aggregates include micro and macro ratios with numerators and denominators. Zero selected count makes precision `null`; zero safe-relevant count makes recall `null`; nulls are excluded from macro means. Prevention, detection, exposure, escalation, abstention, budget compliance, and exact outcome are separate. `NO_MEMORY` has `null` detection and escalation because it classifies nothing. The Doubtful Memory configuration invokes the production context compiler rather than a benchmark-only imitation. JSON and Markdown are rendered from one canonical result object and regenerate byte-identically.
+
+## Version 0.8.0 local dashboard contract
+
+The server listens only on `127.0.0.1` and exposes exact local assets plus `GET /api/scenarios`, `POST /api/audit`, and `GET /api/benchmark`. Audit input accepts exactly `scenarioId` and optional integer `maxTokens`; unsupported methods or media types, unknown routes or fields, unexpected query/fragment targets, Host confusion, cross-origin requests, traversal-like targets, malformed or duplicate-key JSON, interrupted bodies, and declared or received bodies over 16,384 bytes fail safely.
+
+Fixed safe scenarios call production `auditRecord` and `compileContext` at a fixed time. Responses expose only safe memory/evidence views, outcome, explanation, rules, permission consequence, next step, selected/excluded context, and budget arithmetic. No context, task, secret-shaped value, browser state, audit event, or mutation persists. Benchmark JSON must match SHA-256 `aab7fc8a775d024256b7c6e53d19b426fed98702702a3b89b39bc6408a948eab`. Security headers block external resources, framing, referrers, and unnecessary browser capabilities.

@@ -6,41 +6,40 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.7.0 completes the independently verified local Phases 5–7 checkpoint on top of the Phase 1–4 checkpoints.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.8.0 is the independently verified, locally checkpointed Phase 8 implementation built on the Phase 1–7 checkpoints.
 
 ## Status summary
 
 - Project: Doubtful Memory
-- Current phase: Accelerated Phases 5–7 — complete, independently verified locally, and checkpointed.
+- Current phase: Phase 8 — independently verified and checkpointed locally; Phase 9 has not started.
 - Overall status: In progress
 - Development environment: Windows, local-only, Node 24.
 - Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest committed checkpoint: Phases 5–7 local checkpoint
-- Current unstaged candidate: None after the Phases 5–7 checkpoint
+- Latest committed checkpoint: Phase 8 local dashboard checkpoint
+- Current unstaged candidate: None
 - Git remote: None
 - Repository upload/publication: None
 - External services: None
 - Paid services: None
 - Application dependencies: None (zero runtime dependencies)
-- Application code: Phases 1–7 implemented, independently verified locally, and checkpointed.
+- Application code: Phases 1–8 are independently verified and checkpointed locally.
 - Packages:
   - typescript@6.0.3
   - @types/node@22.20.1
   - zero runtime dependencies
 - CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
 - Current local verification evidence:
-  - 202 passed
+  - 220 passed
   - 0 failed
   - 0 skipped
   - 0 todo
-- Last updated: 2026-07-23
+- Last updated: 2026-07-24
 
 ## Current objective
 
-Version 0.7.0 completes the accelerated Phases 5–7 adapter, limited local stdio MCP, corrected retrieval-eligibility, and deterministic benchmark milestone. Independent local verification is complete; Phase 8 has not started.
-
+Version 0.8.0 adds the dependency-free, loopback-only local dashboard and judge demonstration. Seven safe deterministic scenarios call canonical audit and context functions, and the benchmark view reads the integrity-checked committed Version 0.7.0 artifact. Independent source, security, privacy, responsive-browser, and keyboard review passes with 220 tests. Phase 8 is checkpointed locally; Phase 9 has not started.
 ## Completed work
 
 - Reviewed the two existing project-planning PDFs.
@@ -168,12 +167,11 @@ Phase 3 retrieval, ranking, explanations, context-pack validation, and hard esti
 
 ## Next phase
 
-Phase 8 — local visual dashboard. Phase 8 has not started.
+Phase 9 release hardening remains not started and requires a separately authorized task.
 
 ## Next immediate action
 
-Begin Phase 8 only in a new explicitly authorized task, starting with dashboard planning and dependency review. Do not install dashboard dependencies, upload, publish, configure a remote, or add an external service without owner approval.
-
+Obtain explicit owner authorization before beginning Phase 9 release hardening. Do not push, upload, publish, deploy, configure a remote, or begin Phase 9 from this checkpoint.
 ## Safe restart instructions
 
 When resuming work:
@@ -191,3 +189,7 @@ Version 0.4.0 lifecycle and migration behavior is complete and independently ver
 ## Phases 5–7 checkpoint status
 
 Version 0.7.0 adapter, limited MCP, corrected exact lexical/tag eligibility, and benchmark behavior is independently verified locally with 202 passing tests, zero failures, zero skips, and zero todos. The corrected benchmark records 22/22 Doubtful Memory abstention correctness and separates null detection metrics from safe prevention. This is test-verified implementation evidence and a local checkpoint, not OWNER_CONFIRMED release approval.
+
+## Phase 8 independent checkpoint status
+
+The dashboard binds only to `127.0.0.1`, uses local assets and zero new dependencies, and calls canonical `auditRecord` and `compileContext` functions. It persists no context pack or browser state and creates no repository `.gptbrain/`. Independent review corrected strict request-target, Host, Origin, media-type, duplicate-key, body-limit, semantic-control, live-region, mobile navigation, contrast, and overflow boundaries. Typecheck, build, 220 tests, all seven live outcomes, desktop/tablet/mobile browser checks, and an independent Chromium keyboard-only audit pass. This is a local implementation checkpoint, not release approval or proof of real assistive-technology compatibility.

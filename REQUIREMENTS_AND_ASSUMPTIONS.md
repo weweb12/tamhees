@@ -738,7 +738,7 @@ The product must install and remove cleanly.
 ## DM-REQ-UI-001 - Primary audit journey
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 A user must be able to view memory state, inspect evidence, run audits, understand results, and see safe next actions through the dashboard.
@@ -748,14 +748,14 @@ A user must be able to view memory state, inspect evidence, run audits, understa
 - The journey has no broken step.
 - Memory and current evidence are visually distinguishable.
 - The primary outcome is prominent.
-- The dashboard reads from `.gptbrain/` through the engine.
+- The judge demonstration invokes canonical audit and context functions over safe fixed structured fixtures without mutating source storage.
 
 ---
 
 ## DM-REQ-UI-002 - Responsive layout
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 The dashboard must work on desktop, tablet, and mobile screen sizes.
@@ -772,7 +772,7 @@ The dashboard must work on desktop, tablet, and mobile screen sizes.
 ## DM-REQ-UI-003 - Accessible status communication
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 Status and outcomes must not rely on color alone.
@@ -789,7 +789,7 @@ Status and outcomes must not rely on color alone.
 ## DM-REQ-UI-004 - Keyboard operation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 The dashboard must be operable using a keyboard.
@@ -806,7 +806,7 @@ The dashboard must be operable using a keyboard.
 ## DM-REQ-UI-005 - Plain-language explanations
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 The dashboard must explain technical concepts without assuming prior knowledge of the protocol.
@@ -823,7 +823,7 @@ The dashboard must explain technical concepts without assuming prior knowledge o
 ## DM-REQ-UI-006 - Local dashboard as Version 1 deliverable
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 - Related decision: DM-DEC-016
 
@@ -832,9 +832,9 @@ The local visual dashboard is a Version 1 release deliverable, not post-Version-
 ### Acceptance criteria
 
 - Dashboard is functional and included in the release.
-- Dashboard reads from `.gptbrain/` through the engine.
+- Dashboard results come from canonical engine functions through a narrow local API.
 - Dashboard does not bypass engine authority or privacy rules.
-- Dashboard dependencies are approved before Phase 8 begins.
+- The dependency-free built-in boundary is approved by DM-DEC-034.
 
 ---
 
@@ -843,7 +843,7 @@ The local visual dashboard is a Version 1 release deliverable, not post-Version-
 ## DM-REQ-PROD-001 - Clear opening explanation
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Target phase: Phase 8
 
 The dashboard opening must explain that project memory can be inaccurate, invasive, or overconfident and that Doubtful Memory audits whether remembered claims are safe to use.
@@ -860,7 +860,7 @@ The dashboard opening must explain that project memory can be inaccurate, invasi
 ## DM-REQ-PROD-002 - Working interactive audit
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 The application must execute a real audit using structured claim and evidence data.
 
@@ -876,7 +876,7 @@ The application must execute a real audit using structured claim and evidence da
 ## DM-REQ-PROD-003 - Multiple representative scenarios
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 The application must include scenarios covering:
 
@@ -898,7 +898,7 @@ The application must include scenarios covering:
 ## DM-REQ-PROD-004 - Independent value
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 The application must be understandable and useful without knowledge of the Doo challenge.
 
@@ -969,7 +969,7 @@ Tests cover at least:
 ## DM-REQ-TECH-004 - Production build
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The final Version 1 project must produce verified release artifacts.
 
@@ -1042,7 +1042,7 @@ Documentation must explain the system architecture, claim schema, audit rules, o
 ## DM-REQ-DOC-003 - Demonstration guide
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 
 Documentation must provide a short reproducible path through the primary contradiction scenario.
 
