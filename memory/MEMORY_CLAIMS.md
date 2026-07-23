@@ -471,3 +471,33 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - action_permission: ACT_WITH_CAUTION
 - recheck_method: Inspect the cited source, run the full suite and temporary-project lifecycle trace, and confirm the repository remains free of `.gptbrain/` runtime state.
 - notes: Phase 4 is independently verified locally and checkpointed. This TEST_VERIFIED evidence is not OWNER_CONFIRMED release readiness. Phase 5 adapters, multi-process locking, automatic interrupted-lifecycle recovery, and an owner-confirmation UI are not implemented.
+---
+
+## DM-CLAIM-025
+
+- claim: Version 0.7.0 implements one shared five-adapter registry, safe project-local managed instruction installation, a dependency-free local stdio MCP adapter for protocol revision 2025-11-25, and a deterministic four-configuration benchmark while preserving the canonical engine boundary, storage schema 1.0.0, local-only operation, and zero runtime dependencies.
+- source_type: Repository and test inspection
+- source_reference: `src/adapters/`, `src/mcp/`, `src/benchmark/`, `benchmark/`, `src/cli.ts`, Phase 5–7 tests, package metadata, and local verification output dated 2026-07-22
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-22
+- review_after: Recheck after adapter, MCP protocol, benchmark methodology, lifecycle, dependency, privacy, or test-suite changes.
+- sensitivity: INTERNAL
+- action_permission: ACT_WITH_CAUTION
+- recheck_method: Run `npm ci`, `npm run verify`, `npm run benchmark`, cross-adapter checks, stdio MCP conformance, isolated temporary-project smoke workflows, dependency inspection, and Git diff checks.
+- notes: This is an unstaged implementation candidate pending independent owner verification, not OWNER_CONFIRMED release readiness. The benchmark reports the current abstention limitation transparently. Phase 8 has not started.
+---
+
+## DM-CLAIM-026
+
+- claim: Version 0.7.0 independently verifies positive exact lexical/tag relevance eligibility, five equivalent adapters, fail-closed project-local managed instructions, the limited dependency-free stdio MCP subset, and Benchmark Version 2.0.0 with fixture-authored ground truth and separated auditable metrics.
+- source_type: Repository and test inspection
+- source_reference: `src/core/context.ts`, `src/core/validation.ts`, `src/adapters/`, `src/mcp/`, `src/benchmark/`, `benchmark/`, owner-verification tests, isolated smoke workflows, and local verification output dated 2026-07-23
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-23
+- review_after: Recheck after retrieval, validation, adapter, MCP protocol, benchmark methodology, lifecycle, dependency, privacy, or test-suite changes.
+- sensitivity: INTERNAL
+- action_permission: ACT_WITH_CAUTION
+- recheck_method: Run `npm ci`, the full verification suite, benchmark generation twice, isolated adapter/MCP/retrieval smokes, dependency/network inspection, and Git diff checks.
+- notes: This supplements DM-CLAIM-025 with independent corrective evidence. It does not elevate the milestone to OWNER_CONFIRMED release approval. Phase 8 has not started.

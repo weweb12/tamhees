@@ -1010,6 +1010,64 @@ Phase 4 must automate retrieval and routine memory maintenance without persistin
 - The storage schema remains `1.0.0`; engine and package version become `0.4.0`.
 
 ---
+
+## DM-DEC-032 - Dependency-free local adapter, MCP, and benchmark boundary
+
+- Date: 2026-07-22
+- Status: APPROVED
+- Category: Architecture, dependency, protocol, privacy, and verification
+
+### Context
+
+Accelerated Phases 5-7 require five equivalent agent adapters, a local stdio MCP surface, and an objective deterministic benchmark. The owner explicitly reviewed the previously deferred MCP SDK question and directed the implementation to retain zero runtime dependencies.
+
+### Decision
+
+- Use one shared adapter registry with the exact identifiers `codex`, `antigravity`, `claude`, `generic`, and `mcp`; adapters translate only and delegate all memory behavior to the canonical engine.
+- Install only project-local managed instruction blocks at the documented targets. Preserve bytes outside the marked block, fail closed on corrupt markers or unsafe paths, and make install/removal atomic, idempotent, and dry-run capable.
+- Implement the local stdio MCP adapter with Node.js built-ins rather than `@modelcontextprotocol/sdk`.
+- Pin the implemented MCP protocol revision to `2025-11-25`, JSON-RPC 2.0, and one UTF-8 JSON object per line. Support only local stdio; do not add HTTP, remote configuration, telemetry, or global installation.
+- Keep the four required MCP tools thin and route task lifecycle operations through the shared `mcp` adapter.
+- Compare `NO_MEMORY`, `MONOLITHIC_GPTBRAIN`, `SIMPLE_SPLIT_FILES`, and `DOUBTFUL_MEMORY` on the same deterministic fixture catalogue. Represent undefined precision/recall as `null` and exclude those values transparently from aggregate means.
+- Advance the package and engine version to `0.7.0` while retaining storage schema `1.0.0`, zero runtime dependencies, and the temporary `gptbrain` codename.
+
+### Consequences
+
+- The SDK dependency is rejected for this implementation, not merely deferred. A future SDK addition requires a new owner-approved decision and dependency review.
+- MCP-specific behavior is isolated and conformance-tested, but future protocol revisions remain an explicit compatibility risk.
+- Benchmark output is reproducible and includes results that expose limitations; it is evidence, not a subjective claim of superiority.
+- Phase 8 dashboard work remains outside this milestone.
+
+---
+
+## DM-DEC-033 - Positive lexical eligibility and auditable benchmark metrics
+
+- Date: 2026-07-23
+- Status: APPROVED
+- Category: Retrieval, safety, validation, and verification
+
+### Context
+
+Independent owner verification found that the Phase 3 matcher used undocumented substring containment and context validation did not reject a selected entry declaring zero relevance. It also found that the Phase 7 candidate generated its fixture from implementation code, mislabeled six safety/privacy abstentions, combined prevention with detection, and credited no-memory behavior with policy classifications it did not perform.
+
+### Decision
+
+- Require every selected task-specific memory to have positive relevance from at least one exact Unicode-NFKC-normalized, case-folded, non-common task-term or tag match.
+- Exclude zero-relevance records as `irrelevant` before ranking and budgeting. Authority, freshness, and safety rank only relevance-eligible records; no total-score threshold or undocumented mandatory-memory mechanism is introduced.
+- Ignore one controlled set of common English task terms and reject substring-only matches. Duplicate normalized tags and terms count once.
+- Make runtime context validation reject a selected entry with zero declared relevance.
+- Treat `benchmark/fixtures/scenarios.json` as fixture-authored ground truth that generation never rewrites. Keep unsafe task relevance explicit while using separately labeled safety-adjusted relevance for precision and recall.
+- Report TP, FP, FN, selected count, relevant count, micro and macro precision/recall, and explicit numerators and denominators. Undefined metrics are `null` and excluded from applicable means.
+- Separate violation prevention, problem detection, unsafe exposure, secret leakage, escalation, abstention, budget compliance, and exact outcome. A configuration without a classifier receives `null` detection/escalation, not invented success.
+
+### Consequences
+
+- Exact lexical matching remains deterministic and intentionally is not semantic retrieval.
+- The ranking weights and hard-budget estimator are unchanged; only task-relevance eligibility and documented term matching are corrected.
+- Benchmark Version 2.0.0 artifacts replace the flawed candidate artifacts while the historical candidate audit remains unchanged as evidence of what was reported before correction.
+- Phase 8 remains outside this checkpoint.
+
+---
 ## Pending decisions
 
 The following matters are intentionally not decided yet:
@@ -1017,7 +1075,6 @@ The following matters are intentionally not decided yet:
 - Final visual identity.
 - Exact package versions (beyond typescript and @types/node).
 - Dashboard dependency approval (deferred to Phase 8).
-- MCP SDK approval (deferred to MCP implementation phase).
 - Import and export behavior.
 - Whether users may create custom scenarios in Version 1.
 - Final hosting platform.

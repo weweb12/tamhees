@@ -1,6 +1,6 @@
 {
   "name": "doubtful-memory",
-  "version": "0.4.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "description": "A project brain that knows when it might be wrong — local-first memory auditing for AI coding agents",
@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test dist/test/**/*.test.js",
     "verify": "npm run typecheck && npm run build && npm run test",
-    "gptbrain": "node dist/src/cli.js"
+    "gptbrain": "node dist/src/cli.js",
+    "benchmark": "npm run build && node dist/src/benchmark/generate.js"
   },
   "engines": {
     "node": ">=22"

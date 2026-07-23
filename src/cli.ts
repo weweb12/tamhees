@@ -13,8 +13,8 @@
  * No telemetry. No network access.
  */
 
-import { resolve } from 'node:path';
-import { lstat, readFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { lstat, mkdir, readFile } from 'node:fs/promises';
 import {
   DEFAULT_CONTEXT_MAX_TOKENS,
   MAX_CONTEXT_MAX_TOKENS,
@@ -39,6 +39,12 @@ import { memoryForOutput } from './core/privacy.js';
 import { validateContextPack } from './core/validation.js';
 import { beginLifecycle, finalizeLifecycle, formatLifecycleBeginAsMarkdown, formatLifecycleFinalizeAsMarkdown, randomLifecycleId } from './core/lifecycle.js';
 import { loadBootstrapMigrationSource, migrateBootstrapClaims } from './core/migration.js';
+import { getAdapter, isAdapterName, listAdapterDefinitions } from './adapters/registry.js';
+import { adapterStatus, installAdapter, removeAdapter } from './adapters/managed-files.js';
+import { ADAPTER_NAMES } from './adapters/types.js';
+import { runMcpStdio } from './mcp/stdio.js';
+import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark/benchmark.js';
+import { atomicWriteText, verifyPathSafety } from './core/atomic-write.js';
 
 // ─── Argument parsing ───────────────────────────────────────
 
@@ -50,6 +56,7 @@ function parseArgs(
   allowedOptions: string[],
   maxPositional: number,
   startIndex = 1,
+  valueLessOptions: readonly string[] = [],
 ): { options: Record<string, string>; positional: string[] } {
   const options: Record<string, string> = {};
   const positional: string[] = [];
@@ -67,6 +74,10 @@ function parseArgs(
       if (options[arg] !== undefined) {
         console.error(`Duplicate option: ${arg}`);
         process.exit(2);
+      }
+      if (valueLessOptions.includes(arg)) {
+        options[arg] = 'true';
+        continue;
       }
       if (i + 1 >= args.length || args[i + 1]!.startsWith('--')) {
         console.error(`Missing value for option: ${arg}`);
@@ -102,6 +113,9 @@ Commands:
   audit               Run audit on all memory records
   lifecycle           Begin or finalize a controlled task lifecycle
   migrate             Run a controlled one-time bootstrap migration
+  adapter             Manage and use local agent adapters
+  mcp                 Run the local stdio MCP server
+  benchmark           Run the deterministic local benchmark
 
 Options:
   --help              Show this help
@@ -198,7 +212,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate'].includes(command))) {
+  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
     console.log(MAIN_HELP);
     process.exit(0);
   }
@@ -224,6 +238,15 @@ async function main(): Promise<void> {
       break;
     case 'migrate':
       await handleMigrate();
+      break;
+    case 'adapter':
+      await handleAdapter();
+      break;
+    case 'mcp':
+      await handleMcp();
+      break;
+    case 'benchmark':
+      await handleBenchmark();
       break;
     default:
       console.error(`Unknown command: ${command}`);
@@ -546,6 +569,76 @@ async function handleMigrate(): Promise<void> {
   const result=await migrateBootstrapClaims(process.cwd(),source.markdown,systemClock); console.log(JSON.stringify(result,null,2));process.exit(result.success?0:1);
 }
 function joinPath(...parts:string[]):string{return resolve(process.cwd(),...parts);}
+
+async function handleAdapter(): Promise<void> {
+  const subcommand = args[1];
+  if (args.includes('--help')) {
+    console.log(`${CLI_NAME} adapter\n\nUsage:\n  ${CLI_NAME} adapter list\n  ${CLI_NAME} adapter status --agent <${ADAPTER_NAMES.join('|')}>\n  ${CLI_NAME} adapter install --agent <name> [--dry-run]\n  ${CLI_NAME} adapter remove --agent <name> [--dry-run]\n  ${CLI_NAME} adapter begin --agent <name> --task "<description>" [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} adapter finalize --agent <name> --input <finalization.json> [--format json|markdown]\n\nManaged installs are project-local, atomic, idempotent, and preserve bytes outside the marked block.`);
+    process.exit(0);
+  }
+  if (subcommand === 'list') {
+    parseArgs([], 0, 2);
+    console.log(JSON.stringify(listAdapterDefinitions(), null, 2));
+    process.exit(0);
+  }
+  if (!['status', 'install', 'remove', 'begin', 'finalize'].includes(subcommand ?? '')) return usageError(`Unknown adapter operation: ${subcommand ?? '<missing>'}. Run ${CLI_NAME} adapter --help.`);
+  const allowed = subcommand === 'begin' ? ['--agent','--task','--max-tokens','--format']
+    : subcommand === 'finalize' ? ['--agent','--input','--format']
+      : subcommand === 'status' ? ['--agent'] : ['--agent','--dry-run'];
+  const { options } = parseArgs(allowed, 0, 2, ['--dry-run']);
+  const agent = options['--agent'];
+  if (!agent || !isAdapterName(agent)) return usageError(`--agent must be one of: ${ADAPTER_NAMES.join(', ')}.`);
+  if (subcommand === 'status') return printAdapterResult(await adapterStatus(process.cwd(), agent));
+  if (subcommand === 'install') return printAdapterResult(await installAdapter(process.cwd(), agent, options['--dry-run'] === 'true'));
+  if (subcommand === 'remove') return printAdapterResult(await removeAdapter(process.cwd(), agent, options['--dry-run'] === 'true'));
+  const adapter = getAdapter(agent);
+  const format = options['--format'] ?? 'json';
+  if (format !== 'json' && format !== 'markdown') return usageError('Adapter format must be json or markdown.');
+  if (subcommand === 'begin') {
+    const task = options['--task']; if (!task) return usageError('Adapter begin requires --task.');
+    const maxTokens = options['--max-tokens'] === undefined ? DEFAULT_CONTEXT_MAX_TOKENS : parseContextMaxTokens(options['--max-tokens']);
+    const result = await adapter.begin(process.cwd(), task, { maxTokens });
+    console.log(format === 'markdown' ? formatLifecycleBeginAsMarkdown(result) : JSON.stringify(result, null, 2));
+    process.exit(result.success ? 0 : 1);
+  }
+  const inputPath = options['--input']; if (!inputPath) return usageError('Adapter finalize requires --input.');
+  let input: unknown; try { input = await readJsonInput(inputPath); } catch { console.error('Cannot read adapter finalization input safely. Raw input was not echoed.'); process.exit(1); }
+  const result = await adapter.finalize(process.cwd(), input);
+  console.log(format === 'markdown' ? formatLifecycleFinalizeAsMarkdown(result) : JSON.stringify(result, null, 2));
+  process.exit(result.success ? 0 : 1);
+}
+
+function printAdapterResult(result: { readonly success: boolean }): never {
+  console.log(JSON.stringify(result, null, 2));
+  process.exit(result.success ? 0 : 1);
+}
+
+async function handleMcp(): Promise<void> {
+  if (args.includes('--help')) { console.log(`${CLI_NAME} mcp serve\n\nRuns the local JSON-RPC 2.0 stdio MCP server. Protocol output uses stdout exclusively; diagnostics use stderr.`); process.exit(0); }
+  if (args[1] !== 'serve') return usageError(`Usage: ${CLI_NAME} mcp serve`);
+  parseArgs([], 0, 2);
+  await runMcpStdio(process.cwd());
+}
+
+async function handleBenchmark(): Promise<void> {
+  if (args.includes('--help')) { console.log(`${CLI_NAME} benchmark run [--format json|markdown] [--output <safe-path>]\n\nRuns all four deterministic local benchmark configurations without network access.`); process.exit(0); }
+  if (args[1] !== 'run') return usageError(`Usage: ${CLI_NAME} benchmark run [--format json|markdown] [--output <safe-path>]`);
+  const { options } = parseArgs(['--format','--output'], 0, 2);
+  const format = options['--format'] ?? 'json';
+  if (format !== 'json' && format !== 'markdown') return usageError('Benchmark format must be json or markdown.');
+  const report = runBenchmark();
+  const content = format === 'json' ? formatBenchmarkJson(report) : formatBenchmarkMarkdown(report);
+  const output = options['--output'];
+  if (!output) { process.stdout.write(content); process.exit(0); }
+  const root = resolve(process.cwd());
+  const path = resolve(root, output);
+  const safety = await verifyPathSafety(path, root);
+  if (!safety.safe) { console.error('Benchmark output path is unsafe.'); process.exit(1); }
+  await mkdir(dirname(path), { recursive: true });
+  await atomicWriteText(path, content, { allowOverwrite: true });
+  console.log(JSON.stringify({ success: true, output: path, format }, null, 2));
+  process.exit(0);
+}
 main().catch((err: unknown) => {
   console.error(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);

@@ -1,0 +1,1470 @@
+{
+    "schemaVersion":  "1.0.0",
+    "effectiveAt":  "2026-07-22T12:00:00.000Z",
+    "scenarios":  [
+                      {
+                          "id":  "technical-retrieval",
+                          "category":  "technical",
+                          "task":  "typescript retrieval ranking",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-001-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "TypeScript retrieval ranking implementation.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "typescript",
+                                                           "retrieval"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-001-B",
+                                              "kind":  "DECISION",
+                                              "statement":  "Unrelated release note.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-001-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-001-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-001-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "stale-memory",
+                          "category":  "freshness",
+                          "task":  "current deployment guidance",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-002-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Current deployment guidance.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-002-B",
+                                              "kind":  "DECISION",
+                                              "statement":  "Old deployment guidance.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2024-01-01T00:00:00.000Z",
+                                                                "expiresAfter":  "2025-01-01T00:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-002-A",
+                                                                  "BM-002-B"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-002-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-002-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+                                                                          "BM-002-B"
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-002-B"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "conflicted-memory",
+                          "category":  "safety",
+                          "task":  "database choice",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-003-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Database choice is disputed.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "CONFLICTED",
+                                              "confidence":  "LOW",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-003-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+                                                                          "BM-003-A"
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-003-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "revoked-memory",
+                          "category":  "safety",
+                          "task":  "retired command",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-004-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Retired command.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REVOKED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MUST_NOT_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-004-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+                                                                          "BM-004-A"
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-004-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "superseded-memory",
+                          "category":  "freshness",
+                          "task":  "current API convention",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-005-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Old API convention.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REVOKED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+                                                                    "supersededBy":  "BM-005-B"
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-005-B",
+                                              "kind":  "DECISION",
+                                              "statement":  "Current API convention.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+                                                                    "supersedes":  "BM-005-A"
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-005-A",
+                                                                  "BM-005-B"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-005-B"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-005-B"
+                                                                      ],
+                                              "authorityProblemIds":  [
+                                                                          "BM-005-A"
+                                                                      ],
+                                              "freshnessProblemIds":  [
+                                                                          "BM-005-A"
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-005-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "owner-constraint",
+                          "category":  "authority",
+                          "task":  "change project scope",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-006-A",
+                                              "kind":  "CONSTRAINT",
+                                              "statement":  "Owner requires approval before project scope changes.",
+                                              "source":  {
+                                                             "type":  "OWNER_INSTRUCTION",
+                                                             "reference":  "Owner direction"
+                                                         },
+                                              "verificationStatus":  "OWNER_CONFIRMED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "ASK_BEFORE_CHANGE",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "scope"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-006-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-006-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-006-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  true,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "inference-only",
+                          "category":  "authority",
+                          "task":  "choose persistence engine",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-007-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "A persistence engine might be useful.",
+                                              "source":  {
+                                                             "type":  "AGENT_INFERENCE",
+                                                             "reference":  "Local inference"
+                                                         },
+                                              "verificationStatus":  "INFERRED",
+                                              "confidence":  "LOW",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "ACT_WITH_CAUTION",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-007-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-007-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-007-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "low-confidence",
+                          "category":  "authority",
+                          "task":  "uncertain build observation",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-008-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Uncertain build observation.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "LOW",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "ACT_WITH_CAUTION",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-008-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-008-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-008-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "missing-provenance",
+                          "category":  "authority",
+                          "task":  "unknown provenance fact",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-009-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Unknown provenance fact.",
+                                              "source":  {
+                                                             "type":  "AGENT_INFERENCE",
+                                                             "reference":  "Unknown provenance"
+                                                         },
+                                              "verificationStatus":  "UNKNOWN",
+                                              "confidence":  "LOW",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MUST_NOT_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-009-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+                                                                          "BM-009-A"
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-009-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "insufficient-permission",
+                          "category":  "safety",
+                          "task":  "perform prohibited release",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-010-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Perform prohibited release.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MUST_NOT_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-010-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-010-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "repository-evidence",
+                          "category":  "authority",
+                          "task":  "repository adapter registry",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-011-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Repository adapter registry.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "src/adapters/registry.ts"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-011-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-011-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-011-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "test-evidence",
+                          "category":  "authority",
+                          "task":  "tested lifecycle invariant",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-012-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Tested lifecycle invariant.",
+                                              "source":  {
+                                                             "type":  "TEST_RESULT",
+                                                             "reference":  "test/phase4-lifecycle.test.ts"
+                                                         },
+                                              "verificationStatus":  "TEST_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-012-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-012-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-012-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "fake-secret-shape",
+                          "category":  "privacy",
+                          "task":  "credential handling",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-013-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Use token ghp_abcdefghijklmnopqrstuvwxyz123456.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "SECRET",
+                                              "actionPermission":  "FORGET_OR_REDACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-013-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-013-A"
+                                                            ],
+                                              "secretIds":  [
+                                                                "BM-013-A"
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "sensitive-memory",
+                          "category":  "privacy",
+                          "task":  "private customer detail",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-014-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "[REDACTED - SENSITIVE content]",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "SENSITIVE",
+                                              "actionPermission":  "ASK_BEFORE_CHANGE",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "redacted"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-014-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-014-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "budget-pressure",
+                          "category":  "budget",
+                          "task":  "large retrieval guidance",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-015-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Large retrieval guidance detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail detail ",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-015-B",
+                                              "kind":  "DECISION",
+                                              "statement":  "Large retrieval guidance extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra extra ",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-015-A",
+                                                                  "BM-015-B"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-015-A",
+                                                                      "BM-015-B"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  8
+                      },
+                      {
+                          "id":  "multiple-relevant",
+                          "category":  "retrieval",
+                          "task":  "adapter lifecycle",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-016-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Adapter lifecycle begin.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "adapter"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-016-B",
+                                              "kind":  "DECISION",
+                                              "statement":  "Adapter lifecycle finalize.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "adapter"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-016-C",
+                                              "kind":  "DECISION",
+                                              "statement":  "Other note.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-016-A",
+                                                                  "BM-016-B"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-016-A",
+                                                                      "BM-016-B"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-016-A",
+                                                                          "BM-016-B"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "no-relevant-memory",
+                          "category":  "abstention",
+                          "task":  "quantum horticulture",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-017-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "TypeScript compiler setting.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "typescript"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "owner-escalation",
+                          "category":  "authority",
+                          "task":  "upload repository artifact",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-018-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Ask the owner before any upload.",
+                                              "source":  {
+                                                             "type":  "OWNER_INSTRUCTION",
+                                                             "reference":  "Owner direction"
+                                                         },
+                                              "verificationStatus":  "OWNER_CONFIRMED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "ASK_BEFORE_CHANGE",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "upload"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-018-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-018-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-018-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  true,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "abstention-unsafe-only",
+                          "category":  "abstention",
+                          "task":  "unsafe operation",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-019-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Unsafe operation is forbidden.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MUST_NOT_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-019-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+
+                                                                  ],
+                                              "expectedSelectedIds":  [
+
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+                                                                "BM-019-A"
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  true
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "unicode-task",
+                          "category":  "unicode",
+                          "task":  "ØªØ­Ù‚Ù‚ Ø°Ø§ÙƒØ±Ø© Ø§Ù„Ù…Ø´Ø±ÙˆØ¹",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-020-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "ØªØ­Ù‚Ù‚ Ø°Ø§ÙƒØ±Ø© Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ù…Ø­Ù„ÙŠØ§Ù‹.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "Ø°Ø§ÙƒØ±Ø©"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-020-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-020-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-020-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "equal-score-tie",
+                          "category":  "determinism",
+                          "task":  "equal ranking",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-021-Z",
+                                              "kind":  "DECISION",
+                                              "statement":  "Equal ranking record.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          },
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-021-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Equal ranking record.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-021-A",
+                                                                  "BM-021-Z"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-021-A",
+                                                                      "BM-021-Z"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-021-A",
+                                                                          "BM-021-Z"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      },
+                      {
+                          "id":  "cross-adapter-equivalence",
+                          "category":  "adapter",
+                          "task":  "shared adapter contract",
+                          "records":  [
+                                          {
+                                              "schemaVersion":  "1.0.0",
+                                              "id":  "BM-022-A",
+                                              "kind":  "DECISION",
+                                              "statement":  "Shared adapter contract.",
+                                              "source":  {
+                                                             "type":  "REPOSITORY_STATE",
+                                                             "reference":  "benchmark/fixtures/scenarios.json"
+                                                         },
+                                              "verificationStatus":  "REPO_VERIFIED",
+                                              "confidence":  "HIGH",
+                                              "freshness":  {
+                                                                "lastVerified":  "2026-07-22T12:00:00.000Z"
+                                                            },
+                                              "sensitivity":  "INTERNAL",
+                                              "actionPermission":  "MAY_ACT",
+                                              "relationships":  {
+
+                                                                },
+                                              "tags":  [
+                                                           "adapter",
+                                                           "contract"
+                                                       ],
+                                              "createdAt":  "2026-07-22T12:00:00.000Z",
+                                              "updatedAt":  "2026-07-22T12:00:00.000Z"
+                                          }
+                                      ],
+                          "groundTruth":  {
+                                              "relevantIds":  [
+                                                                  "BM-022-A"
+                                                              ],
+                                              "safeRelevantIds":  [
+                                                                      "BM-022-A"
+                                                                  ],
+                                              "expectedSelectedIds":  [
+                                                                          "BM-022-A"
+                                                                      ],
+                                              "authorityProblemIds":  [
+
+                                                                      ],
+                                              "freshnessProblemIds":  [
+
+                                                                      ],
+                                              "unsafeIds":  [
+
+                                                            ],
+                                              "secretIds":  [
+
+                                                            ],
+                                              "ownerEscalationExpected":  false,
+                                              "abstentionExpected":  false
+                                          },
+                          "maxTokens":  2048
+                      }
+                  ]
+}

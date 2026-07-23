@@ -202,7 +202,7 @@ No other dependencies are approved. Additional dependencies may be reconsidered 
 
 Dashboard dependencies (React, Vite, etc.) are deferred until the core engine passes its release gates.
 
-The MCP SDK is deferred until the MCP implementation phase.
+The MCP SDK was reviewed and rejected for Version 0.7.0. The local stdio MCP adapter uses Node.js built-ins under DM-DEC-032.
 
 ### Why unsupported runtimes must not be selected
 

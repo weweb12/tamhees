@@ -1,6 +1,6 @@
 # Doubtful Memory — Protocol Specification
 
-> **Status**: Version 0.4.0 implements the Phase 2 storage/mutation/audit, Phase 3 context, and Phase 4 controlled lifecycle plus bootstrap-migration contracts locally. Adapters, MCP, and dashboard behavior remain planned.
+> **Status**: Version 0.7.0 implements the Phase 2 storage/mutation/audit, Phase 3 context, Phase 4 lifecycle/migration, Phase 5–6 adapters and local stdio MCP, and Phase 7 deterministic benchmark contracts locally. Dashboard behavior remains planned for Phase 8.
 
 ## Overview
 
@@ -369,14 +369,15 @@ A context pack is the ephemeral output of the deterministic lexical/tag context 
 ### Retrieval and ranking contract
 
 1. Retrieval is lexical/tag based and must not be described as semantic.
-2. Safety gates run before ranking. `BLOCK_ACTION`, `FORGET_OR_REDACT`, `REVOKED`, conflicted, expired, secret-like, `SECRET`, and `FORGET_OR_REDACT` retention records are excluded.
+2. Safety and privacy gates run before ranking. `BLOCK_ACTION`, `FORGET_OR_REDACT`, `REVOKED`, conflicted, expired, secret-like, `SECRET`, and `FORGET_OR_REDACT` retention records are excluded.
 3. `ASK_OWNER` and `RECHECK` may remain eligible only with explicit warnings and safety penalties.
-4. Relevance score = 20 × unique normalized matched tags + 10 × unique normalized matched task words found in a non-sensitive statement. Repeated terms and case variants count once. Sensitive statement values do not influence lexical scoring.
-5. Authority score = 50 `OWNER_CONFIRMED`, 40 `REPO_VERIFIED`, 35 `TEST_VERIFIED`, 25 `OBSERVED`, 10 `INFERRED`, otherwise 0.
-6. Freshness score = 20 at 0–7 days, 15 at 8–30, 10 at 31–90, 5 at 91–365, and 0 when older. Age is measured in complete UTC 24-hour intervals between `lastVerified` and the pack `generatedAt` supplied by the injected clock. Due or conditional review subtracts 10, to a minimum of zero. Expired records remain excluded.
-7. Safety score = 30 `TRUST`, 10 `ASK_OWNER`, and 0 `RECHECK`.
-8. Total score is the additive sum. Sort descending by total, then ascending by ordinal memory ID. Locale-aware comparison, randomness, models, embeddings, and network search are prohibited.
-9. Same records, task, evidence, configuration, and clock must produce byte-equivalent formatted JSON.
+4. Terms use Unicode NFKC normalization plus case folding. Matching is exact between normalized terms; substring containment is not a match. Controlled common English task terms are ignored to avoid accidental broad matches. Repeated terms, case variants, and duplicate normalized tags count once. Sensitive statement values do not influence lexical scoring.
+5. Relevance score = 20 × unique normalized matched tags + 10 × unique normalized matched task words found in a non-sensitive statement. A selected record must have positive relevance. Zero-relevance records are excluded as `irrelevant` before ranking and never consume budget. There is no total-score threshold or mandatory-memory bypass.
+6. Authority score = 50 `OWNER_CONFIRMED`, 40 `REPO_VERIFIED`, 35 `TEST_VERIFIED`, 25 `OBSERVED`, 10 `INFERRED`, otherwise 0.
+7. Freshness score = 20 at 0–7 days, 15 at 8–30, 10 at 31–90, 5 at 91–365, and 0 when older. Age is measured in complete UTC 24-hour intervals between `lastVerified` and the pack `generatedAt` supplied by the injected clock. Due or conditional review subtracts 10, to a minimum of zero. Expired records remain excluded.
+8. Safety score = 30 `TRUST`, 10 `ASK_OWNER`, and 0 `RECHECK`.
+9. Total score is the additive sum after positive-relevance eligibility. Sort descending by total, then ascending by ordinal memory ID. Locale-aware comparison, randomness, models, embeddings, and network search are prohibited.
+10. Same records, task, evidence, configuration, and clock must produce byte-equivalent formatted JSON.
 
 ### Token estimator and hard-budget contract
 
@@ -392,7 +393,7 @@ A context pack is the ephemeral output of the deterministic lexical/tag context 
 
 ### Runtime validation contract
 
-Context validation is strict and fail-closed. It rejects unknown fields, unsupported controlled values, unsafe IDs, unsafe selected outcomes, invalid timestamps, invalid or unsafe numerical values, incorrect rank order, drift from the documented relevance, authority, freshness, safety, or total-score formulas, non-canonical selected-contribution estimates, invalid budget arithmetic or compliance, duplicate selected IDs, duplicate excluded IDs, and any ID present in both sets. It recomputes each selected estimate from the exact canonical payload fields before validating the aggregate budget. Validation errors use structural field paths and controlled messages; unknown raw field names and raw task or memory values are not echoed.
+Context validation is strict and fail-closed. It rejects unknown fields, unsupported controlled values, unsafe IDs, unsafe selected outcomes, invalid timestamps, invalid or unsafe numerical values, selected zero relevance, incorrect rank order, drift from the documented relevance, authority, freshness, safety, or total-score formulas, non-canonical selected-contribution estimates, invalid budget arithmetic or compliance, duplicate selected IDs, duplicate excluded IDs, and any ID present in both sets. It recomputes each selected estimate from the exact canonical payload fields before validating the aggregate budget. Validation errors use structural field paths and controlled messages; unknown raw field names and raw task or memory values are not echoed.
 
 ### Privacy and ephemerality rules
 
@@ -540,3 +541,15 @@ Automatic verified status requires matching stored `SUPPORTS` evidence. Owner co
 ### Bootstrap migration
 
 `migrateBootstrapClaims(projectDir, markdown, clock)` and `gptbrain migrate bootstrap` implement `DM-REQ-LIFE-002`. Only `## DM-CLAIM-NNN` sections and the documented legacy keys are accepted. Source, status, confidence, sensitivity, and permission vocabularies are mapped by explicit tables; malformed structure, duplicate IDs or fields, unsupported vocabulary, and existing-record collisions fail before migration completion. The CLI accepts only a regular UTF-8 source inside the project boundary and rejects symbolic-link or reparse-point components. IDs, verification status, confidence, sensitivity, permission, source reference, verification date, revocation, and relationships are preserved; where legacy `superseded_by` lists multiple IDs, the first remains `supersededBy` and additional IDs are retained as `relatedTo` because the canonical schema has one superseding target. The Markdown input is never changed or deleted. A SHA-256 source fingerprint plus `PREPARED`, `RECORDS_WRITTEN`, and `COMPLETED` markers makes completed replay idempotent, changed replay fail closed, and an audit/completion-marker interruption explicitly reconcilable without duplicate records or audit events.
+
+## Version 0.7.0 adapter and MCP contract
+
+The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `generic`, and `mcp`. Every adapter delegates begin/finalize behavior to the canonical lifecycle engine and therefore returns equivalent normalized results for identical state, clocks, IDs, tasks, budgets, and finalization inputs.
+
+Managed instruction installation is project-local. The engine recognizes exactly one registered `DOUBTFUL-MEMORY` block, preserves all bytes outside it (including LF/CRLF, final-newline state, and UTF-8 BOM bytes), rejects missing, duplicate, nested, reversed, user-modified, or adapter-mismatched content, refuses symbolic links, reparse points, and directory targets, verifies the project path, and writes atomically. Dry-run reports the change without writing. Installer-created files are removed exactly; pre-existing files are restored byte-for-byte.
+
+The MCP surface uses JSON-RPC 2.0 over local stdio with protocol revision `2025-11-25` and one UTF-8 JSON object per line. It supports `initialize`, `notifications/initialized`, `ping`, `tools/list`, and `tools/call`, with tools `doubtful_memory_initialize_project`, `doubtful_memory_begin_task`, `doubtful_memory_finalize_task`, and `doubtful_memory_status`. Notifications are silent, stdout is reserved for protocol messages, malformed input fails safely, oversized input is discarded through its delimiter, clean EOF processes one final line, and no HTTP or runtime network surface exists. Request IDs are rejected as duplicates only within a bounded rolling window of 4,096 requests; after the oldest ID is evicted it may be reused without unbounded process memory.
+
+## Version 0.7.0 deterministic benchmark contract
+
+Benchmark Version 2.0.0 runs the fixed configuration order `NO_MEMORY`, `MONOLITHIC_GPTBRAIN`, `SIMPLE_SPLIT_FILES`, and `DOUBTFUL_MEMORY` over one shared 22-scenario fixture catalogue. Ground-truth relevance, safety-adjusted relevance, authority, freshness, escalation, abstention, unsafe exposure, and secret labels are authored in the fixture and are never generated or rewritten by engine output. Every scenario reports TP, FP, FN, selected count, relevant count, precision, and recall; aggregates include micro and macro ratios with numerators and denominators. Zero selected count makes precision `null`; zero safe-relevant count makes recall `null`; nulls are excluded from macro means. Prevention, detection, exposure, escalation, abstention, budget compliance, and exact outcome are separate. `NO_MEMORY` has `null` detection and escalation because it classifies nothing. The Doubtful Memory configuration invokes the production context compiler rather than a benchmark-only imitation. JSON and Markdown are rendered from one canonical result object and regenerate byte-identically.

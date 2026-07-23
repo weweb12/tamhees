@@ -106,7 +106,7 @@ Every stored artifact must include a schema version, and the engine must handle 
 
 - Priority: MUST
 - Status: IMPLEMENTED
-- Related decisions: DM-DEC-013, DM-DEC-030
+- Related decisions: DM-DEC-013, DM-DEC-030, DM-DEC-033
 
 Before a task begins, the system must automatically retrieve relevant context.
 
@@ -118,7 +118,7 @@ Before a task begins, the system must automatically retrieve relevant context.
 - The output includes selection and exclusion explanations.
 - Sensitive content is redacted before output.
 
-Version 0.4.0 implements this boundary through `lifecycle begin`: it invokes the Phase 3 compiler, returns the context ephemerally, and persists only privacy-safe correlation metadata.
+Version 0.7.0 preserves this boundary through `lifecycle begin` and all five adapters: it invokes the Phase 3 compiler, requires positive exact normalized non-common lexical/tag relevance before ranking, returns the context ephemerally, and persists only privacy-safe correlation metadata.
 
 ---
 
@@ -178,7 +178,7 @@ The context compiler must explain every selection and exclusion decision.
 ## DM-REQ-ENGINE-009 - Authority non-escalation
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-020
 
 The system must prevent automatic escalation of authority levels.
@@ -234,7 +234,7 @@ Generated context packs must be ephemeral by default.
 ## DM-REQ-ADAPT-001 - Adapter lifecycle
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-023
 
 Each adapter must support a standard lifecycle.
@@ -251,7 +251,7 @@ Each adapter must support a standard lifecycle.
 ## DM-REQ-ADAPT-002 - Codex adapter
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-013
 
 A thin adapter for OpenAI Codex integration.
@@ -268,7 +268,7 @@ A thin adapter for OpenAI Codex integration.
 ## DM-REQ-ADAPT-003 - Claude Code adapter
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-013
 
 A thin adapter for Anthropic Claude Code integration.
@@ -285,7 +285,7 @@ A thin adapter for Anthropic Claude Code integration.
 ## DM-REQ-ADAPT-004 - Antigravity adapter
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-013
 
 A thin adapter for Google Antigravity IDE integration.
@@ -303,7 +303,7 @@ A thin adapter for Google Antigravity IDE integration.
 ## DM-REQ-ADAPT-005 - Generic adapter
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-013
 
 A generic adapter for any AI coding agent through CLI/file interface.
@@ -320,7 +320,7 @@ A generic adapter for any AI coding agent through CLI/file interface.
 ## DM-REQ-ADAPT-006 - Local stdio MCP adapter
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-013
 
 A local stdio-based Model Context Protocol adapter.
@@ -329,7 +329,7 @@ A local stdio-based Model Context Protocol adapter.
 
 - Uses stdio transport only — no HTTP, no remote connections.
 - Enforces the same authority rules as the CLI.
-- MCP SDK dependency is approved at the MCP implementation phase.
+- The owner reviewed and rejected the MCP SDK dependency for Version 0.7.0; the adapter uses Node.js built-ins under DM-DEC-032.
 - Conforms to the MCP specification.
 
 ---
@@ -337,7 +337,7 @@ A local stdio-based Model Context Protocol adapter.
 ## DM-REQ-ADAPT-007 - Cross-adapter equivalence
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-023
 
 The same memory query through different adapters must produce equivalent results.
@@ -355,7 +355,7 @@ The same memory query through different adapters must produce equivalent results
 ## DM-REQ-BENCH-001 - Deterministic benchmark harness
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-022
 
 A benchmark harness that measures memory system performance with deterministic fixtures.
@@ -373,7 +373,7 @@ A benchmark harness that measures memory system performance with deterministic f
 ## DM-REQ-BENCH-002 - Original GPTBrain baseline
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-022
 
 The benchmark must include comparison against the original single-file GPTBrain.md approach.
@@ -718,7 +718,7 @@ Version 0.4.0 provides the strict one-time migrate bootstrap engine and CLI boun
 ## DM-REQ-LIFE-003 - Clean local installation and removal
 
 - Priority: MUST
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 
 The product must install and remove cleanly.
 
@@ -1174,7 +1174,7 @@ After the working prototype exists, conduct structured user interviews or non-se
 
 ## DM-ASM-007 - Deterministic rules are sufficient for Version 1
 
-- Verification status: TO_BE_TESTED
+- Verification status: PARTIALLY_VERIFIED
 - Impact if wrong: HIGH
 
 A deterministic engine is expected to demonstrate the essential safety model without an AI API.
@@ -1203,8 +1203,8 @@ If a requirement changes:
 
 - Total requirements defined: 60
 - Requirements verified: 0
-- Requirements implemented: 27
+- Requirements implemented: 37
 - Requirements in progress: 13
-- Requirements not started: 20
+- Requirements not started: 10
 - Assumptions recorded: 7
 - Assumptions fully verified: 0

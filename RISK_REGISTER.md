@@ -458,7 +458,7 @@ The context compiler fails to retrieve a memory record that is critical for the 
 
 ### Mitigation
 
-- Include authority-critical memories (e.g., constraints, locked decisions) with high priority regardless of keyword relevance.
+- Require positive task relevance before ranking. Any future mandatory-memory mechanism must be separately specified and approved rather than inferred from authority.
 - Test retrieval precision and recall with benchmark fixtures.
 - Explain exclusions in the context pack so the agent can request missing context.
 - Allow agents to request specific memories by ID.
@@ -624,9 +624,9 @@ The Model Context Protocol specification changes between when the adapter is des
 
 ### Mitigation
 
-- Defer MCP SDK dependency until the MCP implementation phase.
+- Isolate MCP parsing and tools behind a small protocol boundary tested against revision `2025-11-25`.
 - Monitor MCP specification changes.
-- Use the official MCP SDK rather than a custom implementation.
+- Keep the owner-approved Node.js built-in implementation dependency-free; require a new decision before adopting an SDK.
 - Design the adapter to isolate MCP-specific concerns.
 
 ### Contingency
@@ -666,6 +666,10 @@ The benchmark baselines (no memory, original GPTBrain.md, simple split-file) are
 
 Reconstruct baselines with reviewer feedback. Acknowledge limitations in the benchmark results.
 
+### Current evidence (Version 0.7.0 checkpoint)
+
+Independent verification corrected the candidate methodology: fixture ground truth is no longer generated, safe relevance is explicit, undefined classifications are null, and prevention is separate from detection. Doubtful Memory now records 22/22 abstention correctness, 22/22 exact outcomes, and zero unsafe or secret exposures on the fixed fixture. The risk remains OPEN because deterministic fixtures cannot prove external validity or prevent future benchmark drift.
+
 ---
 
 ## DM-RISK-020 - Context compiler costs more than it saves
@@ -692,7 +696,7 @@ The overhead of retrieval, auditing, ranking, and formatting context packs is gr
 
 - Optimize retrieval for common cases.
 - Keep the context compiler's processing minimal for small memory stores.
-- Benchmark compilation time as part of the harness.
+- Benchmark context size and estimated token use in the current harness; add controlled timing measurement before making performance claims.
 - Provide a fast-path for small projects.
 
 ### Contingency
@@ -958,3 +962,14 @@ Review this register:
 - `DM-RISK-022` remains OPEN. Per-file atomic writes, mutation rollback, and lifecycle recovery journaling reduce single-process divergence, but multi-process locking and automatic recovery from an interrupted `FINALIZING` state are not implemented.
 - `DM-RISK-023` remains OPEN. Lifecycle CLI help and automated tests exist, but no independent user-usability assessment or approval interface exists.
 - `DM-RISK-025` remains OPEN. The narrow bootstrap parser rejects ambiguity and preserves source Markdown, but independent verification against the full live ledger is required before checkpointing.
+## Phases 5–7 independent owner-verification risk review - 2026-07-23
+
+- `DM-RISK-004` remains OPEN. Privacy gates precede relevance and ranking, MCP errors are controlled, and fixtures use fake secret shapes; pattern detection still cannot prove all arbitrary content safe.
+- `DM-RISK-013` remains OPEN. Positive exact lexical/tag eligibility and safety-adjusted benchmark recall are verified, but exact lexical retrieval is not semantic and the 15/17 micro recall includes two deliberate hard-budget false negatives.
+- `DM-RISK-014` remains OPEN with stronger controls. Zero relevance is excluded before ranking and budget, validation rejects selected zero relevance, and the benchmark records zero unsafe exposures; future retrieval changes can regress.
+- `DM-RISK-017` remains OPEN with stronger controls. Begin and mutating finalization are equivalent across isolated identical clones, including records, indexes, archives, lifecycle states, and normalized safe audit results.
+- `DM-RISK-018` remains OPEN. The local MCP subset is pinned to revision `2025-11-25`, tracks duplicate IDs in a bounded 4,096-request rolling window, and intentionally does not claim full optional MCP coverage.
+- `DM-RISK-019` remains OPEN with the candidate defects corrected. Fixture labels are independent of engine output; null metrics, safety-adjusted relevance, and all aggregate denominators are explicit. External validity still requires future review before publication.
+- `DM-RISK-021` remains OPEN with stronger controls. Complete isolated smokes persist no task, context, held/rejected proposal content, or secret and leave no repository `.gptbrain/` state.
+- `DM-RISK-025` remains OPEN. The independent checkpoint used explicit staging and destructive-path checks; no upload, remote, dependency, or Phase 8 work was introduced.
+- No risk was silently changed to CONTROLLED or CLOSED based only on this local checkpoint.

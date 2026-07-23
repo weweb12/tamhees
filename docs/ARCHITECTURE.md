@@ -1,6 +1,6 @@
 # Doubtful Memory — Architecture
 
-> **Status**: Phases 1–4 are checkpointed and independently verified locally. Adapters, MCP, dashboard, and benchmarks remain planned; Phase 5 has not started.
+> **Status**: Phases 1–7 are implemented, independently verified locally, and checkpointed in Version 0.7.0. Phase 8 dashboard work has not started.
 
 ## Overview
 
@@ -207,7 +207,7 @@ Each adapter is a thin translation layer between a specific AI coding agent and 
 - Cross-adapter equivalence: the same memory query through different adapters must produce equivalent results.
 - Adapters are not runtime dependencies of each other.
 
-### Planned adapters
+### Implemented adapters
 
 | Adapter | Agent | Integration method |
 |---------|-------|-------------------|
@@ -229,8 +229,9 @@ The local MCP adapter provides a stdio-based Model Context Protocol interface.
 
 - stdio transport only — no HTTP, no remote connections.
 - Enforces the same authority rules as the CLI.
-- MCP SDK dependency is deferred until the MCP implementation phase.
-- MCP specification changes are a tracked risk.
+- The MCP SDK was reviewed and rejected for Version 0.7.0; the isolated adapter uses Node.js built-ins and protocol revision `2025-11-25`.
+- Duplicate request IDs are tracked in a bounded rolling window of 4,096 requests; an evicted ID may be reused. Strict initialization and tool schemas, bounded line framing, sequential processing, and privacy-safe errors define the implemented subset.
+- MCP specification changes are a tracked risk; this implementation does not claim the full optional MCP feature surface.
 
 ## Dashboard boundary
 

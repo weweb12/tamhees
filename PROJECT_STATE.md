@@ -6,40 +6,40 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.4.0 now provides independently verified controlled begin/finalize operations.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.7.0 completes the independently verified local Phases 5–7 checkpoint on top of the Phase 1–4 checkpoints.
 
 ## Status summary
 
 - Project: Doubtful Memory
-- Current phase: Phase 4 — complete, independently verified locally, and checkpointed.
+- Current phase: Accelerated Phases 5–7 — complete, independently verified locally, and checkpointed.
 - Overall status: In progress
 - Development environment: Windows, local-only, Node 24.
 - Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest committed checkpoint: Phase 4 local checkpoint
-- Current unstaged candidate: None after the Phase 4 checkpoint
+- Latest committed checkpoint: Phases 5–7 local checkpoint
+- Current unstaged candidate: None after the Phases 5–7 checkpoint
 - Git remote: None
 - Repository upload/publication: None
 - External services: None
 - Paid services: None
 - Application dependencies: None (zero runtime dependencies)
-- Application code: Phases 1–4 implemented, independently verified locally, and checkpointed.
+- Application code: Phases 1–7 implemented, independently verified locally, and checkpointed.
 - Packages:
   - typescript@6.0.3
   - @types/node@22.20.1
   - zero runtime dependencies
 - CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
 - Current local verification evidence:
-  - 150 passed
+  - 202 passed
   - 0 failed
   - 0 skipped
   - 0 todo
-- Last updated: 2026-07-22
+- Last updated: 2026-07-23
 
 ## Current objective
 
-Phase 4 controlled lifecycle begin/finalize and the required bootstrap migration are independently verified locally and ready as the completed Phase 4 checkpoint. Phase 5 has not started.
+Version 0.7.0 completes the accelerated Phases 5–7 adapter, limited local stdio MCP, corrected retrieval-eligibility, and deterministic benchmark milestone. Independent local verification is complete; Phase 8 has not started.
 
 ## Completed work
 
@@ -95,11 +95,16 @@ Phase 4 controlled lifecycle begin/finalize and the required bootstrap migration
 - Phase 4: Added strict finalization classification, owner holds, deterministic independent application, durable recovery journal, and completed-input idempotency.
 - Phase 4: Added the `DM-REQ-LIFE-002` one-time bootstrap Markdown migration with explicit legacy mapping, staged recovery markers, and no authority escalation.
 - Phase 4: Expanded the suite from 107 to 150 tests; independent local typecheck, build, tests, and isolated smoke workflows pass.
+- Phase 5: Added one exact five-adapter registry, thin shared lifecycle translation, and project-local managed install/status/remove behavior.
+- Phase 6: Added Claude, generic, and dependency-free local stdio MCP adapters with JSON-RPC 2.0 protocol revision `2025-11-25` and four canonical MCP tools.
+- Phase 7: Added a 22-scenario deterministic benchmark comparing four configurations with JSON and Markdown artifacts and transparent null-metric handling.
+- Phases 5–7: Advanced package and engine version to 0.7.0 while retaining storage schema 1.0.0, zero runtime dependencies, local-only operation, and the temporary `gptbrain` codename.
+- Phases 5–7: Expanded the suite from 150 to 202 tests; independent typecheck, build, all tests, benchmark generation, isolated adapter/MCP/retrieval smokes, and byte-identical regeneration pass.
 ## Current files in focus
 
 - The verified Phase 1–4 local checkpoint.
 - Phase 4 lifecycle and bootstrap migration are complete and independently verified locally.
-- Phase 5 adapter work has not started.
+- Phases 5–7 are complete, independently verified locally, and checkpointed.
 
 ## Locked constraints
 
@@ -163,11 +168,11 @@ Phase 3 retrieval, ranking, explanations, context-pack validation, and hard esti
 
 ## Next phase
 
-Phase 5 — Codex and Antigravity adapters. Phase 4 verification and checkpointing are complete; Phase 5 has not started.
+Phase 8 — local visual dashboard. Phase 8 has not started.
 
 ## Next immediate action
 
-Begin Phase 5 adapter work only in a new, explicitly authorized task. Do not add a dependency or external service, upload, or configure a remote without prior owner approval.
+Begin Phase 8 only in a new explicitly authorized task, starting with dashboard planning and dependency review. Do not install dashboard dependencies, upload, publish, configure a remote, or add an external service without owner approval.
 
 ## Safe restart instructions
 
@@ -182,3 +187,7 @@ When resuming work:
 ## Phase 4 completion status
 
 Version 0.4.0 lifecycle and migration behavior is complete and independently verified locally with 150 passing tests, zero failures, zero skips, and zero todos. This is test-verified implementation evidence, not release approval or automatic owner confirmation.
+
+## Phases 5–7 checkpoint status
+
+Version 0.7.0 adapter, limited MCP, corrected exact lexical/tag eligibility, and benchmark behavior is independently verified locally with 202 passing tests, zero failures, zero skips, and zero todos. The corrected benchmark records 22/22 Doubtful Memory abstention correctness and separates null detection metrics from safe prevention. This is test-verified implementation evidence and a local checkpoint, not OWNER_CONFIRMED release approval.

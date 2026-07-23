@@ -715,3 +715,129 @@ The unstaged Phase 4 candidate may proceed to independent owner verification. Ph
 ## Recommended action
 
 Perform an independent clean-install and temporary-project owner-verification checkpoint against this unstaged candidate. If it passes, update only current candidate wording as needed and create the Phase 4 local checkpoint before beginning Phase 5.
+---
+
+# Audit DM-AUDIT-2026-07-22-003
+
+## Audit metadata
+
+- Date: 2026-07-22
+- Audit type: Accelerated Phases 5–7 implementation-candidate verification
+- Scope: DM-CLAIM-025; adapters, managed files, local stdio MCP, benchmark methodology, CLI, privacy, dependency, and local-only boundaries
+- Auditor: Codex implementation verification process
+- Engine version: 0.7.0
+- Repository state: Unstaged candidate pending independent owner verification
+- Overall result: RECHECK
+
+## Overall explanation
+
+Source inspection and local automated verification support the Version 0.7.0 implementation boundary. All five adapters delegate to the canonical lifecycle engine. Managed files use one controlled marker block and fail closed on path or marker corruption. MCP is isolated, local stdio only, dependency-free, and tested for JSON-RPC framing and error behavior. The benchmark invokes the production context compiler and records all four required baselines without concealing weaker outcomes.
+
+`RECHECK` is appropriate because this is implementation-agent evidence before the required independent owner-verification checkpoint. It does not elevate DM-CLAIM-025 or the milestone to `OWNER_CONFIRMED`.
+
+## Implementation evidence
+
+- Typecheck: passed.
+- Build: passed.
+- Automated tests: 178 passed, 0 failed, 0 skipped, 0 todo.
+- Inherited tests preserved: 150.
+- New Phase 5–7 tests: 28.
+- Benchmark scenarios: 22.
+- Benchmark configurations: 4.
+- Runtime dependencies: 0.
+- Approved direct development dependencies: `typescript@6.0.3`, `@types/node@22.20.1`.
+- Storage schema: unchanged at `1.0.0`.
+- Runtime network, telemetry, external service, remote, global configuration, and upload: none.
+
+## Benchmark comparison
+
+| Configuration | Precision | Recall | Mean context items | Mean estimated tokens | Authority | Freshness | Safety violations | Secret leaks | Owner escalation | Abstention | Budget |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| NO_MEMORY | null | 0.000 | 0.000 | 0.000 | 100.0% | 100.0% | 0 | 0 | 90.9% | 13.6% | 100.0% |
+| MONOLITHIC_GPTBRAIN | 0.508 | 1.000 | 1.318 | 184.409 | 81.8% | 95.5% | 8 | 1 | 90.9% | 86.4% | 95.5% |
+| SIMPLE_SPLIT_FILES | 0.632 | 1.000 | 1.091 | 157.773 | 81.8% | 95.5% | 6 | 0 | 90.9% | 81.8% | 95.5% |
+| DOUBTFUL_MEMORY | 1.000 | 1.000 | 0.682 | 28.455 | 100.0% | 100.0% | 0 | 0 | 100.0% | 72.7% | 100.0% |
+
+Undefined precision or recall is represented as `null` and excluded from aggregate means.
+
+## Permission consequence
+
+The unstaged Version 0.7.0 candidate may proceed to independent owner verification. Phase 8, staging, commit, upload, remote configuration, external integration, global installation, and publication remain outside this implementation task.
+
+## Remaining limitations
+
+- Doubtful Memory's benchmark abstention-correct rate is 72.7%; safe records with no positive relevance can still enter context.
+- Retrieval remains deterministic lexical/tag ranking rather than semantic retrieval.
+- The MCP implementation is pinned to protocol revision `2025-11-25`; later revisions require review.
+- Multi-process locking, automatic interrupted-lifecycle recovery, and the owner-confirmation UI remain unimplemented.
+- Pattern-based secret detection cannot prove all arbitrary content safe.
+
+## Recommended action
+
+Perform an independent clean-install and isolated temporary-project owner-verification checkpoint against this unstaged Version 0.7.0 candidate. Do not begin Phase 8 until that checkpoint is complete.
+---
+
+# Audit DM-AUDIT-2026-07-23-004
+
+## Audit metadata
+
+- Date: 2026-07-23
+- Audit type: Independent owner-verification and corrective Phases 5–7 checkpoint
+- Scope: DM-CLAIM-026; positive relevance eligibility, managed adapters, cross-adapter equivalence, limited local stdio MCP, Benchmark Version 2.0.0, documentation, dependencies, privacy, and local-only boundaries
+- Auditor: Codex independent owner-verification process
+- Engine version: 0.7.0
+- Repository state: Locally verified and authorized for the Phases 5–7 checkpoint commit
+- Overall result: TRUST (implementation evidence only)
+
+## Corrective findings
+
+1. The candidate compiler already checked `relevance.score === 0`, so authority/freshness total score was not the observed root cause. The actual production weakness was undocumented substring containment and acceptance of broad common terms. Matching now requires positive exact Unicode-NFKC-normalized, case-folded, non-common lexical/tag relevance before ranking or budget.
+2. Runtime context validation previously accepted a selected entry declaring zero relevance. It now rejects that state as `UNSAFE_SELECTION`.
+3. The candidate benchmark generated its own fixture, assigned false abstention labels to six safety/privacy scenarios, omitted TP/FP/FN evidence and micro ratios, combined prevention with detection, and credited `NO_MEMORY` with classifications it did not perform. Version 2.0.0 treats fixture labels as independent input, uses explicit safety-adjusted relevance, separates metrics, and publishes all numerators and denominators.
+4. Managed adapter inspection previously trusted marker layout without proving the block content was unchanged, and UTF-8 BOM byte offsets were unsafe. It now validates the exact registered block, preserves BOM and outside bytes, and refuses user-modified content.
+5. MCP duplicate-ID state was unbounded and clean EOF did not process a final unterminated line. The implemented subset now uses a documented rolling 4,096-ID window, bounded oversized-line discard, strict parameter shapes, and deterministic final-EOF handling.
+
+## Verification evidence
+
+- Inherited Phase 1–4 tests: 150.
+- Original Phase 5–7 candidate tests: 28.
+- Independent corrective tests added: 24.
+- Final automated suite: 202 passed, 0 failed, 0 skipped, 0 todo.
+- Typecheck and build: PASS.
+- Five managed file adapters install, status, dry-run, idempotent remove, and exact cleanup: PASS.
+- Cross-adapter begin and mutating finalization equivalence across independent identical clones: PASS.
+- Child-process MCP initialize, four-tool list, initialize-project, corrected begin-task abstention, and safe status: PASS.
+- Corrected irrelevant-memory abstention: PASS with zero selected records and zero budget consumed.
+- Benchmark regeneration twice: byte-identical.
+- Benchmark JSON SHA-256: `aab7fc8a775d024256b7c6e53d19b426fed98702702a3b89b39bc6408a948eab`.
+- Benchmark Markdown SHA-256: `4b302dd99cd693387af6d45737e57d45ed8f33bb4452736afb014dadecc3cfde`.
+- Runtime dependencies: 0. Direct development dependencies remain exactly `typescript@6.0.3` and `@types/node@22.20.1`.
+- Runtime network, telemetry, sockets, external services, remotes, uploads, global configuration, and Phase 8 work: none.
+
+## Corrected benchmark comparison
+
+| Configuration | Micro precision | Micro recall | Authority prevention | Authority detection | Freshness detection | Unsafe exposures | Secret leaks | Owner escalation | Abstention | Budget | Exact outcome |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| NO_MEMORY | null (0/0) | 0.000 (0/17) | 100.0% (4/4) | null (0/0) | null (0/0) | 0 | 0 | null (0/0) | 40.9% (9/22) | 100.0% (22/22) | 40.9% (9/22) |
+| MONOLITHIC_GPTBRAIN | 0.586 (17/29) | 1.000 (17/17) | 0.0% (0/4) | null (0/0) | null (0/0) | 9 | 1 | null (0/0) | 59.1% (13/22) | 95.5% (21/22) | 36.4% (8/22) |
+| SIMPLE_SPLIT_FILES | 0.708 (17/24) | 1.000 (17/17) | 0.0% (0/4) | null (0/0) | null (0/0) | 7 | 0 | null (0/0) | 72.7% (16/22) | 95.5% (21/22) | 59.1% (13/22) |
+| DOUBTFUL_MEMORY | 1.000 (15/15) | 0.882 (15/17) | 100.0% (4/4) | 100.0% (4/4) | 100.0% (2/2) | 0 | 0 | 100.0% (22/22) | 100.0% (22/22) | 100.0% (22/22) | 100.0% (22/22) |
+
+The two Doubtful Memory false negatives are the two safe relevant records in the deliberate eight-token budget-pressure scenario. They are excluded by the documented hard budget, not by relevance or safety failure.
+
+## Permission consequence
+
+The corrected Version 0.7.0 Phases 5–7 scope may be committed as one local checkpoint. This audit is TEST_VERIFIED implementation evidence, not OWNER_CONFIRMED release approval. Phase 8, dependency installation, external service integration, remote configuration, upload, publication, and product rename remain outside this checkpoint.
+
+## Remaining limitations
+
+- Retrieval is exact deterministic lexical/tag matching, not semantic retrieval.
+- The UTF-8-byte token estimate is not an exact provider tokenizer.
+- The MCP implementation is a deliberately limited stdio subset pinned to revision `2025-11-25`; later revisions and optional features require review.
+- The 4,096-request duplicate-ID window permits reuse after eviction by design.
+- Multi-process locking, automatic interrupted-lifecycle recovery, owner-confirmation UI, dashboard, and external benchmark validation remain incomplete.
+- Pattern-based secret detection cannot prove every arbitrary value safe.
+
+## Recommended action
+
+Create the local Phases 5–7 checkpoint commit, then begin Phase 8 only in a new explicitly authorized task starting with dashboard planning and dependency review.

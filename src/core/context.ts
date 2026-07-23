@@ -41,8 +41,12 @@ export {
 } from './types.js';
 
 const SELECTION_STRATEGY =
-  'Phase 3 deterministic audit-aware lexical/tag ranking. Eligible records are scored by relevance, authority, freshness, and audit safety; memory ID is the final ordinal tie-breaker; a highest-ranked prefix is selected within the hard estimated-token budget.';
+  'Phase 3 deterministic audit-aware lexical/tag ranking. Eligible records require at least one exact normalized non-common task-term or tag match, then are scored by relevance, authority, freshness, and audit safety; memory ID is the final ordinal tie-breaker; a highest-ranked prefix is selected within the hard estimated-token budget.';
 const DAY_MS = 86_400_000;
+const COMMON_TASK_TERMS = new Set([
+  'and', 'are', 'but', 'for', 'from', 'has', 'have', 'into', 'not', 'project',
+  'that', 'the', 'their', 'then', 'this', 'use', 'using', 'was', 'were', 'with',
+]);
 
 export interface ContextCompileOptions {
   readonly maxTokens?: number | undefined;
@@ -292,7 +296,9 @@ function computeRelevance(
 
   let matchedTagCount = 0;
   let matchedWordCount = 0;
-  const normalizedTags = [...new Set(record.tags.map((tag) => tag.toLowerCase()))].sort(compareOrdinal);
+  const normalizedTags = [...new Set(record.tags.map(normalizeTerm))]
+    .filter((tag) => tag.length > 2 && !COMMON_TASK_TERMS.has(tag))
+    .sort(compareOrdinal);
   for (const normalizedTag of normalizedTags) {
     if (taskWords.some((word) => termsMatch(normalizedTag, word))) matchedTagCount += 1;
   }
@@ -312,15 +318,21 @@ function computeRelevance(
 
 function extractWords(text: string): string[] {
   const words = text
+    .normalize('NFKC')
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
     .split(/\s+/u)
-    .filter((word) => word.length > 2);
+    .map(normalizeTerm)
+    .filter((word) => word.length > 2 && !COMMON_TASK_TERMS.has(word));
   return [...new Set(words)].sort(compareOrdinal);
 }
 
 function termsMatch(left: string, right: string): boolean {
-  return left === right || left.includes(right) || right.includes(left);
+  return left === right;
+}
+
+function normalizeTerm(value: string): string {
+  return value.normalize('NFKC').toLowerCase();
 }
 
 function authorityScoreFor(status: VerificationStatus): number {

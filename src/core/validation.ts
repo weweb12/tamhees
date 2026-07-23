@@ -958,6 +958,9 @@ function validateContextRanking(
     }
     if (isNonNegativeInteger(relevance['score'])) {
       componentScores.push(relevance['score']);
+      if (relevance['score'] === 0) {
+        issues.push({ field: `${prefix}.ranking.relevance.score`, code: 'UNSAFE_SELECTION', message: 'Selected context must have positive task relevance.' });
+      }
       if (
         isNonNegativeInteger(relevance['matchedTagCount'])
         && isNonNegativeInteger(relevance['matchedWordCount'])

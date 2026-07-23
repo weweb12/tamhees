@@ -35,9 +35,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.4.0 — Phase 4 is complete, independently verified locally, and checkpointed.**
+> **Version 0.7.0 — Phases 5–7 are complete, independently verified locally, and checkpointed.**
 
-The local engine now includes the verified Phase 1–4 foundation, controlled lifecycle begin/finalize operations, and a narrow one-time bootstrap migration. The current local suite contains 150 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
+The local engine retains the verified Phase 1–4 foundation and now adds five equivalent adapters, project-local managed instruction installation, a dependency-free local stdio MCP server, corrected positive-relevance eligibility, and a deterministic four-configuration benchmark. The current local suite contains 202 passing tests with zero failures, zero skipped tests, and zero todo tests. The repository remains local with no Git remote, upload, external service, telemetry, or runtime dependency. `gptbrain` and `.gptbrain/` remain temporary codenames.
 
 Implemented commands:
 
@@ -52,8 +52,11 @@ Implemented commands:
 - `gptbrain lifecycle begin --task "..." [--max-tokens <n>] [--format json|markdown]`: Retrieve ephemeral safe context and open a lifecycle.
 - `gptbrain lifecycle finalize --input <finalization.json> [--format json|markdown]`: Classify and safely process proposed updates.
 - `gptbrain migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
+- `gptbrain adapter list|status|install|remove|begin|finalize`: Manage and invoke the five project-local adapters.
+- `gptbrain mcp serve`: Run the local JSON-RPC 2.0 stdio MCP server at protocol revision `2025-11-25`.
+- `gptbrain benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic four-configuration benchmark.
 
-Phases 1–4 are checkpointed and independently verified locally. Phase 5 adapters have not started. Later work covers adapters, the deterministic benchmark, the local dashboard, and release/submission hardening.
+Phases 1–7 are checkpointed and independently verified locally. Phase 8 dashboard work has not started. No remote, upload, external service, telemetry, or runtime dependency has been added.
 
 ## Design principles
 
@@ -102,6 +105,7 @@ In the project directory:
 npm ci
 npm run verify
 npm run build
+npm run benchmark
 node dist/src/cli.js --help
 ```
 
@@ -112,6 +116,8 @@ No API key, account, hosted model, database, or runtime network connection is re
 `--max-tokens` accepts a decimal positive integer from 1 through 1,000,000. If omitted, the default is 2,048. The budget covers only the canonical agent-consumable selected-memory payload: memory ID, redacted statement, audit outcome, verification status, confidence, and output-safe tags. Ranking diagnostics, exclusions, warnings, and budget metadata remain visible outside that bounded payload.
 
 Token counts use the deterministic local `utf8-bytes-ceil-div-4` estimator (UTF-8 byte length divided by four and rounded up, minimum one). This is a capacity estimate, not an exact vendor tokenizer. Complete memory statements are never truncated; when a ranked contribution does not fit, it and lower-ranked candidates are excluded as `over-budget`. A budget too small for one complete unit returns a valid explained empty pack.
+
+Task-specific eligibility requires at least one positive exact Unicode-NFKC-normalized, case-folded, non-common lexical or tag match. Substring-only and common-word-only matches are irrelevant. Authority, freshness, and safety rank only eligible records; unrelated records never consume budget. This is deterministic lexical retrieval, not semantic retrieval.
 
 ## Controlled update workflow
 
@@ -146,9 +152,18 @@ Owner-confirmed promotion is intentionally two-step: create a lower-authority me
 Every candidate receives `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, or `NO_CHANGE`. Authorized items are applied independently in input order through the canonical mutation boundary. The engine journals `FINALIZING` before mutation; interrupted work requires controlled recovery and is never replayed automatically. Identical completed input is idempotent, while different replay is rejected. Owner-policy proposals without sufficient owner evidence are held and cannot mutate memory.
 
 `migrate bootstrap` is the one-time deterministic migration for the documented Markdown claim ledger. It maps legacy vocabulary explicitly, validates every claim before writing, preserves IDs and authority, retains the source Markdown, rejects unsafe source paths, and uses staged recovery markers to reconcile an audit/completion interruption without duplication.
+
+## Phase 5–7 adapters, MCP, and benchmark
+
+The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `generic`, and `mcp`. All five use the same lifecycle API and canonical storage. Managed installs are project-local, dry-run capable, atomic, idempotent, path-safe, preserve bytes outside the managed block, and reject malformed or user-modified managed content without changing the target.
+
+The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.js built-ins, one UTF-8 JSON object per line, protocol revision `2025-11-25`, a bounded rolling 4,096-request duplicate-ID window, and exactly four tools for initialization, begin, finalize, and privacy-safe status. It has no HTTP listener, global configuration, SDK dependency, or runtime network request; this is the documented project subset, not a claim of full MCP feature coverage.
+
+`npm run benchmark` regenerates `benchmark/results/v0.7.0.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Doubtful Memory compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Doubtful Memory records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
+
 ## Next planned work
 
-**Accelerated Milestone 2 (Phases 3–4)**: Complete and independently verified locally. The exact next development milestone is Phase 5 adapter work; it has not started.
+**Accelerated Milestone 3 (Phases 5–7)**: Complete, independently verified locally, and checkpointed. The exact next development action is Phase 8 local visual dashboard planning and dependency review; no dashboard dependency is approved yet.
 
 ## Runtime requirements
 

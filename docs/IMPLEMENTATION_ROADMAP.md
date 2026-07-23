@@ -2,7 +2,7 @@
 
 > **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
 
-> **Current Position**: Phases 1–4 are checkpointed. Version 0.4.0 Phase 4 is independently verified locally with 150 passing tests, zero failures, zero skips, and zero todos. Phase 5 has not started.
+> **Current Position**: Phases 1–7 are checkpointed. Version 0.7.0 passes independent local verification with 202 tests, zero failures, zero skips, and zero todos. Phase 8 has not started.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -224,7 +224,7 @@ Status: **COMPLETE AND INDEPENDENTLY VERIFIED LOCALLY — CHECKPOINTED**
 
 ### Stop gate
 
-Implementation and independent local owner-verification pass. The Phase 4 local checkpoint is complete; Phase 5 remains a separate, not-yet-started task.
+Implementation and independent local owner-verification passed for Phase 4. The Phase 4 local checkpoint is complete.
 
 ### Evidence required
 
@@ -234,6 +234,8 @@ Implementation and independent local owner-verification pass. The Phase 4 local 
 
 ---
 ## Phase 5 — Codex and Antigravity adapters
+
+**Status**: COMPLETE AND INDEPENDENTLY VERIFIED LOCALLY — CHECKPOINTED.
 
 ### Outputs
 
@@ -257,7 +259,7 @@ Implementation and independent local owner-verification pass. The Phase 4 local 
 
 ### Stop gate
 
-Cross-adapter equivalence is verified. All tests pass. Owner approves.
+Cross-adapter begin and mutating finalization equivalence are independently verified across isolated identical project clones. The checkpoint gate passed.
 
 ### Evidence required
 
@@ -268,12 +270,14 @@ Cross-adapter equivalence is verified. All tests pass. Owner approves.
 
 ## Phase 6 — Claude Code, generic, and local MCP adapters
 
+**Status**: COMPLETE AND INDEPENDENTLY VERIFIED LOCALLY — CHECKPOINTED with the limited dependency-free stdio MCP revision 2025-11-25 subset.
+
 ### Outputs
 
 - Claude Code adapter implementation.
 - Generic adapter implementation.
 - Local stdio MCP adapter implementation.
-- MCP SDK integration (dependency approved at this phase).
+- Dependency-free local stdio MCP implementation using Node.js built-ins (DM-DEC-032).
 
 ### Acceptance criteria
 
@@ -290,7 +294,7 @@ Cross-adapter equivalence is verified. All tests pass. Owner approves.
 
 ### Stop gate
 
-All adapters pass equivalence tests. MCP conformance is verified. Owner approves.
+All adapters pass equivalence tests and the documented limited MCP subset passes conformance and safety verification. The checkpoint gate passed.
 
 ### Evidence required
 
@@ -300,6 +304,8 @@ All adapters pass equivalence tests. MCP conformance is verified. Owner approves
 ---
 
 ## Phase 7 — Deterministic benchmark harness
+
+**Status**: COMPLETE AND INDEPENDENTLY VERIFIED LOCALLY — CHECKPOINTED with deterministic benchmark Version 2.0.0 JSON and Markdown outputs.
 
 ### Outputs
 
@@ -333,7 +339,7 @@ No hosted model or subjective quality claims are required.
 
 ### Stop gate
 
-All benchmark measurements produce deterministic results. Baselines are documented. Owner approves.
+All benchmark measurements are mathematically auditable and deterministic, baselines are documented fairly, and both result artifacts regenerate byte-identically. The checkpoint gate passed.
 
 ### Evidence required
 
