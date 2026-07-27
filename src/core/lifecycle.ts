@@ -1,4 +1,4 @@
-/** Doubtful Memory - controlled Phase 4 task lifecycle. */
+/** Tamhees - controlled Phase 4 task lifecycle. */
 
 import { createHash, randomBytes } from 'node:crypto';
 import { readFile, stat, unlink } from 'node:fs/promises';

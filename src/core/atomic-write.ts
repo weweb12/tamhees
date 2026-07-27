@@ -1,5 +1,5 @@
 /**
- * Doubtful Memory — Atomic File Operations
+ * Tamhees — Atomic File Operations
  *
  * Implements safe file writing using temporary-file-plus-rename
  * to prevent data corruption on crash or power failure.
@@ -154,7 +154,7 @@ export async function appendJsonlBatch(
  *
  * Uses path.relative for segment-aware containment checking (not startsWith).
  * Walks every existing path component beneath the project root to detect
- * nested symbolic links (e.g. .gptbrain/memories pointing outside).
+ * nested symbolic links (e.g. .tamhees/memories pointing outside).
  */
 export async function verifyPathSafety(
   targetPath: string,
@@ -203,7 +203,7 @@ export async function verifyPathSafety(
 }
 
 /**
- * Verify all controlled paths within a .gptbrain directory.
+ * Verify all controlled paths within a .tamhees directory.
  * Checks each subdirectory for symbolic links.
  */
 export async function verifyStorageTreeSafety(

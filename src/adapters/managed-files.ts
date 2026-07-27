@@ -1,12 +1,12 @@
 import { lstat, mkdir, readFile, stat, unlink } from 'node:fs/promises';
 import { dirname, join, relative, resolve, isAbsolute } from 'node:path';
 import { atomicWriteText, verifyPathSafety } from '../core/atomic-write.js';
-import { CLI_NAME } from '../core/identity.js';
+import { CLI_NAME, MANAGED_BLOCK_END, MANAGED_BLOCK_ORIGIN_PREFIX, MANAGED_BLOCK_START, PRODUCT_NAME } from '../core/identity.js';
 import { getAdapter } from './registry.js';
 import type { AdapterChangeResult, AdapterName, AdapterStatusResult } from './types.js';
 
-const START = '<!-- DOUBTFUL-MEMORY:START -->';
-const END = '<!-- DOUBTFUL-MEMORY:END -->';
+const START = MANAGED_BLOCK_START;
+const END = MANAGED_BLOCK_END;
 
 interface Inspection {
   readonly state: AdapterStatusResult['state'];
@@ -68,8 +68,8 @@ function managedBlock(agent: AdapterName, created: boolean): Buffer {
   const lines = agent === 'mcp'
     ? [
       START,
-      `<!-- DOUBTFUL-MEMORY:ORIGIN=${created ? 'CREATED' : 'EXISTING'} -->`,
-      '# Doubtful Memory local MCP',
+      `${MANAGED_BLOCK_ORIGIN_PREFIX}${created ? 'CREATED' : 'EXISTING'} -->`,
+      `# ${PRODUCT_NAME} local MCP`,
       '',
       `Start the project-local JSON-RPC 2.0 stdio server with \`${CLI_NAME} mcp serve\`.`,
       'Protocol revision: `2025-11-25`. Transport: one UTF-8 JSON object per line.',
@@ -78,8 +78,8 @@ function managedBlock(agent: AdapterName, created: boolean): Buffer {
     ]
     : [
       START,
-      `<!-- DOUBTFUL-MEMORY:ORIGIN=${created ? 'CREATED' : 'EXISTING'} -->`,
-      '# Doubtful Memory task lifecycle',
+      `${MANAGED_BLOCK_ORIGIN_PREFIX}${created ? 'CREATED' : 'EXISTING'} -->`,
+      `# ${PRODUCT_NAME} task lifecycle`,
       '',
       `Before task work, run \`${CLI_NAME} adapter begin --agent ${agent} --task "<task>"\`.`,
       `After task work, submit controlled proposals with \`${CLI_NAME} adapter finalize --agent ${agent} --input <finalization.json>\`.`,

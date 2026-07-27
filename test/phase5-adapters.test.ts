@@ -7,7 +7,7 @@ import { adapterStatus, installAdapter, removeAdapter } from '../src/adapters/ma
 import { getAdapter, listAdapterDefinitions } from '../src/adapters/registry.js';
 import { ADAPTER_NAMES, type AdapterName } from '../src/adapters/types.js';
 import { fixedClock } from '../src/core/types.js';
-import { initGptbrain } from '../src/core/store.js';
+import { initTamhees } from '../src/core/store.js';
 
 const NOW = '2026-07-22T12:00:00.000Z';
 const roots: string[] = [];
@@ -24,7 +24,7 @@ describe('Phase 5-6 shared adapter registry and lifecycle', () => {
     const normalized: string[] = [];
     for (const name of ADAPTER_NAMES) {
       const project = await root();
-      assert.equal((await initGptbrain(project, fixedClock(NOW))).success, true);
+      assert.equal((await initTamhees(project, fixedClock(NOW))).success, true);
       const result = await getAdapter(name).begin(project, 'adapter retrieval', { maxTokens: 64 }, { clock: fixedClock(NOW), idGenerator: () => 'lc-equivalent' });
       normalized.push(JSON.stringify(result));
     }
@@ -34,7 +34,7 @@ describe('Phase 5-6 shared adapter registry and lifecycle', () => {
   it('produces equivalent validation failures for every adapter finalize call', async () => {
     const results = await Promise.all(ADAPTER_NAMES.map(async (name) => {
       const project = await root();
-      await initGptbrain(project, fixedClock(NOW));
+      await initTamhees(project, fixedClock(NOW));
       return getAdapter(name).finalize(project, { invalid: true }, { clock: fixedClock(NOW) });
     }));
     assert.equal(new Set(results.map((item) => JSON.stringify(item))).size, 1);
@@ -80,13 +80,13 @@ describe('Phase 5-6 managed adapter instructions', () => {
   });
 
   for (const [label, content] of [
-    ['duplicate', '<!-- DOUBTFUL-MEMORY:START -->\n<!-- DOUBTFUL-MEMORY:END -->\n<!-- DOUBTFUL-MEMORY:START -->\n<!-- DOUBTFUL-MEMORY:END -->\n'],
-    ['missing end', '<!-- DOUBTFUL-MEMORY:START -->\n'],
-    ['end first', '<!-- DOUBTFUL-MEMORY:END -->\n<!-- DOUBTFUL-MEMORY:START -->\n'],
-    ['nested', '<!-- DOUBTFUL-MEMORY:START -->\n<!-- DOUBTFUL-MEMORY:START -->\n<!-- DOUBTFUL-MEMORY:END -->\n'],
+    ['duplicate', '<!-- TAMHEES:START -->\n<!-- TAMHEES:END -->\n<!-- TAMHEES:START -->\n<!-- TAMHEES:END -->\n'],
+    ['missing end', '<!-- TAMHEES:START -->\n'],
+    ['end first', '<!-- TAMHEES:END -->\n<!-- TAMHEES:START -->\n'],
+    ['nested', '<!-- TAMHEES:START -->\n<!-- TAMHEES:START -->\n<!-- TAMHEES:END -->\n'],
   ] as const) {
     it(`rejects ${label} managed markers without changing bytes`, async () => {
-      const project = await root(); const path = join(project, 'DOUBTFUL_MEMORY_AGENT.md');
+      const project = await root(); const path = join(project, 'TAMHEES_AGENT.md');
       await writeFile(path, content); const before = await readFile(path);
       const result = await installAdapter(project, 'generic');
       assert.equal(result.success, false); assert.equal(result.state, 'CORRUPT');
@@ -96,6 +96,6 @@ describe('Phase 5-6 managed adapter instructions', () => {
 
   it('uses only project-local documented targets', () => {
     const paths = Object.fromEntries(ADAPTER_NAMES.map((name: AdapterName) => [name, getAdapter(name).definition.instructionPath]));
-    assert.deepEqual(paths, { codex: 'AGENTS.md', antigravity: '.agents/rules/doubtful-memory.md', claude: 'CLAUDE.md', generic: 'DOUBTFUL_MEMORY_AGENT.md', mcp: 'DOUBTFUL_MEMORY_MCP.md' });
+    assert.deepEqual(paths, { codex: 'AGENTS.md', antigravity: '.agents/rules/tamhees.md', claude: 'CLAUDE.md', generic: 'TAMHEES_AGENT.md', mcp: 'TAMHEES_MCP.md' });
   });
 });

@@ -1,4 +1,4 @@
-# Doubtful Memory - Requirements and Assumptions
+# Tamhees - Requirements and Assumptions
 
 ## Purpose
 
@@ -27,36 +27,36 @@ An assumption must never silently become a requirement or fact.
 
 # 1. Core engine requirements
 
-## DM-REQ-ENGINE-001 - gptbrain CLI
+## DM-REQ-ENGINE-001 - tamhees CLI
 
 - Priority: MUST
 - Status: IMPLEMENTED
 - Related decision: DM-DEC-026
 
-The `gptbrain` CLI must be the primary human interface to the engine.
+The `tamhees` CLI must be the primary human interface to the engine.
 
 ### Acceptance criteria
 
-- CLI is invoked as `gptbrain <command>`.
+- CLI is invoked as `tamhees <command>`.
 - Argument parsing uses Node.js built-ins (`util.parseArgs` or `process.argv`).
 - Exit codes follow conventions (0 = success, 1 = error, 2 = usage error).
-- `gptbrain --help` displays available commands.
-- `gptbrain --version` displays the current version.
+- `tamhees --help` displays available commands.
+- `tamhees --version` displays the current version.
 - No runtime dependencies are required for CLI operation.
 
 ---
 
-## DM-REQ-ENGINE-002 - .gptbrain initialization
+## DM-REQ-ENGINE-002 - .tamhees initialization
 
 - Priority: MUST
 - Status: IMPLEMENTED
 - Related decision: DM-DEC-017
 
-The `gptbrain init` command must create the `.gptbrain/` directory structure.
+The `tamhees init` command must create the `.tamhees/` directory structure.
 
 ### Acceptance criteria
 
-- Running `gptbrain init` in a project directory creates the complete directory structure.
+- Running `tamhees init` in a project directory creates the complete directory structure.
 - Created directories include: `memories/records/`, `evidence/`, `audits/`, `episodes/`, `archive/`, `runtime/`.
 - Created files include: `config.json` (with schema version), `state.json`, `memories/index.json`.
 - The command is idempotent — running it again does not destroy existing data.
@@ -74,7 +74,7 @@ Each canonical memory must be stored as one atomic JSON file.
 
 ### Acceptance criteria
 
-- Each memory is stored at `.gptbrain/memories/records/<memory-id>.json`.
+- Each memory is stored at `.tamhees/memories/records/<memory-id>.json`.
 - Writes use temporary-file plus rename for atomicity.
 - JSON output uses deterministic key ordering for Git-friendly diffs.
 - Every stored record includes a `schemaVersion` field.
@@ -99,6 +99,10 @@ Every stored artifact must include a schema version, and the engine must handle 
 - Schema migrations are forward-only.
 - Migration preserves all authority levels and relationships.
 - Migration produces an audit event recording the transformation.
+- The storage-name compatibility path is explicit: `tamhees migrate legacy-storage [--dry-run]` accepts no caller-selected paths.
+- A lone validated `.gptbrain/` store may be renamed to `.tamhees/`; neither store and canonical-only states are idempotent, while both stores fail closed without merge, overwrite, or deletion.
+- Legacy migration rejects corrupt or unknown artifacts, inconsistent indexes, links, junctions, reparse points, traversal, and boundary escapes; dry-run changes no byte and failure preserves or restores the legacy store.
+- Renaming the containing directory does not alter schema version `1.0.0`.
 
 ---
 
@@ -222,7 +226,7 @@ Generated context packs must be ephemeral by default.
 
 ### Acceptance criteria
 
-- Context packs are not permanently cached in `.gptbrain/`.
+- Context packs are not permanently cached in `.tamhees/`.
 - Context is returned in memory/stdout or stored temporarily under Git-ignored `runtime/`.
 - Runtime-generated sensitive context is never committed.
 - No context-pack history accumulates by default.
@@ -380,7 +384,7 @@ The benchmark must include comparison against the original single-file GPTBrain.
 
 ### Acceptance criteria
 
-- Baseline includes: no project memory, original GPTBrain.md, simple split-file memory, Doubtful Memory.
+- Baseline includes: no project memory, original GPTBrain.md, simple split-file memory, Tamhees.
 - Each baseline uses the same fixture data.
 - Comparisons are objective and measurable.
 - No subjective quality claims in the core benchmark.
@@ -701,7 +705,7 @@ Version 0.4.0 implements explicit begin/finalize lifecycle operations. It holds 
 - Priority: MUST
 - Status: IMPLEMENTED
 
-The system must safely migrate from the bootstrap `memory/MEMORY_CLAIMS.md` format to `.gptbrain/` JSON storage.
+The system must safely migrate from the bootstrap `memory/MEMORY_CLAIMS.md` format to `.tamhees/` JSON storage.
 
 ### Acceptance criteria
 
@@ -725,8 +729,8 @@ The product must install and remove cleanly.
 ### Acceptance criteria
 
 - Installation requires only documented commands.
-- Removal leaves no orphaned configuration or data outside `.gptbrain/`.
-- `.gptbrain/` removal is a clean project-level uninstall.
+- Removal leaves no orphaned configuration or data outside `.tamhees/`.
+- `.tamhees/` removal is a clean project-level uninstall.
 - No global system modifications are required.
 
 ---
@@ -749,6 +753,8 @@ A user must be able to view memory state, inspect evidence, run audits, understa
 - Memory and current evidence are visually distinguishable.
 - The primary outcome is prominent.
 - The judge demonstration invokes canonical audit and context functions over safe fixed structured fixtures without mutating source storage.
+- The guided CLI lesson exposes exactly five fixed presentation steps with full-run, next, reset, and direct step selection; it executes no shell and accepts no arbitrary command.
+- Canonical outcome, permission, next step, and context consequences in the lesson come from the real architecture-conflict audit response.
 
 ---
 
@@ -817,6 +823,8 @@ The dashboard must explain technical concepts without assuming prior knowledge o
 - Error messages describe recovery steps.
 - The dashboard avoids unexplained status codes.
 - Detailed technical information remains available without overwhelming the primary flow.
+- Live-audit results present decision, reason, permission, next step, and context before collapsed rule identifiers.
+- Every animated CLI lesson has synchronized plain-language explanation and a complete static equivalent.
 
 ---
 
@@ -846,7 +854,7 @@ The local visual dashboard is a Version 1 release deliverable, not post-Version-
 - Status: IMPLEMENTED
 - Target phase: Phase 8
 
-The dashboard opening must explain that project memory can be inaccurate, invasive, or overconfident and that Doubtful Memory audits whether remembered claims are safe to use.
+The dashboard opening must explain that project memory can be inaccurate, invasive, or overconfident and that Tamhees audits whether remembered claims are safe to use.
 
 ### Acceptance criteria
 
@@ -975,7 +983,7 @@ The final Version 1 project must produce verified release artifacts.
 
 ### Acceptance criteria
 
-- Produces verified release artifacts for the local gptbrain CLI and engine.
+- Produces verified release artifacts for the local tamhees CLI and engine.
 - Produces required templates and agent adapters.
 - Produces the local visual dashboard when Phase 8 is completed.
 - Has a clean local installation/build process.
@@ -1203,8 +1211,10 @@ If a requirement changes:
 
 - Total requirements defined: 60
 - Requirements verified: 0
-- Requirements implemented: 37
-- Requirements in progress: 13
-- Requirements not started: 10
+- Requirements implemented: 48
+- Requirements in progress: 12
+- Requirements not started: 0
 - Assumptions recorded: 7
 - Assumptions fully verified: 0
+
+Phase 8.2 automated tests provide implementation evidence only. They do not elevate any requirement to `VERIFIED` without independent owner review.

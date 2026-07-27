@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Doubtful Memory — gptbrain CLI
+ * Tamhees — tamhees CLI
  *
  * The primary human interface to the engine.
  *
@@ -21,8 +21,8 @@ import {
   MIN_CONTEXT_MAX_TOKENS,
   systemClock,
 } from './core/types.js';
-import { PRODUCT_NAME, CLI_NAME, STORAGE_DIR, ENGINE_VERSION } from './core/identity.js';
-import { initGptbrain, loadAllRecords } from './core/store.js';
+import { PRODUCT_NAME, PRODUCT_TAGLINE, PRODUCT_EXPLANATION, CLI_NAME, LEGACY_STORAGE_DIR, STORAGE_DIR, ENGINE_VERSION } from './core/identity.js';
+import { initTamhees, loadAllRecords } from './core/store.js';
 import {
   compileContext,
   formatContextAsJson,
@@ -39,6 +39,7 @@ import { memoryForOutput } from './core/privacy.js';
 import { validateContextPack } from './core/validation.js';
 import { beginLifecycle, finalizeLifecycle, formatLifecycleBeginAsMarkdown, formatLifecycleFinalizeAsMarkdown, randomLifecycleId } from './core/lifecycle.js';
 import { loadBootstrapMigrationSource, migrateBootstrapClaims } from './core/migration.js';
+import { migrateLegacyStorage } from './core/legacy-storage.js';
 import { getAdapter, isAdapterName, listAdapterDefinitions } from './adapters/registry.js';
 import { adapterStatus, installAdapter, removeAdapter } from './adapters/managed-files.js';
 import { ADAPTER_NAMES } from './adapters/types.js';
@@ -101,7 +102,7 @@ function parseArgs(
 
 // ─── Help text ──────────────────────────────────────────────
 
-const MAIN_HELP = `${CLI_NAME} v${ENGINE_VERSION} — ${PRODUCT_NAME}: A project brain that knows when it might be wrong
+const MAIN_HELP = `${CLI_NAME} v${ENGINE_VERSION} — ${PRODUCT_NAME}` + `\n${PRODUCT_TAGLINE}\n${PRODUCT_EXPLANATION}` + `
 
 Usage: ${CLI_NAME} <command> [options]
 
@@ -112,7 +113,7 @@ Commands:
   context             Compile task-specific memory context
   audit               Run audit on all memory records
   lifecycle           Begin or finalize a controlled task lifecycle
-  migrate             Run a controlled one-time bootstrap migration
+  migrate             Run controlled legacy-storage or bootstrap migration
   adapter             Manage and use local agent adapters
   mcp                 Run the local stdio MCP server
   benchmark           Run the deterministic local benchmark
@@ -269,7 +270,7 @@ async function handleInit(): Promise<void> {
   console.log(`Initializing ${STORAGE_DIR}/ in ${targetDir}`);
   console.log('');
 
-  const result = await initGptbrain(targetDir, systemClock);
+  const result = await initTamhees(targetDir, systemClock);
 
   if (result.created.length > 0) {
     console.log('Created:');
@@ -561,13 +562,32 @@ async function handleLifecycle(): Promise<void> {
 }
 
 async function handleMigrate(): Promise<void> {
-  if(args.includes('--help')){console.log(`${CLI_NAME} migrate bootstrap [--input <markdown-file>]\n\nImports the preserved bootstrap claim ledger once. The source Markdown is not modified or deleted.`);process.exit(0);}
-  const subcommand=args[1]; if(subcommand!=='bootstrap')return usageError(`Usage: ${CLI_NAME} migrate bootstrap [--input <markdown-file>]`);
-  const {options}=parseArgs(['--input'],0,2); const input=resolve(options['--input']??joinPath('memory','MEMORY_CLAIMS.md'));
-  const source=await loadBootstrapMigrationSource(process.cwd(),input);
-  if(!source.success||source.markdown===null){console.log(JSON.stringify(source,null,2));process.exit(1);}
-  const result=await migrateBootstrapClaims(process.cwd(),source.markdown,systemClock); console.log(JSON.stringify(result,null,2));process.exit(result.success?0:1);
+  const subcommand = args[1];
+  if (args.includes('--help')) {
+    console.log(`${CLI_NAME} migrate\n\nUsage:\n  ${CLI_NAME} migrate legacy-storage [--dry-run]\n  ${CLI_NAME} migrate bootstrap [--input <markdown-file>]\n\nlegacy-storage validates and explicitly renames ${LEGACY_STORAGE_DIR}/ to ${STORAGE_DIR}/ without merging or overwriting. --dry-run changes no byte.\nbootstrap imports the preserved claim ledger once; its source Markdown is not modified or deleted.`);
+    process.exit(0);
+  }
+  if (subcommand === 'legacy-storage') {
+    const { options } = parseArgs(['--dry-run'], 0, 2, ['--dry-run']);
+    const result = await migrateLegacyStorage(process.cwd(), options['--dry-run'] === 'true');
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.success ? 0 : 1);
+  }
+  if (subcommand === 'bootstrap') {
+    const { options } = parseArgs(['--input'], 0, 2);
+    const input = resolve(options['--input'] ?? joinPath('memory', 'MEMORY_CLAIMS.md'));
+    const source = await loadBootstrapMigrationSource(process.cwd(), input);
+    if (!source.success || source.markdown === null) {
+      console.log(JSON.stringify(source, null, 2));
+      process.exit(1);
+    }
+    const result = await migrateBootstrapClaims(process.cwd(), source.markdown, systemClock);
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(result.success ? 0 : 1);
+  }
+  usageError(`Usage: ${CLI_NAME} migrate legacy-storage [--dry-run]`);
 }
+
 function joinPath(...parts:string[]):string{return resolve(process.cwd(),...parts);}
 
 async function handleAdapter(): Promise<void> {

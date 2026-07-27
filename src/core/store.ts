@@ -1,7 +1,7 @@
 /**
- * Doubtful Memory — Memory Store
+ * Tamhees — Memory Store
  *
- * Implements .gptbrain/ initialization, memory record I/O,
+ * Implements .tamhees/ initialization, memory record I/O,
  * and memory index management.
  *
  * All file operations use atomic writes.
@@ -14,8 +14,8 @@ import { join, resolve, basename } from 'node:path';
 import {
   CURRENT_SCHEMA_VERSION,
   type Clock,
-  type GptbrainConfig,
-  type GptbrainState,
+  type TamheesConfig,
+  type TamheesState,
   type MemoryIndex,
   type MemoryIndexEntry,
   type MemoryRecord,
@@ -55,7 +55,7 @@ export interface InitResult {
 // ─── Init ───────────────────────────────────────────────────
 
 /**
- * Initialize .gptbrain/ directory structure in a project.
+ * Initialize .tamhees/ directory structure in a project.
  *
  * - Creates all required directories and files.
  * - Is idempotent: running again does not destroy existing data.
@@ -66,15 +66,15 @@ export interface InitResult {
  * - Validates ALL existing records before rebuilding the index.
  * - Derives projectName from directory basename.
  */
-export async function initGptbrain(
+export async function initTamhees(
   projectDir: string,
   clock: Clock,
 ): Promise<InitResult> {
   const absProjectDir = resolve(projectDir);
-  const gptbrainPath = join(absProjectDir, STORAGE_DIR);
+  const tamheesPath = join(absProjectDir, STORAGE_DIR);
 
   // Deep safety check: verify all controlled paths for symlinks
-  const safety = await verifyStorageTreeSafety(gptbrainPath, absProjectDir);
+  const safety = await verifyStorageTreeSafety(tamheesPath, absProjectDir);
   if (!safety.safe) {
     return {
       success: false,
@@ -107,8 +107,8 @@ export async function initGptbrain(
   const projectName = basename(absProjectDir);
 
   // config.json — use proper validator
-  const configPath = join(gptbrainPath, CONFIG_FILE);
-  const configResult = await writeControlledFile<GptbrainConfig>(
+  const configPath = join(tamheesPath, CONFIG_FILE);
+  const configResult = await writeControlledFile<TamheesConfig>(
     configPath,
     absProjectDir,
     {
@@ -122,8 +122,8 @@ export async function initGptbrain(
   trackResult(configResult, CONFIG_FILE, created, existing, errors);
 
   // state.json — use proper validator
-  const statePath = join(gptbrainPath, STATE_FILE);
-  const stateResult = await writeControlledFile<GptbrainState>(
+  const statePath = join(tamheesPath, STATE_FILE);
+  const stateResult = await writeControlledFile<TamheesState>(
     statePath,
     absProjectDir,
     {
@@ -137,7 +137,7 @@ export async function initGptbrain(
   trackResult(stateResult, STATE_FILE, created, existing, errors);
 
   // history.jsonl — validate existing lines if present
-  const historyPath = join(gptbrainPath, HISTORY_FILE);
+  const historyPath = join(tamheesPath, HISTORY_FILE);
   const historyResult = await ensureValidHistoryFile(historyPath, absProjectDir);
   trackResult(historyResult, HISTORY_FILE, created, existing, errors);
 
@@ -148,7 +148,7 @@ export async function initGptbrain(
   // Bootstrap memory record
   const bootstrapId = 'DM-MEM-000001';
   const bootstrapRecord = createBootstrapRecord(bootstrapId, now);
-  const recordPath = join(gptbrainPath, 'memories', 'records', `${bootstrapId}.json`);
+  const recordPath = join(tamheesPath, 'memories', 'records', `${bootstrapId}.json`);
 
   const recordResult = await writeControlledFile<MemoryRecord>(
     recordPath,
@@ -160,7 +160,7 @@ export async function initGptbrain(
   trackResult(recordResult, `memories/records/${bootstrapId}.json`, created, existing, errors);
 
   // Validate ALL existing records before building index
-  const recordsDir = join(gptbrainPath, 'memories', 'records');
+  const recordsDir = join(tamheesPath, 'memories', 'records');
   const indexBuildResult = await buildValidatedIndex(recordsDir, absProjectDir);
 
   if (indexBuildResult.errors.length > 0) {
@@ -183,7 +183,7 @@ export async function initGptbrain(
     entries: indexBuildResult.entries,
     lastRebuilt: now,
   };
-  const indexPath = join(gptbrainPath, INDEX_FILE);
+  const indexPath = join(tamheesPath, INDEX_FILE);
   const indexSafety = await verifyPathSafety(indexPath, absProjectDir);
   if (!indexSafety.safe) {
     errors.push(`Path safety check failed for index.json: ${indexSafety.reason}`);
@@ -225,7 +225,7 @@ function createBootstrapRecord(id: string, now: string): MemoryRecord {
     sensitivity: 'INTERNAL',
     actionPermission: 'MAY_ACT',
     relationships: {},
-    tags: ['project', 'initialization', 'doubtful-memory'],
+    tags: ['project', 'initialization', CLI_NAME],
     createdAt: now,
     updatedAt: now,
   };
@@ -234,7 +234,7 @@ function createBootstrapRecord(id: string, now: string): MemoryRecord {
 // ─── Record I/O ─────────────────────────────────────────────
 
 /**
- * Load and validate all memory records from .gptbrain/memories/records/
+ * Load and validate all memory records from .tamhees/memories/records/
  */
 export async function loadAllRecords(
   projectDir: string,

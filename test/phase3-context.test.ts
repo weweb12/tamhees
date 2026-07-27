@@ -14,7 +14,7 @@ import {
   MAX_CONTEXT_MAX_TOKENS, TOKEN_ESTIMATOR_NAME, TOKEN_ESTIMATOR_VERSION,
   fixedClock, type MemoryRecord,
 } from '../src/core/types.js';
-import { initGptbrain } from '../src/core/store.js';
+import { initTamhees } from '../src/core/store.js';
 import { validateContextPack } from '../src/core/validation.js';
 import { STORAGE_DIR } from '../src/core/identity.js';
 
@@ -362,8 +362,8 @@ describe('Phase 3 context contract', () => {
 describe('Phase 3 CLI and ephemerality', () => {
   let projectDir: string;
   beforeEach(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), 'doubtful-memory-phase3-'));
-    assert.equal((await initGptbrain(projectDir, clock)).success, true);
+    projectDir = await mkdtemp(join(tmpdir(), 'tamhees-phase3-'));
+    assert.equal((await initTamhees(projectDir, clock)).success, true);
   });
   afterEach(async () => {
     await rm(projectDir, { recursive: true, force: true });

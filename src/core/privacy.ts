@@ -1,5 +1,5 @@
 /**
- * Doubtful Memory — Local privacy guards
+ * Tamhees — Local privacy guards
  *
  * These deterministic patterns are intentionally conservative and are not a
  * complete secret scanner. They prevent common raw credential shapes from

@@ -34,7 +34,7 @@ describe('Phase 7 deterministic benchmark', () => {
     const report = runBenchmark();
     assert.deepEqual(report.configurations.map((item) => item.configuration), BENCHMARK_CONFIGURATIONS);
     assert.deepEqual(BENCHMARK_CONFIGURATIONS, [
-      'NO_MEMORY', 'MONOLITHIC_GPTBRAIN', 'SIMPLE_SPLIT_FILES', 'DOUBTFUL_MEMORY',
+      'NO_MEMORY', 'MONOLITHIC_GPTBRAIN', 'SIMPLE_SPLIT_FILES', 'TAMHEES',
     ]);
     for (const result of report.configurations) {
       assert.deepEqual(result.scenarios.map((item) => item.scenarioId), BENCHMARK_SCENARIO_IDS);
@@ -45,8 +45,8 @@ describe('Phase 7 deterministic benchmark', () => {
     const report = runBenchmark();
     assert.equal(formatBenchmarkJson(report), formatBenchmarkJson(runBenchmark()));
     assert.equal(formatBenchmarkMarkdown(report), formatBenchmarkMarkdown(report));
-    assert.equal(await readFile('benchmark/results/v0.7.0.json', 'utf8'), formatBenchmarkJson(report));
-    assert.equal(await readFile('benchmark/results/v0.7.0.md', 'utf8'), formatBenchmarkMarkdown(report));
+    assert.equal(await readFile('benchmark/results/v0.8.2.json', 'utf8'), formatBenchmarkJson(report));
+    assert.equal(await readFile('benchmark/results/v0.8.2.md', 'utf8'), formatBenchmarkMarkdown(report));
     assert.match(report.fixtureSha256, /^[a-f0-9]{64}$/);
   });
 
@@ -81,7 +81,7 @@ describe('Phase 7 deterministic benchmark', () => {
     assert.deepEqual(conflicted.groundTruth.relevantIds, ['BM-003-A']);
     assert.deepEqual(conflicted.groundTruth.safeRelevantIds, []);
     assert.deepEqual(conflicted.groundTruth.unsafeIds, ['BM-003-A']);
-    const doubtful = runBenchmark().configurations.find((item) => item.configuration === 'DOUBTFUL_MEMORY')!;
+    const doubtful = runBenchmark().configurations.find((item) => item.configuration === 'TAMHEES')!;
     assert.equal(doubtful.aggregate.unsafeExposureCount, 0);
     assert.equal(doubtful.aggregate.secretLeakageCount, 0);
     assert.equal(doubtful.aggregate.budgetCompliance.value, 1);
@@ -136,7 +136,7 @@ describe('Phase 7 deterministic benchmark', () => {
     const canonical = formatBenchmarkJson(report);
     const manipulated = canonical.replace('"truePositive": 0', '"truePositive": 999');
     assert.notEqual(manipulated, canonical);
-    assert.equal(await readFile('benchmark/results/v0.7.0.json', 'utf8'), canonical);
+    assert.equal(await readFile('benchmark/results/v0.8.2.json', 'utf8'), canonical);
     const markdown = formatBenchmarkMarkdown(report);
     for (const marker of [
       'Micro precision', 'Micro recall', 'Authority prevention', 'Authority detection',

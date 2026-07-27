@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
 import { getAdapter } from '../src/adapters/registry.js';
 import { compileContext } from '../src/core/context.js';
-import { initGptbrain } from '../src/core/store.js';
+import { initTamhees } from '../src/core/store.js';
 import {
   CURRENT_SCHEMA_VERSION,
   fixedClock,
@@ -129,7 +129,7 @@ describe('Owner verification: positive relevance eligibility', () => {
     for (const name of ['codex', 'antigravity', 'claude', 'generic', 'mcp'] as const) {
       const project = await mkdtemp(join(tmpdir(), `dm-rel-${name}-`));
       roots.push(project);
-      assert.equal((await initGptbrain(project, clock)).success, true);
+      assert.equal((await initTamhees(project, clock)).success, true);
       const result = await getAdapter(name).begin(
         project,
         'quantum horticulture',
@@ -145,7 +145,7 @@ describe('Owner verification: positive relevance eligibility', () => {
   it('preserves empty irrelevant retrieval through the MCP begin tool', async () => {
     const project = await mkdtemp(join(tmpdir(), 'dm-rel-mcp-'));
     roots.push(project);
-    assert.equal((await initGptbrain(project, clock)).success, true);
+    assert.equal((await initTamhees(project, clock)).success, true);
     const session = new McpSession(createMcpTools(project));
     const init = JSON.stringify({
       jsonrpc: '2.0',

@@ -1,5 +1,5 @@
 /**
- * Doubtful Memory — deterministic audit engine.
+ * Tamhees — deterministic audit engine.
  *
  * Phase 2 implements the complete precedence chain defined by the protocol:
  * privacy, revocation, conflict, authority, freshness, evidence, then trust.

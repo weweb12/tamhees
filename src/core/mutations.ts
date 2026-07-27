@@ -1,4 +1,4 @@
-/** Doubtful Memory — controlled memory create/update/revoke/redact operations. */
+/** Tamhees — controlled memory create/update/revoke/redact operations. */
 
 import { randomBytes } from 'node:crypto';
 import { mkdir, unlink } from 'node:fs/promises';

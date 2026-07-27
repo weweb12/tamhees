@@ -1,20 +1,16 @@
 import { getAdapter } from '../adapters/registry.js';
 import { DEFAULT_CONTEXT_MAX_TOKENS } from '../core/types.js';
-import { initGptbrain, loadAllRecords } from '../core/store.js';
+import { initTamhees, loadAllRecords } from '../core/store.js';
 import { loadAllEvidence } from '../core/evidence.js';
 import { systemClock } from '../core/types.js';
+import { PRODUCT_NAME, TAMHEES_MCP_TOOL_NAMES } from '../core/identity.js';
 import { McpInvalidParamsError, McpToolNotFoundError, type McpToolDefinition, type McpToolProvider, type McpToolResult } from './protocol.js';
 
-export const MCP_TOOL_NAMES = [
-  'doubtful_memory_initialize_project',
-  'doubtful_memory_begin_task',
-  'doubtful_memory_finalize_task',
-  'doubtful_memory_status',
-] as const;
+export const MCP_TOOL_NAMES = TAMHEES_MCP_TOOL_NAMES;
 
 const EMPTY_SCHEMA = { type: 'object', properties: {}, additionalProperties: false } as const;
 const TOOLS: readonly McpToolDefinition[] = [
-  { name: MCP_TOOL_NAMES[0], description: 'Initialize local Doubtful Memory storage in this project.', inputSchema: EMPTY_SCHEMA },
+  { name: MCP_TOOL_NAMES[0], description: `Initialize local ${PRODUCT_NAME} storage in this project.`, inputSchema: EMPTY_SCHEMA },
   { name: MCP_TOOL_NAMES[1], description: 'Begin a controlled task and return ephemeral ranked context.', inputSchema: {
     type: 'object', properties: { task: { type: 'string' }, maxTokens: { type: 'integer', minimum: 1, maximum: 1_000_000 } }, required: ['task'], additionalProperties: false,
   } },
@@ -33,7 +29,7 @@ export function createMcpTools(projectDir: string): McpToolProvider {
       let result: unknown;
       if (name === MCP_TOOL_NAMES[0]) {
         requireKeys(args, []);
-        result = await initGptbrain(projectDir, systemClock);
+        result = await initTamhees(projectDir, systemClock);
       } else if (name === MCP_TOOL_NAMES[1]) {
         requireKeys(args, ['task', 'maxTokens']);
         if (typeof args['task'] !== 'string' || args['task'].trim().length === 0) throw new McpInvalidParamsError();

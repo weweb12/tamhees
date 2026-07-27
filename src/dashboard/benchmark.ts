@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { ENGINE_VERSION, PRODUCT_NAME } from '../core/identity.js';
 import {
   BENCHMARK_CONFIGURATIONS,
   type BenchmarkAggregate,
@@ -8,9 +9,9 @@ import {
   type BenchmarkReport,
 } from '../benchmark/benchmark.js';
 
-export const DASHBOARD_BENCHMARK_RELATIVE_PATH = 'benchmark/results/v0.7.0.json';
+export const DASHBOARD_BENCHMARK_RELATIVE_PATH = `benchmark/results/v${ENGINE_VERSION}.json`;
 export const DASHBOARD_BENCHMARK_SHA256 =
-  'aab7fc8a775d024256b7c6e53d19b426fed98702702a3b89b39bc6408a948eab';
+  '311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6';
 
 export interface DashboardBenchmarkConfiguration {
   readonly name: BenchmarkConfiguration;
@@ -82,7 +83,7 @@ export async function loadDashboardBenchmark(rootDir = process.cwd()): Promise<D
       noMemoryPolicy: parsed.methodology.noMemoryPolicy,
     },
     limitation:
-      'The two Doubtful Memory recall misses are safe relevant records excluded by the hard context budget.',
+      `The two ${PRODUCT_NAME} recall misses are safe relevant records excluded by the hard context budget.`,
   };
 }
 

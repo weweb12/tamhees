@@ -1,4 +1,4 @@
-# Doubtful Memory — Agent Rules
+# Tamhees — Agent Rules
 
 ## Read this first
 

@@ -1,4 +1,4 @@
-# Doubtful Memory - Decision Register
+# Tamhees - Decision Register
 
 ## Purpose
 
@@ -816,7 +816,7 @@ Clearly distinguish between fields implemented in Phase 1 (e.g., deterministic l
 ## DM-DEC-026 - Temporary codename centralization
 
 - Date: 2026-07-19
-- Status: APPROVED
+- Status: SUPERSEDED by DM-DEC-035
 - Category: Product
 
 ### Context
@@ -1096,3 +1096,34 @@ The following matters are intentionally not decided yet:
 - Final source-code visibility.
 - Video-recording platform.
 - Final submission wording.
+---
+
+## DM-DEC-035 - Approved Tamhees identity and controlled legacy-storage transition
+
+- Date: 2026-07-25
+- Status: APPROVED
+- Category: Product identity, compatibility, protocol, and release boundary
+- Supersedes: DM-DEC-014 and DM-DEC-026; supersedes only the `.gptbrain/` directory-name portion of DM-DEC-017
+
+### Context
+
+The owner approved the final pre-release product identity and directed a comprehensive active rename while preserving accurate historical decision, claim, and audit evidence. A direct directory rename without a controlled compatibility path could silently split or lose an existing user's memory.
+
+### Decision
+
+- The product name is **Tamhees**; the restrained Arabic detail is **تمحيص**; the tagline is **Memory under scrutiny.**
+- The accessible opening explanation is: “Tamhees checks what an AI remembers before that memory is allowed to guide an action.”
+- The package and only supported executable identity is `tamhees`; the canonical local storage directory is `.tamhees/`.
+- The four local stdio MCP tools are exactly `tamhees_initialize_project`, `tamhees_begin_task`, `tamhees_finalize_task`, and `tamhees_status`. The old CLI and MCP namespace are not active aliases; this is a documented pre-release breaking change.
+- Runtime identity, managed markers, adapter paths, and tool names are centralized in `src/core/identity.ts` where technically possible. The Antigravity rule is `.agents/rules/tamhees.md`.
+- Stable `DM-*` identifiers remain unchanged for traceability. Accurate older names remain only in historical records, the original GPTBrain.md baseline/origin story, and explicit legacy-compatibility documentation.
+- `tamhees migrate legacy-storage [--dry-run]` is the only supported `.gptbrain/` to `.tamhees/` directory transition. It accepts no caller-selected paths, validates the controlled store and path boundary, rejects links/reparse points and conflicts, never merges or overwrites, supports a byte-pure dry run, uses one same-parent rename where permitted, validates afterward, and preserves or restores the legacy store on failure.
+- A containing-directory rename does not change the canonical storage schema, which remains `1.0.0`.
+- Package and engine advance to Version `0.8.2`. Phase 8.2 remains an unstaged implementation candidate pending independent owner review. Phase 9, checkpointing, remote configuration, publication, upload, and deployment remain separately authorized actions.
+
+### Consequences
+
+- Active documentation, code, tests, generated instructions, UI, examples, and package metadata must use Tamhees identities.
+- Existing users receive an explicit inspectable migration rather than silent dual stores or automatic merge behavior.
+- Historical ledgers are not rewritten to pretend the earlier identity never existed.
+- Naming approval is a product decision, not trademark clearance, uniqueness research, or publication approval.

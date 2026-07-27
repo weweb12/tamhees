@@ -1,4 +1,4 @@
-/** Doubtful Memory — Evidence record storage and retrieval. */
+/** Tamhees — Evidence record storage and retrieval. */
 
 import { mkdir, readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';

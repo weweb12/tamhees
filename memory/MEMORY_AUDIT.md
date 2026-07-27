@@ -1,4 +1,4 @@
-# Doubtful Memory - Project Memory Audit
+# Tamhees - Project Memory Audit
 
 ## Purpose
 
@@ -18,9 +18,9 @@ An audit does not automatically change a claim. Material changes must be verifie
 
 ## Audit limitations
 
-These entries are manual project-control audits distinct from runtime audit events. The implemented engine writes runtime events under `.gptbrain/audits/`; this ledger must not imply that a manual review is an automated or independent owner confirmation.
+These entries are manual project-control audits distinct from runtime audit events. The implemented engine writes runtime events under `.tamhees/audits/`; this ledger must not imply that a manual review is an automated or independent owner confirmation.
 
-The engine produces runtime events in `.gptbrain/audits/history.jsonl`. These historical and current manual entries remain the preserved bootstrap project-control record.
+The engine produces runtime events in `.tamhees/audits/history.jsonl`. These historical and current manual entries remain the preserved bootstrap project-control record.
 
 ---
 
@@ -918,3 +918,74 @@ Retrieval remains exact lexical/tag matching, token accounting remains an estima
 ## Recommended action
 
 Create the local Phase 8 checkpoint commit. Begin Phase 9 only in a new explicitly authorized release-hardening task; do not push, publish, deploy, or configure a remote from this checkpoint.
+
+---
+
+# Audit DM-AUDIT-2026-07-24-007
+
+## Audit metadata
+
+- Date: 2026-07-24
+- Audit type: Phase 8.1 owner-directed visual-correction implementation candidate
+- Scope: Dashboard visual hierarchy, explanation, native motion, live-audit comprehension, benchmark presentation, accessibility contracts, documentation, and preservation of the verified Phase 8 engine boundary
+- Auditor: Codex implementation process
+- Engine version: 0.8.1
+- Repository state: Unstaged candidate pending owner visual review
+- Overall result: TRUST (local implementation evidence only)
+
+## Owner direction and implemented evidence
+
+The owner rejected the original Phase 8 visual design, dark presentation, compact hero, explanation, live-audit comprehension, and lack of meaningful motion. That review did not reject or alter the independently verified canonical engine. The Phase 8.1 candidate rebuilds the local presentation as a broad white-first teaching experience, adds an original semantic memory-audit engine sequence, makes the audit question and three inputs explicit, hides results until execution, explains the canonical outcome before technical disclosure, and simplifies exact-outcome benchmark evidence while retaining the complete integrity-checked table and methodology.
+
+The seven safe deterministic scenarios, audit and context functions, HTTP APIs, strict security validation, privacy boundary, benchmark artifact and hash, local-only operation, and zero-runtime-dependency architecture remain unchanged. Four focused presentation contract tests were added, raising the full suite from 220 to 224 passing tests with zero failures, skips, or todos.
+
+## Permission and limitations
+
+This is implementation evidence for an unstaged visual-correction candidate, not independent owner acceptance and not OWNER_CONFIRMED release approval. Existing limitations remain: exact lexical rather than semantic retrieval, approximate tokens, pattern-based sensitive-value detection, a limited local MCP subset, and safe fixed demonstration fixtures. Real assistive-technology, physical-device, independent judge-comprehension, release, and publication review remain pending.
+
+No staging, commit, remote, upload, deployment, external asset, third-party animation code, dependency addition, or Phase 9 work is authorized by this audit.
+
+## Recommended action
+
+Have the owner visually review the unstaged Version 0.8.1 candidate. If accepted, authorize a separate local checkpoint task; otherwise record specific Phase 8.1 corrections. Do not begin Phase 9, publish, deploy, configure a remote, or commit from this task.
+---
+
+# Audit DM-AUDIT-2026-07-25-008
+
+## Audit metadata
+
+- Date: 2026-07-25
+- Audit type: Phase 8.2 Tamhees rename, legacy-storage migration, guided CLI, and clarity implementation-candidate audit
+- Scope: DM-CLAIM-028; active identity, historical traceability, package/CLI/storage/MCP/adapters, migration safety, dashboard guided lesson, live-audit hierarchy, benchmark integrity, documentation, privacy, dependencies, repository isolation, and Git boundary
+- Auditor: Codex implementation process
+- Engine version: 0.8.2
+- Repository state: Unstaged candidate pending independent owner review
+- Overall result: TRUST (local implementation evidence only)
+
+## Owner direction and authority
+
+The owner explicitly approved Tamhees, تمحيص, `tamhees`, `.tamhees/`, “Memory under scrutiny.”, and the plain-language opening explanation. That owner direction supports DM-CLAIM-028 as `OWNER_CONFIRMED`. Source edits, generated documentation, automated tests, and this audit do not independently create owner authority for release, publication, checkpointing, or any other claim.
+
+## Implementation evidence
+
+- Active runtime identity is centralized, the old CLI alias and MCP namespace are absent, five adapter IDs remain unchanged, and the Antigravity rule moved to `.agents/rules/tamhees.md`.
+- `tamhees migrate legacy-storage [--dry-run]` recognizes only the two fixed project-local directory names, validates paths and controlled artifacts, rejects links/reparse points, corrupt stores, unknown paths, index inconsistency, and dual-store conflicts, performs no merge or overwrite, validates after one same-parent rename, and attempts verified rollback on failure. Schema remains `1.0.0`.
+- The website teaches the origin from a large GPTBrain.md-style file without presenting that experiment as the product. The five-step guided CLI lesson uses fixed safe presentation strings plus one canonical architecture-conflict audit request. It accepts no arbitrary command and exposes no shell or write route.
+- Live results show the decision, plain-language reason, permission, next action, and context consequence before collapsed technical evidence and rule trace.
+- Benchmark Version 0.8.2 JSON SHA-256 is `311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6`; two independent generations are byte-identical. Historical Version 0.7.0 artifacts are preserved.
+- Final clean install, typecheck, build, full verification, and focused dashboard verification pass: 239 tests across 36 suites, with 0 failures, cancellations, skips, or todos; the focused dashboard contract is 23/23 and the focused migration/rename contract is 14/14.
+- Isolated CLI smoke verifies help/version identity, canonical initialization, audit, context, dry-run migration, real migration, idempotent replay, legacy removal, canonical-store presence, no raw task persistence, and temporary-store cleanup.
+- Runtime dependencies remain zero. Direct development dependencies are exactly `typescript@6.0.3` and `@types/node@22.20.1`; the transitive `undici-types@6.21.0` comes only through Node type declarations.
+- Browser review at 1536×864, 1440×900, 1024×768, and 390×844 verifies the hierarchy, contained terminal, five-step lesson, pause/resume/offscreen pause, native mobile navigation, live-result order, result focus, collapsed technical disclosure, visible focus styling, and no page-level horizontal overflow. The console has no warnings or errors. The environment did not expose OS reduced-motion emulation; the dedicated source/contract check verifies the final-state branch.
+- Security and repository-isolation scans find no shell execution, unsafe dynamic rendering, external resource, browser persistence, repository `.gptbrain/` or `.tamhees/` store, remote, staging, upload, deployment, publication, or Phase 9 work.
+- Requirement status remains mechanically verified at 60 unique IDs: 48 `IMPLEMENTED`, 12 `IN_PROGRESS`, and 0 `VERIFIED`; automated evidence did not elevate authority.
+
+## Limitations and permission
+
+Retrieval remains exact lexical/tag matching rather than semantic understanding; token counts remain deterministic estimates; sensitive-value detection remains pattern-based; MCP remains a deliberately limited local stdio subset; dashboard fixtures remain fixed; and adapters provide installed guidance rather than universal enforcement. Filesystem-wide atomicity, trademark clearance, name uniqueness, real assistive-technology compatibility, physical-device behavior, external benchmark validity, judge comprehension, release readiness, and publication approval are not claimed.
+
+No staging, commit, remote, upload, deployment, publication, new dependency, external service, or Phase 9 work is authorized by this audit.
+
+## Recommended action
+
+Give the unstaged candidate to the owner for visual and CLI review. If accepted, use a separate explicitly authorized local checkpoint task. Do not begin Phase 9, publish, deploy, configure a remote, or commit from this task.

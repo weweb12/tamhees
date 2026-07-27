@@ -97,7 +97,7 @@ describe('Phase 8 local API and security boundary', () => {
     const css = await httpCall('/assets/dashboard.css');
     const script = await httpCall('/assets/dashboard.js');
     assert.equal(page.statusCode, 200);
-    assert.match(page.body, /A project brain that knows when it might be wrong\./);
+    assert.match(page.body, /Memory under scrutiny\./);
     assert.equal(css.statusCode, 200);
     assert.match(headerText(css.headers['content-type']), /text\/css/);
     assert.equal(script.statusCode, 200);
@@ -254,7 +254,7 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
       'NO_MEMORY',
       'MONOLITHIC_GPTBRAIN',
       'SIMPLE_SPLIT_FILES',
-      'DOUBTFUL_MEMORY',
+      'TAMHEES',
     ]);
     assert.deepEqual(benchmark.configurations[0]?.retrievalMicro.precision, {
       numerator: 0,
@@ -269,12 +269,12 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
   });
 
   test('rejects an altered benchmark artifact before parsing or display', async () => {
-    const temporaryRoot = await mkdtemp(join(tmpdir(), 'doubtful-memory-dashboard-benchmark-'));
+    const temporaryRoot = await mkdtemp(join(tmpdir(), 'tamhees-dashboard-benchmark-'));
     const temporaryResults = join(temporaryRoot, 'benchmark', 'results');
     try {
       await mkdir(temporaryResults, { recursive: true });
       const artifact = await readFile(DASHBOARD_BENCHMARK_RELATIVE_PATH);
-      await writeFile(join(temporaryResults, 'v0.7.0.json'), Buffer.concat([artifact, Buffer.from(' ')]));
+      await writeFile(join(temporaryResults, 'v0.8.2.json'), Buffer.concat([artifact, Buffer.from(' ')]));
       await assert.rejects(
         loadDashboardBenchmark(temporaryRoot),
         /integrity check failed/,
@@ -308,7 +308,7 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
     assert.match(html, /aria-live="polite"/);
     assert.match(html, /role="group" aria-labelledby="scenario-label"/);
     assert.match(html, /<details class="mobile-nav">/);
-    assert.match(html, /<details class="methodology">/);
+    assert.match(html, /<details class="benchmark-details">/);
     assert.doesNotMatch(html, /<button\b[^>]*\brole=/i);
     assert.doesNotMatch(html, /<button\b[^>]*>\s*<\/button>/i);
     assert.doesNotMatch(script, /setAttribute\(['"]role['"],\s*['"]listitem/i);
@@ -329,14 +329,139 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
     }
     assert.match(css, /:focus-visible/);
     assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
-    assert.match(css, /@media \(max-width: 560px\)/);
+    assert.match(css, /@media \(max-width: 600px\)/);
     assert.match(css, /overflow-x: auto/);
     assert.match(css, /\.benchmark-note\s*\{[^}]*overflow-wrap: anywhere/s);
     assert.match(css, /\.mobile-nav:not\(\[open\]\) > div\s*\{[^}]*display: none/s);
     assert.match(css, /\.mobile-nav\[open\] > div/);
-    assert.match(script, /announcement\.textContent = restoreFocus \? 'Scenario reset\.' : ''/);
+    assert.match(script, /announcement\.textContent = restoreFocus \? 'Example reset\.' : ''/);
   });
 
+  test('implements the owner-directed light visual and explanatory hierarchy without the rejected purple theme', async () => {
+    const html = await readFile('src/dashboard/public/index.html', 'utf8');
+    const css = await readFile('src/dashboard/public/dashboard.css', 'utf8');
+    assert.match(css, /--canvas: #F6F8FB/);
+    assert.match(css, /--surface: #FFFFFF/);
+    assert.match(css, /--ink: #0A0F16/);
+    assert.match(css, /--blue: #2F648F/);
+    assert.match(css, /--blue-strong: #1E5B8F/);
+    assert.match(css, /--blue-deep: #123A63/);
+    assert.match(css, /--blue-soft: #DDEAF4/);
+    assert.match(css, /--blue-wash: #F3F7FA/);
+    assert.match(css, /--shadow: 0 24px 70px rgba\(18, 58, 99, 0\.12\)/);
+    assert.doesNotMatch(css, /purple|violet|#a855f7|#c026d3|#7c3aed|#8b5cf6/i);
+    assert.match(html, /Memory under scrutiny\./);
+    assert.match(html, /Remembering is useful\. Blind trust is the problem\./);
+    assert.match(html, /Before memory controls an action, it must pass four checks\./);
+    assert.match(html, /See the safety check before an AI acts\./);
+    assert.match(html, /Works beside the coding agent you already use\./);
+    assert.match(html, /What Version 1 does—and does not—claim\./);
+    assert.match(css, /--content: 1510px/);
+    assert.match(css, /font-size: 18px/);
+  });
+
+  test('provides an original controllable native hero animation with a reduced-motion final state', async () => {
+    const html = await readFile('src/dashboard/public/index.html', 'utf8');
+    const script = await readFile('src/dashboard/public/dashboard.js', 'utf8');
+    const css = await readFile('src/dashboard/public/dashboard.css', 'utf8');
+    assert.match(html, /id="memory-engine-demo"/);
+    assert.match(html, /<svg class="engine-connectors"/);
+    assert.match(html, /Memory claim · incoming/);
+    assert.match(html, /Repository evidence · incoming/);
+    assert.match(html, /Source<\/span><strong>PASS/);
+    assert.match(html, /Freshness<\/span><strong>WARN · OLD/);
+    assert.match(html, /Current evidence<\/span><strong>CONFLICT/);
+    assert.match(html, /Permission<\/span><strong>DENY MIGRATION/);
+    assert.match(html, /id="hero-motion-toggle"[^>]+aria-pressed="false"/);
+    assert.match(html, /id="hero-animation-alt"/);
+    assert.match(html, /Ask the owner which database decision is current\./);
+    assert.match(html, /Context excluded/);
+    assert.match(html, /Unsafe SQLite claim withheld from the task context\./);
+    assert.match(script, /IntersectionObserver/);
+    assert.match(script, /visibilitychange/);
+    assert.match(script, /prefers-reduced-motion: reduce/);
+    assert.match(script, /classList\.toggle\('is-paused'/);
+    assert.match(css, /grid-template-columns: minmax\(0, 3fr\) minmax\(420px, 2fr\)/);
+    assert.match(css, /h1 \{[^}]*max-width: 940px[^}]*clamp\(4\.25rem, 5\.75vw, 6\.65rem\)/s);
+    assert.match(css, /\.engine-stage \{[\s\S]*min-height: 36rem/);
+    assert.match(css, /animation: pipeline-memory 10s/);
+    assert.match(css, /animation: context-exclusion 10s/);
+    assert.match(css, /\.engine-demo\.is-page-paused \*/);
+    assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.engine-demo \.engine-decision/);
+    assert.doesNotMatch(html, /yellow outline|red outline|#ffff00|#ff0000/i);
+    assert.doesNotMatch(script, /requestAnimationFrame|canvas|getContext|WebGL/i);
+  });
+
+  test('implements every guided CLI state, canonical request, control, pause, reset, and static equivalent', async () => {
+    const html = await readFile('src/dashboard/public/index.html', 'utf8');
+    const script = await readFile('src/dashboard/public/dashboard.js', 'utf8');
+    const commands = [
+      'tamhees init',
+      'tamhees memory apply --input &lt;safe-memory-fixture&gt;',
+      'tamhees evidence add --input &lt;safe-evidence-fixture&gt;',
+      'tamhees audit',
+      'tamhees context --task "prepare the database migration"',
+    ];
+    for (const command of commands) assert.match(html, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    for (const id of ['cli-run-all', 'cli-next', 'cli-reset', 'cli-motion-toggle', 'cli-step-select']) {
+      assert.match(html, new RegExp(`id="${id}"`));
+    }
+    assert.match(html, /role="log" aria-label="Guided CLI output" aria-live="off"/);
+    assert.match(html, /Contained CLI demonstration output/);
+    assert.match(html, /Read the complete non-animated lesson/);
+    assert.match(html, /does not run a shell, accept commands, or write project memory/);
+    assert.match(script, /body: JSON\.stringify\(\{ scenarioId: 'architecture-conflict', maxTokens: 240 \}\)/);
+    assert.match(script, /Math\.max\(0, Math\.min\(4, index\)\)/);
+    assert.match(script, /itemIndex < boundedIndex \? 'complete' : itemIndex === boundedIndex \? 'current' : 'waiting'/);
+    assert.match(script, /renderCliStep\(state\.cliStep \+ 1, true\)/);
+    assert.match(script, /renderCliStep\(0\)/);
+    assert.match(script, /state\.cliOffscreen = !entry\.isIntersecting/);
+    assert.match(script, /state\.cliPaused \|\| state\.cliOffscreen \|\| document\.hidden/);
+    assert.match(script, /showReducedMotionCliResult/);
+    assert.doesNotMatch(script, /child_process|\bexec\s*\(|\bspawn\s*\(|\beval\s*\(|new Function|Function\s*\(/i);
+  });
+  test('keeps the audit result hidden until execution and presents plain language before collapsed technical detail', async () => {
+    const html = await readFile('src/dashboard/public/index.html', 'utf8');
+    const script = await readFile('src/dashboard/public/dashboard.js', 'utf8');
+    assert.match(html, /<section id="audit-result"[^>]+hidden>/);
+    assert.match(html, /The AI remembers/);
+    assert.match(html, /The project says now/);
+    assert.match(html, /The AI wants to do/);
+    assert.match(html, /Check whether the AI may act/);
+    assert.match(html, /<details class="technical-details" id="technical-details">/);
+    assert.doesNotMatch(html, /<details class="technical-details"[^>]+open/);
+    assert.match(script, /resetAudit\(false\)/);
+    assert.match(script, /elements\.result\.hidden = true/);
+    assert.match(script, /elements\.technicalDetails\.open = false/);
+    assert.match(script, /elements\.result\.focus\(\)/);
+    assert.match(script, /scenario\.id === 'context-budget'/);
+    assert.match(script, /elements\.advanced\.open = isBudgetScenario/);
+    assert.match(script, /Blocked — memory and repository evidence disagree\./);
+    assert.match(script, /plainCard\('Why', copy\.why\)/);
+    assert.match(script, /plainCard\('What the agent is allowed to do', result\.permissionConsequence\)/);
+    assert.match(script, /plainCard\('What happens next', result\.recommendedNextStep\)/);
+    assert.ok(script.indexOf('elements.resultContext.replaceChildren') < script.indexOf('elements.technicalResult.replaceChildren(resultGrid)'));
+    assert.match(html, /id="result-context"[\s\S]*<details class="technical-details"/);
+    assert.match(html, /Read the claim[\s\S]*Check its source[\s\S]*Compare current evidence[\s\S]*Check permission[\s\S]*Decide whether action is allowed/);
+  });
+
+  test('derives the simplified benchmark comparison from the verified artifact and retains complete methodology', async () => {
+    const html = await readFile('src/dashboard/public/index.html', 'utf8');
+    const script = await readFile('src/dashboard/public/dashboard.js', 'utf8');
+    const benchmark = await loadDashboardBenchmark(REPOSITORY_ROOT);
+    assert.match(html, /On 22 controlled fixtures, Tamhees produced the expected safe outcome 22 times\./);
+    assert.match(html, /not a claim about every real-world project/);
+    for (const configuration of benchmark.configurations) {
+      assert.match(html, new RegExp(`data-configuration="${configuration.name}"`));
+    }
+    assert.deepEqual(benchmark.configurations.map((item) => item.outcomeCorrectness.numerator), [9, 8, 13, 22]);
+    assert.match(script, /configuration\.outcomeCorrectness\.numerator/);
+    assert.match(html, /View complete benchmark and methodology/);
+    assert.match(html, /id="benchmark-body"/);
+    assert.match(html, /id="benchmark-methodology"/);
+    assert.match(script, /benchmark\.methodology\.undefinedMetricPolicy/);
+    assert.match(script, /benchmark\.artifactSha256/);
+  });
   test('requires no external resource, browser persistence, or inline executable content', async () => {
     const assets = await Promise.all([
       readFile('src/dashboard/public/index.html', 'utf8'),
@@ -354,7 +479,7 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
 
   test('does not mutate repository source or persist context while APIs execute', async () => {
     const before = await hashSourceTree();
-    assert.equal(await exists(join(REPOSITORY_ROOT, '.gptbrain')), false);
+    assert.equal(await exists(join(REPOSITORY_ROOT, '.tamhees')), false);
     for (const scenarioId of DASHBOARD_SCENARIO_IDS) {
       const response = await httpCall('/api/audit', {
         method: 'POST',
@@ -364,7 +489,7 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
     }
     const after = await hashSourceTree();
     assert.equal(after, before);
-    assert.equal(await exists(join(REPOSITORY_ROOT, '.gptbrain')), false);
+    assert.equal(await exists(join(REPOSITORY_ROOT, '.tamhees')), false);
   });
 });
 
@@ -449,7 +574,7 @@ async function hashSourceTree(): Promise<string> {
 async function walk(directory: string): Promise<string[]> {
   const files: string[] = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
-    if (['.git', '.gptbrain', 'dist', 'node_modules', 'coverage'].includes(entry.name)) continue;
+    if (['.git', '.tamhees', 'dist', 'node_modules', 'coverage'].includes(entry.name)) continue;
     const path = join(directory, entry.name);
     if (entry.isDirectory()) files.push(...await walk(path));
     else if (entry.isFile()) files.push(path);

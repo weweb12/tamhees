@@ -1,10 +1,12 @@
-# Doubtful Memory
+# Tamhees
 
-**A project brain that knows when it might be wrong.**
+**Memory under scrutiny.**
+
+Tamhees checks what an AI remembers before that memory is allowed to guide an action. The name comes from the Arabic word تمحيص, used here to mean careful examination or scrutiny.
 
 ## What is this?
 
-Doubtful Memory is a local developer tool for auditing AI coding-agent memory. It treats remembered project information as evidence-backed claims rather than unquestioned truth.
+Tamhees is a local developer tool for auditing AI coding-agent memory. It treats remembered project information as evidence-backed claims rather than unquestioned truth.
 
 When memory conflicts with current evidence, contains sensitive information, lacks sufficient support, or may be outdated, the system explains the problem and restricts unsafe action.
 
@@ -23,9 +25,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Intended product (Version 1)
 
-- **gptbrain engine (temporary codename)**: Tool-neutral memory engine with deterministic audit rules.
-- **gptbrain CLI (temporary codename)**: Command-line interface for initialization, memory management, context compilation, and auditing.
-- **Structured local storage**: `.gptbrain/` directory with atomic JSON memory records and JSONL audit logs.
+- **Tamhees engine**: Tool-neutral memory engine with deterministic audit rules.
+- **tamhees CLI**: Command-line interface for initialization, memory management, context compilation, and auditing.
+- **Structured local storage**: `.tamhees/` directory with atomic JSON memory records and JSONL audit logs.
 - **Authority model**: Eight-status verification model distinguishing owner decisions from agent inferences.
 - **Context compiler**: Task-specific context packs with explicit budgets and selection explanations.
 - **Agent adapters**: Codex, Claude Code, Antigravity, and generic adapters with cross-adapter equivalence.
@@ -35,26 +37,27 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.8.0 — Phase 8 is independently verified and checkpointed locally. Phase 9 has not started.**
+> **Version 0.8.2 — the Phase 8.2 Tamhees rename, legacy-storage migration, guided CLI lesson, and clarity work are an unstaged implementation candidate pending independent owner review. Phase 9 has not started.**
 
-The verified Phase 1–7 foundation now includes a dependency-free, loopback-only dashboard with seven real deterministic scenarios and an integrity-checked benchmark view. The independently reviewed suite contains 220 passing tests with zero failures, skips, or todos. No remote, upload, external service, telemetry, or runtime dependency exists. `gptbrain` and `.gptbrain/` remain temporary codenames.
+The verified Phase 1–8 foundation now has an unstaged Phase 8.2 candidate with the approved Tamhees identity, explicit fail-closed migration from `.gptbrain/` to `.tamhees/`, a fixed-fixture guided CLI lesson, seven real deterministic live-audit scenarios, and integrity-checked benchmark evidence. Automated evidence does not constitute independent owner acceptance. No remote, upload, external service, telemetry, or runtime dependency exists.
 
 Implemented commands:
 
-- `gptbrain init [directory]`: Initialize safe `.gptbrain/` storage.
-- `gptbrain memory list`: List canonical memory records.
-- `gptbrain memory show <memory-id>`: Show one canonical record.
-- `gptbrain memory apply --input <candidate.json>`: Apply a controlled `CREATE`, `UPDATE`, `REVOKE`, or `REDACT` candidate.
-- `gptbrain evidence list`: List evidence records.
-- `gptbrain evidence add --input <evidence.json>`: Add validated evidence.
-- `gptbrain context --task "..." [--max-tokens <1-1000000>] [--format json|markdown]`: Compile an ephemeral, deterministically ranked context pack. The default hard budget is 2,048 estimated tokens.
-- `gptbrain audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
-- `gptbrain lifecycle begin --task "..." [--max-tokens <n>] [--format json|markdown]`: Retrieve ephemeral safe context and open a lifecycle.
-- `gptbrain lifecycle finalize --input <finalization.json> [--format json|markdown]`: Classify and safely process proposed updates.
-- `gptbrain migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
-- `gptbrain adapter list|status|install|remove|begin|finalize`: Manage and invoke the five project-local adapters.
-- `gptbrain mcp serve`: Run the local JSON-RPC 2.0 stdio MCP server at protocol revision `2025-11-25`.
-- `gptbrain benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic benchmark.
+- `tamhees init [directory]`: Initialize safe `.tamhees/` storage.
+- `tamhees memory list`: List canonical memory records.
+- `tamhees memory show <memory-id>`: Show one canonical record.
+- `tamhees memory apply --input <candidate.json>`: Apply a controlled `CREATE`, `UPDATE`, `REVOKE`, or `REDACT` candidate.
+- `tamhees evidence list`: List evidence records.
+- `tamhees evidence add --input <evidence.json>`: Add validated evidence.
+- `tamhees context --task "..." [--max-tokens <1-1000000>] [--format json|markdown]`: Compile an ephemeral, deterministically ranked context pack. The default hard budget is 2,048 estimated tokens.
+- `tamhees audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
+- `tamhees lifecycle begin --task "..." [--max-tokens <n>] [--format json|markdown]`: Retrieve ephemeral safe context and open a lifecycle.
+- `tamhees lifecycle finalize --input <finalization.json> [--format json|markdown]`: Classify and safely process proposed updates.
+- `tamhees migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
+- `tamhees migrate legacy-storage [--dry-run]`: Explicitly validate and rename a safe legacy `.gptbrain/` store to `.tamhees/`; never merge or overwrite two stores.
+- `tamhees adapter list|status|install|remove|begin|finalize`: Manage and invoke the five project-local adapters.
+- `tamhees mcp serve`: Run the local JSON-RPC 2.0 stdio MCP server at protocol revision `2025-11-25`.
+- `tamhees benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic benchmark.
 - `npm run dashboard`: Build and start the dashboard on `http://127.0.0.1:8787/` without opening a browser.
 - `npm run verify:dashboard`: Verify dashboard and core integration.
 
@@ -89,7 +92,7 @@ doubtful-memory/
 ├── README.md                     # This file
 ├── .agents/
 │   └── rules/
-│       └── doubtful-memory.md    # Antigravity workspace rule
+│       └── tamhees.md            # Antigravity workspace rule
 ├── docs/
 │   ├── ARCHITECTURE.md           # Component boundaries and invariants
 │   ├── PROTOCOL_SPECIFICATION.md # Memory and audit protocol schemas
@@ -101,19 +104,53 @@ doubtful-memory/
 
 ## Local setup and verification
 
-In the project directory:
+In the checked-out repository, install the locked development dependencies and build the local package:
 
 ```powershell
 npm ci
-npm run verify
 npm run build
-npm run benchmark
-npm run verify:dashboard
-npm run dashboard
-node dist/src/cli.js --help
 ```
 
-No API key, account, hosted model, database, or external runtime network is required. The dashboard uses only local loopback HTTP.
+The package exposes only the `tamhees` executable. After placing this local package bin on `PATH`, these identity and initialization commands are exact and copyable:
+
+```powershell
+tamhees --help
+tamhees --version
+tamhees init
+```
+
+For repository development without a PATH install, the equivalent commands are:
+
+```powershell
+npm run tamhees -- --help
+npm run tamhees -- --version
+npm run tamhees -- init
+```
+
+Before migrating an existing project, run the pure preview, inspect the structured result, and then run the explicit migration:
+
+```powershell
+tamhees migrate legacy-storage --dry-run
+tamhees migrate legacy-storage
+```
+
+A minimal real workflow uses strict JSON inputs rather than free-form shell content:
+
+```powershell
+tamhees init
+tamhees memory apply --input .\examples\create-memory-candidate.json
+tamhees evidence add --input .\examples\repository-evidence.json
+tamhees audit
+tamhees context --task "prepare the database migration"
+```
+
+Start the fixed-fixture local dashboard separately:
+
+```powershell
+npm run dashboard
+```
+
+No API key, account, hosted model, database, or external runtime network is required. The dashboard uses only local loopback HTTP. Its guided CLI sequence is a visual lesson over fixed safe fixtures and one canonical local audit request; it does not execute commands, accept arbitrary shell input, or write project memory.
 
 ### Phase 3 context budgets
 
@@ -125,7 +162,7 @@ Task-specific eligibility requires at least one positive exact Unicode-NFKC-norm
 
 ## Controlled update workflow
 
-Coding agents should not edit `.gptbrain/` records directly. They submit a JSON update candidate matching `docs/PROTOCOL_SPECIFICATION.md`, then invoke:
+Coding agents should not edit `.tamhees/` records directly. They submit a JSON update candidate matching `docs/PROTOCOL_SPECIFICATION.md`, then invoke:
 
 ```powershell
 node dist/src/cli.js memory apply --input .\candidate.json
@@ -139,7 +176,7 @@ Owner-confirmed promotion is intentionally two-step: create a lower-authority me
 
 ## Phase 4 controlled lifecycle
 
-`lifecycle begin` validates local storage, invokes the Phase 3 compiler, and returns a lifecycle ID plus JSON or Markdown context. The task and complete context pack are ephemeral. Only selected memory IDs, controlled exclusion codes, budget arithmetic, timestamps, state, and safe audit references are stored in `.gptbrain/episodes/`.
+`lifecycle begin` validates local storage, invokes the Phase 3 compiler, and returns a lifecycle ID plus JSON or Markdown context. The task and complete context pack are ephemeral. Only selected memory IDs, controlled exclusion codes, budget arithmetic, timestamps, state, and safe audit references are stored in `.tamhees/episodes/`.
 
 `lifecycle finalize` accepts this strict envelope and reuses Phase 2 `UpdateCandidate` objects:
 
@@ -163,7 +200,7 @@ The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `
 
 The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.js built-ins, one UTF-8 JSON object per line, protocol revision `2025-11-25`, a bounded rolling 4,096-request duplicate-ID window, and exactly four tools for initialization, begin, finalize, and privacy-safe status. It has no HTTP listener, global configuration, SDK dependency, or runtime network request; this is the documented project subset, not a claim of full MCP feature coverage.
 
-`npm run benchmark` regenerates `benchmark/results/v0.7.0.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Doubtful Memory compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Doubtful Memory records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
+`npm run benchmark` regenerates `benchmark/results/v0.8.2.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
 
 ## Phase 8 local dashboard
 
@@ -178,7 +215,7 @@ Open the exact printed `http://127.0.0.1:8787/` URL. For the primary demonstrati
 Fixtures are fake and fixed. Results come from production audit/context functions, benchmark values come from the SHA-256-checked committed artifact, and execution creates no repository memory or persisted context.
 ## Next planned work
 
-**Phase 8**: Independently verified and checkpointed locally as Version 0.8.0. Next: begin Phase 9 only through a separately authorized release-hardening task. Publication has not started.
+**Phase 8.2**: Version 0.8.2 is an unstaged identity, migration, guided-demo, and explanation candidate awaiting independent owner review. Do not begin Phase 9 or checkpoint this candidate without separate owner authorization. Publication has not started.
 
 ## Runtime requirements
 

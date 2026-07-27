@@ -1,9 +1,9 @@
 /**
- * Doubtful Memory — Phase 1 Core Vertical Slice Tests
+ * Tamhees — Phase 1 Core Vertical Slice Tests
  *
  * Uses node:test and node:assert only.
  * Tests use isolated directories under os.tmpdir().
- * Tests never touch the real repository's .gptbrain/ data.
+ * Tests never touch the real repository's .tamhees/ data.
  * Fixed clocks are used where time appears in expected output.
  * No test uses network access.
  */
@@ -20,7 +20,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { validateMemoryRecord, validateAuditEvent, validateConfig, validateState, isIso8601 } from '../src/core/validation.js';
 import { CURRENT_SCHEMA_VERSION, fixedClock, type MemoryRecord } from '../src/core/types.js';
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from '../src/core/atomic-write.js';
-import { initGptbrain, loadAllRecords, loadIndex } from '../src/core/store.js';
+import { initTamhees, loadAllRecords, loadIndex } from '../src/core/store.js';
 import { compileContext } from '../src/core/context.js';
 import { auditRecord, runAudit, writeAuditEvents } from '../src/core/audit.js';
 import { PRODUCT_NAME, CLI_NAME, STORAGE_DIR, ENGINE_VERSION } from '../src/core/identity.js';
@@ -149,7 +149,7 @@ describe('Init and Store', () => {
   let testDir: string;
 
   beforeEach(async () => {
-    testDir = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    testDir = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
   });
 
   afterEach(async () => {
@@ -157,19 +157,19 @@ describe('Init and Store', () => {
   });
 
   it('init derives projectName from directory basename', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const config = JSON.parse(await readFile(join(testDir, STORAGE_DIR, 'config.json'), 'utf-8'));
     assert.equal(config.projectName, basename(testDir));
   });
 
   it('second init is idempotent and does not overwrite', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const recordPath = join(testDir, STORAGE_DIR, 'memories', 'records', 'DM-MEM-000001.json');
     const original = JSON.parse(await readFile(recordPath, 'utf-8'));
     const modified = { ...original, statement: 'Modified statement' };
     await writeFile(recordPath, JSON.stringify(modified), 'utf-8');
 
-    const result2 = await initGptbrain(testDir, clock);
+    const result2 = await initTamhees(testDir, clock);
     assert.equal(result2.success, true);
     assert.equal(result2.created.length, 0);
 
@@ -178,25 +178,25 @@ describe('Init and Store', () => {
   });
 
   it('duplicate or filename-mismatched IDs cause index build to fail', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const recordsDir = join(testDir, STORAGE_DIR, 'memories', 'records');
     const r1 = makeValidRecord({ id: 'DUP-1' });
     const r2 = makeValidRecord({ id: 'DUP-1' }); // Same ID
     await writeFile(join(recordsDir, 'r1.json'), JSON.stringify(r1));
     await writeFile(join(recordsDir, 'r2.json'), JSON.stringify(r2));
 
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     assert.ok(result.errors.some(e => e.includes('Duplicate memory ID') || e.includes('filename mismatch')), 'Should fail on duplicate or mismatched canonical identity');
   });
 
   it('malformed records do not change index.json', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const indexBefore = await readFile(join(testDir, STORAGE_DIR, 'memories', 'index.json'), 'utf-8');
 
     // Write malformed record
     await writeFile(join(testDir, STORAGE_DIR, 'memories', 'records', 'bad.json'), 'BAD JSON');
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
 
     // Init should fail, and index should be untouched
     assert.equal(result.success, false);
@@ -205,26 +205,26 @@ describe('Init and Store', () => {
   });
 
   it('Invalid config timestamp makes init fail', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const configPath = join(testDir, STORAGE_DIR, 'config.json');
     const content = JSON.parse(await readFile(configPath, 'utf-8'));
     content.createdAt = 'not-a-date';
     await writeFile(configPath, JSON.stringify(content));
     const bytesBefore = await readFile(configPath);
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     const bytesAfter = await readFile(configPath);
     assert.deepEqual(bytesAfter, bytesBefore);
   });
 
   it('Unsupported state schema makes init fail', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const statePath = join(testDir, STORAGE_DIR, 'state.json');
     const content = JSON.parse(await readFile(statePath, 'utf-8'));
     content.schemaVersion = '99.0.0';
     await writeFile(statePath, JSON.stringify(content));
     const bytesBefore = await readFile(statePath);
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     assert.ok(result.errors.some(e => e.includes('schemaVersion') && e.includes('preserv')), 'Should mention schemaVersion and preservation');
     const bytesAfter = await readFile(statePath);
@@ -233,53 +233,53 @@ describe('Init and Store', () => {
 
 
   it('Invalid state timestamp makes init fail', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const statePath = join(testDir, STORAGE_DIR, 'state.json');
     const content = JSON.parse(await readFile(statePath, 'utf-8'));
     content.lastOperationAt = 'not-a-date';
     await writeFile(statePath, JSON.stringify(content));
     const bytesBefore = await readFile(statePath);
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     const bytesAfter = await readFile(statePath);
     assert.deepEqual(bytesAfter, bytesBefore);
   });
 
   it('Unsupported config schema makes init fail', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const configPath = join(testDir, STORAGE_DIR, 'config.json');
     const content = JSON.parse(await readFile(configPath, 'utf-8'));
     content.schemaVersion = '99.0.0';
     await writeFile(configPath, JSON.stringify(content));
     const bytesBefore = await readFile(configPath);
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     const bytesAfter = await readFile(configPath);
     assert.deepEqual(bytesAfter, bytesBefore);
   });
 
   it('Malformed history makes init fail and remains byte-for-byte unchanged', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const historyPath = join(testDir, STORAGE_DIR, 'audits', 'history.jsonl');
     await appendFile(historyPath, 'not-json\n');
     const bytesBefore = await readFile(historyPath);
-    const result = await initGptbrain(testDir, clock);
+    const result = await initTamhees(testDir, clock);
     assert.equal(result.success, false);
     const bytesAfter = await readFile(historyPath);
     assert.deepEqual(bytesAfter, bytesBefore);
   });
 
   it('Repeated init preserving a valid record byte-for-byte', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const recordPath = join(testDir, STORAGE_DIR, 'memories', 'records', 'DM-MEM-000001.json');
     const bytesBefore = await readFile(recordPath);
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const bytesAfter = await readFile(recordPath);
     assert.deepEqual(bytesAfter, bytesBefore);
   });
 
   it('Invalid index timestamp is rejected', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const indexPath = join(testDir, STORAGE_DIR, 'memories', 'index.json');
     const content = JSON.parse(await readFile(indexPath, 'utf-8'));
     content.lastRebuilt = 'not-a-date';
@@ -289,7 +289,7 @@ describe('Init and Store', () => {
   });
 
   it('Invalid index entry vocabulary is rejected', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const indexPath = join(testDir, STORAGE_DIR, 'memories', 'index.json');
     const content = JSON.parse(await readFile(indexPath, 'utf-8'));
     content.entries = [{ id: 'TEST', kind: 'BOGUS', tags: [], verificationStatus: 'TRUST', updatedAt: FIXED_TIME }];
@@ -305,7 +305,7 @@ describe('Path Safety', () => {
   let testDir: string;
 
   beforeEach(async () => {
-    testDir = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    testDir = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
   });
 
   afterEach(async () => {
@@ -318,7 +318,7 @@ describe('Path Safety', () => {
     const storageDir = join(testDir, STORAGE_DIR);
     await mkdir(storageDir, { recursive: true });
 
-    const outsideDir = await mkdtemp(join(tmpdir(), 'gptbrain-outside-'));
+    const outsideDir = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     try {
       try {
         await symlink(outsideDir, join(storageDir, 'memories'), 'junction');
@@ -327,7 +327,7 @@ describe('Path Safety', () => {
         throw e;
       }
 
-      const result = await initGptbrain(testDir, clock);
+      const result = await initTamhees(testDir, clock);
       assert.equal(result.success, false);
       assert.ok(result.errors.some(e => e.includes('Symbolic link detected')), 'Should reject symlink before init');
     } finally {
@@ -336,11 +336,11 @@ describe('Path Safety', () => {
   });
 
   it('records directory symlink after init is rejected on read', async (t) => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const recordsDir = join(testDir, STORAGE_DIR, 'memories', 'records');
     await rm(recordsDir, { recursive: true, force: true });
 
-    const outsideDir = await mkdtemp(join(tmpdir(), 'gptbrain-outside-'));
+    const outsideDir = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     try {
       try {
         await symlink(outsideDir, recordsDir, 'junction');
@@ -357,12 +357,12 @@ describe('Path Safety', () => {
   });
 
   it('audit history symlink after init is rejected on append', async (t) => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const auditsDir = join(testDir, STORAGE_DIR, 'audits');
     const historyFile = join(auditsDir, 'history.jsonl');
     await rm(historyFile, { force: true });
 
-    const outsideDir = await mkdtemp(join(tmpdir(), 'gptbrain-outside-'));
+    const outsideDir = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     const outsideFile = join(outsideDir, 'history.jsonl');
     await writeFile(outsideFile, 'initial content');
     const bytesBefore = await readFile(outsideFile);
@@ -391,11 +391,11 @@ describe('Path Safety', () => {
   });
 
   it('individual record-file symlink is rejected and external target untouched', async (t) => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const recordsDir = join(testDir, STORAGE_DIR, 'memories', 'records');
     const recordPath = join(recordsDir, 'DM-MEM-TEST-002.json');
 
-    const outsideDir = await mkdtemp(join(tmpdir(), 'gptbrain-outside-'));
+    const outsideDir = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     const outsideFile = join(outsideDir, 'DM-MEM-TEST-002.json');
     const externalRecord = makeValidRecord({ id: 'DM-MEM-TEST-002' });
     await writeFile(outsideFile, JSON.stringify(externalRecord));
@@ -421,11 +421,11 @@ describe('Path Safety', () => {
   });
 
   it('index-file symlink is rejected and external target untouched', async (t) => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const indexPath = join(testDir, STORAGE_DIR, 'memories', 'index.json');
     await rm(indexPath, { force: true });
 
-    const outsideDir = await mkdtemp(join(tmpdir(), 'gptbrain-outside-'));
+    const outsideDir = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     const outsideFile = join(outsideDir, 'index.json');
     await writeFile(outsideFile, JSON.stringify({ schemaVersion: CURRENT_SCHEMA_VERSION, entries: [], lastRebuilt: FIXED_TIME }));
     const bytesBefore = await readFile(outsideFile);
@@ -448,7 +448,7 @@ describe('Path Safety', () => {
   });
 
   it('Normal files still work', async () => {
-    await initGptbrain(testDir, clock);
+    await initTamhees(testDir, clock);
     const { records, errors } = await loadAllRecords(testDir);
     assert.equal(errors.length, 0);
     assert.ok(records.length > 0);
@@ -520,9 +520,9 @@ describe('Audit Fail-safe', () => {
   });
 
   it('Malformed history makes audit fail and remains byte-for-byte unchanged', async () => {
-    const testDir = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    const testDir = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
     try {
-      await initGptbrain(testDir, clock);
+      await initTamhees(testDir, clock);
       const historyPath = join(testDir, STORAGE_DIR, 'audits', 'history.jsonl');
       await appendFile(historyPath, 'not-json\n');
       const bytesBefore = await readFile(historyPath);
@@ -562,9 +562,9 @@ describe('Audit Fail-safe', () => {
   });
 
   it('Batch fail-closed: Invalid outcome in second event rejects entire batch', async () => {
-    const testDir = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    const testDir = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
     try {
-      await initGptbrain(testDir, clock);
+      await initTamhees(testDir, clock);
       const record1 = makeValidRecord({ id: 'R1' });
       const record2 = makeValidRecord({ id: 'R2' });
       let result = runAudit([record1, record2], clock);
@@ -604,7 +604,7 @@ describe('CLI Integration', () => {
   let testDir: string;
 
   beforeEach(async () => {
-    testDir = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    testDir = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
   });
 
   afterEach(async () => {
@@ -665,12 +665,12 @@ describe('CLI Integration', () => {
     assert.ok(stdout.includes('TRUST'));
   });
 
-  it('gptbrain --help', async () => {
+  it('tamhees --help', async () => {
     const { stdout } = await execFileAsync('node', [CLI_PATH, '--help']);
     assert.ok(stdout.includes('Usage:'));
   });
 
-  it('gptbrain --version', async () => {
+  it('tamhees --version', async () => {
     const { stdout } = await execFileAsync('node', [CLI_PATH, '--version']);
     assert.equal(stdout.trim(), `${CLI_NAME} v${ENGINE_VERSION}`);
   });
@@ -681,7 +681,7 @@ describe('CLI Integration', () => {
       a: { c: 2, b: 3 },
       x: [ { e: 4, d: 5 } ]
     };
-    const testDir2 = await mkdtemp(join(tmpdir(), 'gptbrain-test-'));
+    const testDir2 = await mkdtemp(join(tmpdir(), 'tamhees-test-'));
     try {
       const recordPath = join(testDir2, 'test.json');
       await atomicWriteJson(recordPath, unordered, { allowOverwrite: false });

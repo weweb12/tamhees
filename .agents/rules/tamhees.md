@@ -1,4 +1,4 @@
-# Doubtful Memory — Antigravity Workspace Rule
+# Tamhees — Antigravity Workspace Rule
 
 Read `AGENTS.md` at the repository root before every task.
 

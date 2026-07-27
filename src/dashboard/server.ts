@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { PRODUCT_NAME } from '../core/identity.js';
 import { loadDashboardBenchmark } from './benchmark.js';
 import {
   isDashboardScenarioId,
@@ -456,7 +457,7 @@ const invokedPath = process.argv[1];
 if (invokedPath !== undefined && import.meta.url === pathToFileURL(invokedPath).href) {
   try {
     const dashboard = await startDashboardServer({ port: parsePortArgument() });
-    process.stdout.write(`Doubtful Memory dashboard: ${dashboard.url}\n`);
+    process.stdout.write(`${PRODUCT_NAME} dashboard: ${dashboard.url}\n`);
   } catch {
     process.stderr.write('The local dashboard could not start. Check the port and retry.\n');
     process.exitCode = 1;

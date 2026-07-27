@@ -1,8 +1,8 @@
-# Doubtful Memory — Project Brain
+# Tamhees — Project Brain
 
 ## Document purpose
 
-This file contains the durable source of truth for Doubtful Memory.
+This file contains the durable source of truth for Tamhees.
 
 It records the project's identity, objectives, non-negotiable constraints, architecture boundaries, safety rules, and approved technical direction. It must contain stable information only.
 
@@ -28,16 +28,19 @@ The file provided continuity but not verification. It could not distinguish a co
 
 ### From single file to structured memory
 
-Doubtful Memory is the solution to the large-file failure. Instead of one monolithic file, it represents project memory as individual structured claims with evidence, authority, freshness, sensitivity, and permission metadata. Each claim can be independently verified, audited, and updated.
+Tamhees is the solution to the large-file failure. Instead of one monolithic file, it represents project memory as individual structured claims with evidence, authority, freshness, sensitivity, and permission metadata. Each claim can be independently verified, audited, and updated.
 
-The name "Doubtful Memory" reflects the core principle: the system treats its own memory with appropriate doubt rather than blind trust.
+The approved name Tamhees (تمحيص) expresses careful examination: memory remains useful, but it is scrutinized before it can guide action.
 
 ## Project identity
 
-- Product name: Doubtful Memory
-- Engine and CLI command: `gptbrain`
-- Canonical local project directory: `.gptbrain/`
-- Working subtitle: A Project Brain That Knows When It Might Be Wrong
+- Product name: Tamhees
+- Engine and CLI command: `tamhees`
+- Canonical local project directory: `.tamhees/`
+- Explicit legacy directory migration: `.gptbrain/` to `.tamhees/` only through `tamhees migrate legacy-storage`
+- Tagline: Memory under scrutiny.
+- Plain-language explanation: Tamhees checks what an AI remembers before that memory is allowed to guide an action.
+- Stable protocol prefix: existing `DM-*` identifiers remain unchanged for traceability
 - Initial challenge: Doo — Memory That Knows It Might Be Wrong
 - Product category: Local-first project-memory auditing and safety tool for AI coding agents
 - Development status: Active local Version 1 implementation; engine and CLI first
@@ -139,9 +142,9 @@ An earlier instruction was explicitly replaced. The system must prevent the supe
 
 Version 1 is a local developer tool containing:
 
-- Tool-neutral memory engine (`gptbrain`).
-- `gptbrain` CLI.
-- Structured local memory storage (`.gptbrain/` directory).
+- Tool-neutral memory engine (`tamhees`).
+- `tamhees` CLI.
+- Structured local memory storage (`.tamhees/` directory).
 - Deterministic audit and authority engine.
 - Task-specific context compiler with explicit budgets.
 - Automatic pre-task retrieval.
@@ -185,7 +188,7 @@ The current approved direction is:
 
 - TypeScript.
 - Node.js (minimum Node 22, development on Node 24).
-- Local structured data (JSON and JSONL in `.gptbrain/`).
+- Local structured data (JSON and JSONL in `.tamhees/`).
 - Deterministic TypeScript audit rules.
 - Zero runtime dependencies where reasonable.
 - Node.js built-ins for CLI parsing, filesystem, hashing, and testing.

@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { compileContext } from '../core/context.js';
 import { fixedClock, type MemoryRecord } from '../core/types.js';
+import { ENGINE_VERSION, PRODUCT_NAME } from '../core/identity.js';
 import { validateMemoryRecord } from '../core/validation.js';
 
 export const BENCHMARK_CONFIGURATIONS = [
   'NO_MEMORY',
   'MONOLITHIC_GPTBRAIN',
   'SIMPLE_SPLIT_FILES',
-  'DOUBTFUL_MEMORY',
+  'TAMHEES',
 ] as const;
 export type BenchmarkConfiguration = (typeof BENCHMARK_CONFIGURATIONS)[number];
 export const BENCHMARK_NOW = '2026-07-22T12:00:00.000Z';
@@ -123,7 +124,7 @@ export interface BenchmarkConfigurationResult {
 
 export interface BenchmarkReport {
   readonly benchmarkVersion: '2.0.0';
-  readonly engineVersion: '0.7.0';
+  readonly engineVersion: typeof ENGINE_VERSION;
   readonly generatedAt: typeof BENCHMARK_NOW;
   readonly deterministic: true;
   readonly fixtureSha256: string;
@@ -206,7 +207,7 @@ export function runBenchmark(fixtureInput?: BenchmarkFixture): BenchmarkReport {
   const scenarios = loaded.fixture.scenarios;
   return {
     benchmarkVersion: '2.0.0',
-    engineVersion: '0.7.0',
+    engineVersion: ENGINE_VERSION,
     generatedAt: BENCHMARK_NOW,
     deterministic: true,
     fixtureSha256: loaded.sha256,
@@ -456,7 +457,7 @@ export function formatBenchmarkMarkdown(report: BenchmarkReport): string {
   const scenarioEvidence = report.configurations.map(({ configuration, aggregate }) =>
     `- ${configuration}: TP=${aggregate.retrievalMicro.truePositive}, FP=${aggregate.retrievalMicro.falsePositive}, FN=${aggregate.retrievalMicro.falseNegative}, selected=${aggregate.retrievalMicro.selectedCount}, safe-relevant=${aggregate.retrievalMicro.relevantCount}.`,
   );
-  return `# Doubtful Memory deterministic benchmark
+  return `# ${PRODUCT_NAME} deterministic benchmark
 
 - Version: ${report.benchmarkVersion}
 - Engine: ${report.engineVersion}

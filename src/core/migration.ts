@@ -292,7 +292,7 @@ function unquote(value:string):string{
 }
 
 async function writeMarker(path:string,marker:Marker,allowOverwrite:boolean,hooks:MigrationOperationHooks):Promise<void>{
-  if(!validateMarker(marker))throw new Error('INVALID_MARKER');
+  if(!validateBootstrapMigrationMarker(marker))throw new Error('INVALID_MARKER');
   await hooks.beforeMarkerWrite?.(marker);
   await atomicWriteJson(path,marker,{allowOverwrite});
 }
@@ -301,14 +301,14 @@ async function readMarker(path:string):Promise<{success:true;marker:Marker|null}
     const info=await lstat(path);
     if(info.isSymbolicLink()||!info.isFile()||info.size>MAX_BOOTSTRAP_BYTES)return{success:false,message:'Bootstrap migration marker is not a safe regular file.'};
     const value:unknown=JSON.parse(await readFile(path,'utf8'));
-    if(!validateMarker(value))return{success:false,message:'Bootstrap migration marker failed strict validation and was preserved.'};
+    if(!validateBootstrapMigrationMarker(value))return{success:false,message:'Bootstrap migration marker failed strict validation and was preserved.'};
     return{success:true,marker:value};
   }catch(error:unknown){
     if(error instanceof Error&&'code'in error&&(error as NodeJS.ErrnoException).code==='ENOENT')return{success:true,marker:null};
     return{success:false,message:'Bootstrap migration marker could not be read or parsed safely and was preserved.'};
   }
 }
-function validateMarker(value:unknown):value is Marker{
+export function validateBootstrapMigrationMarker(value:unknown):value is Marker{
   if(!isObject(value))return false;
   const allowed=new Set(['schemaVersion','sourceFingerprint','status','importedIds','recordFingerprints','auditReference','preparedAt','completedAt']);
   if(Object.keys(value).some((key)=>!allowed.has(key)))return false;

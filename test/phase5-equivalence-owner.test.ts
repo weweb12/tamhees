@@ -22,7 +22,7 @@ describe('Owner verification: mutating cross-adapter equivalence', () => {
       const project = join(parent, 'identical-project');
       await mkdir(project);
       const adapter = getAdapter(name);
-      const initialized = await (await import('../src/core/store.js')).initGptbrain(project, fixedClock(OPENED));
+      const initialized = await (await import('../src/core/store.js')).initTamhees(project, fixedClock(OPENED));
       assert.equal(initialized.success, true);
       const begin = await adapter.begin(
         project,
@@ -44,11 +44,11 @@ describe('Owner verification: mutating cross-adapter equivalence', () => {
           auditReferences: begin.auditReferences,
         },
         finalized,
-        records: await jsonFiles(join(project, '.gptbrain', 'memories', 'records')),
-        indexes: await jsonFiles(join(project, '.gptbrain', 'memories'), ['index.json']),
-        archives: await tree(join(project, '.gptbrain', 'archive')),
-        episodes: await jsonFiles(join(project, '.gptbrain', 'episodes')),
-        audits: normalizeRandomEventIds(await readFile(join(project, '.gptbrain', 'audits', 'history.jsonl'), 'utf8')),
+        records: await jsonFiles(join(project, '.tamhees', 'memories', 'records')),
+        indexes: await jsonFiles(join(project, '.tamhees', 'memories'), ['index.json']),
+        archives: await tree(join(project, '.tamhees', 'archive')),
+        episodes: await jsonFiles(join(project, '.tamhees', 'episodes')),
+        audits: normalizeRandomEventIds(await readFile(join(project, '.tamhees', 'audits', 'history.jsonl'), 'utf8')),
       }));
     }
     assert.equal(new Set(snapshots).size, 1);

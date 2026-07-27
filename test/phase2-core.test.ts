@@ -18,7 +18,7 @@ import { auditRecord, runAudit } from '../src/core/audit.js';
 import { compileContext } from '../src/core/context.js';
 import { loadAllEvidence, storeEvidenceRecord } from '../src/core/evidence.js';
 import { applyUpdateCandidate } from '../src/core/mutations.js';
-import { loadAllRecords, loadIndex, rebuildMemoryIndex, initGptbrain } from '../src/core/store.js';
+import { loadAllRecords, loadIndex, rebuildMemoryIndex, initTamhees } from '../src/core/store.js';
 import {
   CURRENT_SCHEMA_VERSION,
   type EvidenceRecord,
@@ -99,8 +99,8 @@ describe('Phase 2 validation and evidence', () => {
   let projectDir: string;
 
   beforeEach(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), 'doubtful-memory-phase2-'));
-    const initialized = await initGptbrain(projectDir, clock1);
+    projectDir = await mkdtemp(join(tmpdir(), 'tamhees-phase2-'));
+    const initialized = await initTamhees(projectDir, clock1);
     assert.equal(initialized.success, true);
   });
 
@@ -160,8 +160,8 @@ describe('Phase 2 controlled mutations', () => {
   let projectDir: string;
 
   beforeEach(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), 'doubtful-memory-mutation-'));
-    const initialized = await initGptbrain(projectDir, clock1);
+    projectDir = await mkdtemp(join(tmpdir(), 'tamhees-mutation-'));
+    const initialized = await initTamhees(projectDir, clock1);
     assert.equal(initialized.success, true);
   });
 
@@ -373,7 +373,7 @@ describe('Phase 2 controlled mutations', () => {
       clock1,
     );
     assert.equal(created.success, true);
-    const outside = await mkdtemp(join(tmpdir(), 'doubtful-memory-outside-'));
+    const outside = await mkdtemp(join(tmpdir(), 'tamhees-outside-'));
     const marker = join(outside, 'marker.txt');
     await writeFile(marker, 'unchanged', 'utf-8');
     const archiveMemories = join(projectDir, STORAGE_DIR, 'archive', 'memories');
@@ -541,7 +541,7 @@ describe('Phase 2 CLI operations', () => {
   let projectDir: string;
 
   beforeEach(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), 'doubtful-memory-cli2-'));
+    projectDir = await mkdtemp(join(tmpdir(), 'tamhees-cli2-'));
     await execFileAsync('node', [CLI_PATH, 'init', projectDir]);
   });
 

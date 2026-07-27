@@ -1,5 +1,5 @@
 /**
- * Doubtful Memory — Core Type Definitions
+ * Tamhees — Core Type Definitions
  *
  * Defines the canonical data model for memory records, evidence,
  * audit events, context packs, and controlled vocabularies.
@@ -440,13 +440,13 @@ export interface LifecycleFinalizeResult {
   readonly errors: readonly ValidationIssue[];
 }
 
-export interface GptbrainConfig {
+export interface TamheesConfig {
   readonly schemaVersion: string;
   readonly projectName: string;
   readonly createdAt: string;
 }
 
-export interface GptbrainState {
+export interface TamheesState {
   readonly schemaVersion: string;
   readonly lastOperation: string;
   readonly lastOperationAt: string;

@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { atomicWriteText, verifyPathSafety } from '../core/atomic-write.js';
+import { ENGINE_VERSION } from '../core/identity.js';
 import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark.js';
 
 const root = resolve(process.cwd());
@@ -9,8 +10,8 @@ await mkdir(directory, { recursive: true });
 const report = runBenchmark();
 
 for (const [name, content] of [
-  ['v0.7.0.json', formatBenchmarkJson(report)],
-  ['v0.7.0.md', formatBenchmarkMarkdown(report)],
+  [`v${ENGINE_VERSION}.json`, formatBenchmarkJson(report)],
+  [`v${ENGINE_VERSION}.md`, formatBenchmarkMarkdown(report)],
 ] as const) {
   const path = join(directory, name);
   const safety = await verifyPathSafety(path, root);

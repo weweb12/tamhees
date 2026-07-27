@@ -3,297 +3,169 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Doubtful Memory is a local project-memory auditor for AI coding agents.">
-  <title>Doubtful Memory — Local audit demonstration</title>
+  <meta name="description" content="Tamhees checks project-memory claims before an AI coding agent is allowed to rely on them.">
+  <title>Tamhees — Local memory audit</title>
   <link rel="stylesheet" href="/assets/dashboard.css">
   <script src="/assets/dashboard.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to the demonstration</a>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="Doubtful Memory home">
-      <span class="brand-mark" aria-hidden="true">?</span>
-      <span>Doubtful Memory</span>
-    </a>
+    <a class="brand" href="#top" aria-label="Tamhees home"><span class="brand-mark" aria-hidden="true">?</span><span>Tamhees <small lang="ar" dir="rtl">تمحيص</small></span></a>
     <nav aria-label="Primary navigation">
-      <a href="#problem">Problem</a>
-      <a href="#live-audit">Live audit</a>
-      <a href="#benchmark">Evidence</a>
-      <a href="#limits">Limitations</a>
+      <a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a>
     </nav>
-    <details class="mobile-nav">
-      <summary>Sections</summary>
-      <div>
-        <a href="#problem">Problem</a>
-        <a href="#live-audit">Live audit</a>
-        <a href="#benchmark">Evidence</a>
-        <a href="#limits">Limitations</a>
-      </div>
-    </details>
-    <span class="local-pill"><span aria-hidden="true">●</span> Local process</span>
+    <details class="mobile-nav"><summary>Sections</summary><div><a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a></div></details>
+    <span class="local-pill"><span aria-hidden="true"></span> Local process</span>
   </header>
 
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">DOUBTFUL MEMORY / LOCAL AI MEMORY AUDITOR</p>
-        <h1 id="hero-title">A project brain that knows when it might be wrong.</h1>
-        <p class="hero-lede">AI coding agents remember decisions to move faster. But old, inferred, or sensitive memory can become inaccurate, invasive, and overconfident. Doubtful Memory checks a claim before it is allowed to control an action.</p>
-        <div class="hero-actions">
-          <button class="button button-primary" id="hero-run" type="button">Run the contradiction audit <span aria-hidden="true">→</span></button>
-          <a class="button button-secondary" href="#how-it-works">See how it works</a>
-        </div>
-        <ul class="trust-strip" aria-label="Product boundaries">
-          <li>Local-only</li>
-          <li>Deterministic</li>
-          <li>No API key</li>
-          <li>Zero runtime dependencies</li>
-        </ul>
+        <p class="section-kicker">Tamhees · <span lang="ar" dir="rtl">تمحيص</span></p>
+        <h1 id="hero-title">Memory under scrutiny.</h1>
+        <p class="hero-lede"><strong>Tamhees checks what an AI remembers before that memory is allowed to guide an action.</strong> It tests the claim against provenance, freshness, current evidence, privacy, and permission—locally and deterministically.</p>
+        <div class="hero-actions"><button class="button button-primary" id="hero-watch" type="button">Watch one memory get checked</button><a class="button button-secondary" id="hero-run" href="#live-audit">Try the live audit</a></div>
+        <p class="trust-line">Local-only <span>·</span> Deterministic <span>·</span> No AI API <span>·</span> Zero runtime dependencies</p>
       </div>
 
-      <div class="hero-visual" aria-label="Memory and evidence converge in an audit that blocks an unsafe action">
-        <div class="signal-card memory-signal">
-          <span class="signal-label">MEMORY / OWNER DECISION</span>
-          <strong>“Use SQLite.”</strong>
-          <span>Last checked 193 days ago</span>
+      <figure class="engine-demo" id="memory-engine-demo" aria-describedby="hero-animation-alt">
+        <div class="engine-demo-heading">
+          <div><p class="diagram-label">The Memory Audit Engine</p><p>One remembered claim meets current project evidence.</p></div>
+          <button class="motion-toggle" id="hero-motion-toggle" type="button" aria-pressed="false"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause animation</span></button>
         </div>
-        <div class="signal-line line-left" aria-hidden="true"></div>
-        <div class="audit-orbit">
-          <span class="orbit-label">AUDIT CORE</span>
-          <span class="orbit-symbol" aria-hidden="true">≠</span>
-          <strong>CONFLICT</strong>
+        <div class="engine-stage" aria-hidden="true">
+          <div class="engine-inputs">
+            <article class="engine-source engine-memory"><span>Memory claim · incoming</span><strong>“Owner decision: Use SQLite.”</strong><small>Owner-sourced · last checked 193 days ago</small></article>
+            <article class="engine-source engine-evidence"><span>Repository evidence · incoming</span><strong>“Supabase configured.”</strong><small>Observed in package and configuration files</small></article>
+          </div>
+          <svg class="engine-connectors" viewBox="0 0 720 96" preserveAspectRatio="none">
+            <path class="connector-path connector-left" d="M142 8 C142 52 300 44 342 88"></path>
+            <path class="connector-path connector-right" d="M578 8 C578 52 420 44 378 88"></path>
+            <circle class="connector-pulse connector-pulse-left" cx="142" cy="8" r="5"></circle>
+            <circle class="connector-pulse connector-pulse-right" cx="578" cy="8" r="5"></circle>
+          </svg>
+          <section class="engine-chamber" aria-label="Tamhees scrutiny chamber">
+            <header class="engine-core">
+              <span class="engine-core-mark">T</span>
+              <div><strong>Tamhees</strong><small>Memory scrutiny chamber</small></div>
+              <span class="engine-scan-status">4 gates · deterministic</span>
+            </header>
+            <ol class="engine-gates">
+              <li class="gate-source"><span class="gate-index">01</span><div><span>Source</span><strong>PASS</strong></div><small>Owner provenance is present.</small></li>
+              <li class="gate-freshness"><span class="gate-index">02</span><div><span>Freshness</span><strong>WARN · OLD</strong></div><small>The claim is 193 days old.</small></li>
+              <li class="gate-evidence"><span class="gate-index">03</span><div><span>Current evidence</span><strong>CONFLICT</strong></div><small>Supabase is configured now.</small></li>
+              <li class="gate-permission"><span class="gate-index">04</span><div><span>Permission</span><strong>DENY MIGRATION</strong></div><small>Old memory cannot authorize this change.</small></li>
+            </ol>
+          </section>
+          <div class="engine-action-path"><span>Scrutiny complete</span><i aria-hidden="true"></i></div>
+          <div class="engine-final">
+            <div class="engine-decision"><span>Action gate</span><strong>BLOCK ACTION</strong><small>Contradictory memory cannot guide the migration.</small></div>
+            <div class="engine-explanation"><span>Safe next step</span><strong>Ask the owner which database decision is current.</strong></div>
+            <div class="engine-context-excluded"><span aria-hidden="true">×</span><div><strong>Context excluded</strong><small>Unsafe SQLite claim withheld from the task context.</small></div></div>
+          </div>
         </div>
-        <div class="signal-line line-right" aria-hidden="true"></div>
-        <div class="signal-card evidence-signal">
-          <span class="signal-label">CURRENT EVIDENCE / REPOSITORY</span>
-          <strong>“Supabase configured.”</strong>
-          <span>Observed in current files</span>
+        <figcaption id="hero-animation-alt">Static summary: the old owner claim “Use SQLite” has a valid source but is stale and conflicts with current Supabase repository evidence. Tamhees denies permission for the migration, blocks the action, excludes the unsafe claim from task context, and asks the owner which database decision is current.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section problem-section reveal-section" id="problem" aria-labelledby="problem-title">
+      <div class="section-heading"><p class="section-kicker">Why memory needs a safety check</p><h2 id="problem-title">Remembering is useful. Blind trust is the problem.</h2><p>A memory file can preserve what was said months ago. It cannot prove that the information is still current, correctly sourced, safe to retain, or permitted to control an action.</p></div>
+      <div class="failure-stories">
+        <article class="failure-story"><span class="story-number">01</span><h3>Inaccurate</h3><div class="story-flow"><p><span>Remembered</span>“Use SQLite.”</p><i aria-hidden="true">→</i><p><span>What changed</span>Supabase is now configured.</p></div><p class="story-response"><strong>Response:</strong> block the action and ask the owner.</p></article>
+        <article class="failure-story"><span class="story-number">02</span><h3>Invasive</h3><div class="story-flow"><p><span>Remembered</span>A credential-like value from a useful conversation.</p><i aria-hidden="true">→</i><p><span>What can go wrong</span>Private data becomes permanent context.</p></div><p class="story-response"><strong>Response:</strong> forget or redact before retrieval.</p></article>
+        <article class="failure-story"><span class="story-number">03</span><h3>Overconfident</h3><div class="story-flow"><p><span>Remembered</span>“The owner prefers this design.”</p><i aria-hidden="true">→</i><p><span>What can go wrong</span>An AI guess looks like approval.</p></div><p class="story-response"><strong>Response:</strong> ask the owner instead of acting.</p></article>
+      </div>
+      <div class="origin-story" aria-labelledby="origin-title">
+        <div><p class="section-kicker">Where the idea came from</p><h3 id="origin-title">A useful memory file became too expensive to trust blindly.</h3><p>A single <code>GPTBrain.md</code>-style project memory improved continuity while vibe coding. As it grew, the agent had to reread too much context on every prompt—and old, inferred, sensitive, or contradictory statements remained mixed together.</p></div>
+        <ol>
+          <li><strong>One large file</strong><span>Helpful continuity, but increasing latency and context use.</span></li>
+          <li><strong>Mixed-quality memory</strong><span>Facts, guesses, secrets, and superseded decisions could look equally authoritative.</span></li>
+          <li><strong>Structured scrutiny</strong><span>Tamhees adds claims, provenance, evidence, freshness, permission, auditing, and small task-specific context.</span></li>
+        </ol>
+      </div>    </section>
+
+    <section class="section checks-section reveal-section" id="how-it-works" aria-labelledby="checks-title">
+      <div class="section-heading"><p class="section-kicker">Four checks before action</p><h2 id="checks-title">Before memory controls an action, it must pass four checks.</h2></div>
+      <div class="check-path" aria-label="Four memory audit checks">
+        <article><span>1</span><h3>Where did it come from?</h3><p>Owner decision, repository evidence, test result, observation, or inference.</p></article><i aria-hidden="true"></i>
+        <article><span>2</span><h3>Is it still current?</h3><p>Fresh memories may be usable. Old or superseded memories require review.</p></article><i aria-hidden="true"></i>
+        <article><span>3</span><h3>What does the project say now?</h3><p>Current files and evidence may support or contradict the memory.</p></article><i aria-hidden="true"></i>
+        <article><span>4</span><h3>Is the AI permitted to act?</h3><p>Confidence is not authority. Some actions still require the owner.</p></article>
+      </div>
+      <p class="outcome-line">The engine returns one safe outcome: <strong>Trust</strong>, <strong>Recheck</strong>, <strong>Ask Owner</strong>, <strong>Block Action</strong>, or <strong>Forget/Redact</strong>.</p>
+    </section>
+
+    <section class="section cli-demo-section reveal-section" id="cli-demo" aria-labelledby="cli-demo-title">
+      <div class="cli-demo-intro">
+        <div class="section-heading"><p class="section-kicker">Guided CLI demonstration</p><h2 id="cli-demo-title">Follow one memory from capture to a safe refusal.</h2><p>This fixed-fixture lesson uses real Tamhees CLI syntax and requests the architecture-conflict result from the canonical local engine. It does not run a shell, accept commands, or write project memory.</p></div>
+        <aside class="demo-safety"><strong>Safe by construction</strong><span>Five allowlisted presentation steps · one canonical audit request · ephemeral browser state</span></aside>
+      </div>
+      <div class="cli-demo-shell" id="cli-demo-shell">
+        <div class="cli-demo-toolbar">
+          <div><span class="fixture-badge">Guided demo · safe fixed fixtures</span><p id="cli-demo-status">Ready at step 1 of 5.</p></div>
+          <div class="cli-demo-controls">
+            <button class="button button-primary" id="cli-run-all" type="button">Run full demo</button>
+            <button class="button button-secondary" id="cli-next" type="button">Next step</button>
+            <button class="button button-quiet" id="cli-reset" type="button">Reset</button>
+            <button class="motion-toggle" id="cli-motion-toggle" type="button" aria-pressed="false"><span aria-hidden="true">Ⅱ</span><span>Pause sequence</span></button>
+          </div>
         </div>
-        <div class="hero-outcome">
-          <span aria-hidden="true">⊘</span>
-          <div><small>ACTION GATE</small><strong>BLOCK_ACTION</strong></div>
+        <div class="cli-step-control"><label for="cli-step-select">Choose a lesson step</label><select id="cli-step-select"><option value="0">1. Initialize local storage</option><option value="1">2. Add the remembered decision</option><option value="2">3. Add current evidence</option><option value="3">4. Run the audit</option><option value="4">5. Build safe task context</option></select></div>
+        <ol class="cli-demo-progress" id="cli-demo-progress" aria-label="Guided CLI lesson progress"><li data-state="current">Initialize</li><li data-state="waiting">Memory</li><li data-state="waiting">Evidence</li><li data-state="waiting">Audit</li><li data-state="waiting">Context</li></ol>
+        <div class="cli-demo-views">
+          <section class="terminal-panel" aria-labelledby="terminal-title"><div class="terminal-heading"><span aria-hidden="true">● ● ●</span><h3 id="terminal-title">Tamhees CLI-style output</h3></div><div class="terminal-region" role="region" aria-label="Contained CLI demonstration output" tabindex="0"><div id="cli-demo-log" class="terminal-log" role="log" aria-label="Guided CLI output" aria-live="off" aria-atomic="false"></div></div></section>
+          <section class="lesson-panel" aria-labelledby="lesson-title"><p class="section-kicker" id="lesson-step">Step 1 · Initialize</p><h3 id="lesson-title">Create controlled local storage.</h3><p id="lesson-explanation">Tamhees creates a structured local store. Nothing is uploaded, and the guided page does not execute this command.</p><dl id="lesson-facts"><div><dt>Safety gate</dt><dd>Project boundary</dd></div><div><dt>Agent permission</dt><dd>No action decision yet</dd></div><div><dt>Why it matters</dt><dd>Memory gets an inspectable home instead of an unquestioned monolithic file.</dd></div></dl></section>
         </div>
+        <p class="sr-only" id="cli-demo-announcement" aria-live="polite"></p>
+      </div>
+      <details class="cli-static-lesson"><summary>Read the complete non-animated lesson</summary><ol><li><strong><code>tamhees init</code></strong> creates local <code>.tamhees/</code> storage.</li><li><strong><code>tamhees memory apply --input &lt;safe-memory-fixture&gt;</code></strong> records “Use SQLite” with owner source and bounded authority.</li><li><strong><code>tamhees evidence add --input &lt;safe-evidence-fixture&gt;</code></strong> records that Supabase is currently configured.</li><li><strong><code>tamhees audit</code></strong> detects the material contradiction and returns <code>BLOCK_ACTION</code>.</li><li><strong><code>tamhees context --task "prepare the database migration"</code></strong> excludes the unsafe memory and tells the agent to ask the owner.</li></ol></details>
+    </section>
+    <section class="section audit-section reveal-section" id="live-audit" aria-labelledby="audit-title">
+      <div class="audit-intro">
+        <div class="section-heading"><p class="section-kicker">Live local demonstration</p><h2 id="audit-title">See the safety check before an AI acts.</h2><p>The live audit simulates the safety check that runs before an AI agent uses remembered project information. It compares the memory with current evidence, freshness, privacy, and permission, then decides whether the agent may trust it, recheck it, ask the owner, block the action, or forget/redact the information.</p><p>This is not a simulated chat response. Each example is evaluated by the real local audit and context engine; the interface cannot choose the outcome.</p></div>
+        <aside class="audit-question"><span>The question being answered</span><strong>May the coding agent safely use this memory for the next action?</strong></aside>
+      </div>
+      <ol class="audit-mental-model" aria-label="Three-stage audit model"><li><span>1</span><strong>What the AI remembers</strong><small>Claim, source, and freshness</small></li><li><span>2</span><strong>What the project currently proves</strong><small>Supporting or contradictory evidence</small></li><li><span>3</span><strong>What the AI is safely allowed to do</strong><small>Permission, decision, and next step</small></li></ol>
+      <div class="scenario-picker"><div class="picker-heading"><div><h3 id="scenario-label">Choose an example</h3><p>Seven safe fixtures exercise seven real engine paths.</p></div><span id="scenario-count" aria-hidden="true"></span></div><div id="scenario-list" class="scenario-list" role="group" aria-labelledby="scenario-label"></div></div>
+      <div class="audit-workbench">
+        <div class="workbench-header"><div><p class="section-kicker" id="scenario-concept">Conflicting repository evidence</p><h3 id="scenario-title">The database decision no longer matches reality</h3><p id="scenario-summary">Memory says SQLite while current repository evidence points to Supabase.</p></div><span class="fixture-badge">Safe fixed fixture</span></div>
+        <div class="audit-inputs" aria-label="Scenario inputs"><article><span>1</span><h4>The AI remembers</h4><p id="input-memory">Use SQLite for local persistence.</p></article><article><span>2</span><h4>The project says now</h4><p id="input-evidence">Supabase appears in package metadata and configuration.</p></article><article><span>3</span><h4>The AI wants to do</h4><p id="input-intent">Continue a database-dependent change using the remembered SQLite decision.</p></article></div>
+        <details class="advanced-settings" id="advanced-context"><summary>Advanced context settings</summary><div class="budget-control"><p>The engine has limited space. It selects only the safest relevant memories that fit.</p><label for="budget-input">Maximum context space <strong><output id="budget-output" for="budget-input">240</output> estimated tokens</strong></label><input id="budget-input" type="range" min="40" max="360" step="10" value="240"></div></details>
+        <div class="audit-controls"><button class="button button-primary" id="run-audit" type="button">Check whether the AI may act</button><button class="button button-quiet" id="reset-audit" type="button">Reset example</button></div>
+        <ol id="audit-progress" class="audit-progress" hidden aria-label="Audit presentation steps"><li data-stage="waiting"><span>1</span>Read the claim</li><li data-stage="waiting"><span>2</span>Check its source</li><li data-stage="waiting"><span>3</span>Compare current evidence</li><li data-stage="waiting"><span>4</span>Check permission</li><li data-stage="waiting"><span>5</span>Decide whether action is allowed</li></ol>
+        <div id="audit-ready" class="audit-ready"><span aria-hidden="true">?</span><div><h3>Waiting for your check</h3><p>The result stays hidden until the canonical engine evaluates this example.</p></div></div>
+        <section id="audit-result" class="result-view" tabindex="-1" role="region" aria-label="Audit result" aria-busy="false" hidden><div id="plain-result" class="plain-result"></div><div id="result-context"></div><details class="technical-details" id="technical-details"><summary>Inspect evidence and rule trace</summary><div id="technical-result"></div></details><p class="fixture-note" id="fixture-note"></p></section>
+        <p class="sr-only" id="result-announcement" aria-live="polite"></p>
       </div>
     </section>
 
-    <section class="problem-section section" id="problem" aria-labelledby="problem-title">
-      <div class="section-heading">
-        <p class="eyebrow">THE FAILURE MODE</p>
-        <h2 id="problem-title">Remembering is not the same as knowing.</h2>
-        <p>A memory file can preserve a sentence for months. It cannot prove that the sentence is still true, appropriately sourced, or safe to act on.</p>
+    <section class="section benchmark-section reveal-section" id="benchmark" aria-labelledby="benchmark-title">
+      <div class="section-heading"><p class="section-kicker">Deterministic benchmark evidence</p><h2 id="benchmark-title">On 22 controlled fixtures, Tamhees produced the expected safe outcome 22 times.</h2><p>These are deterministic project-memory tests, not a claim about every real-world project.</p></div>
+      <div class="benchmark-overview" aria-label="Exact outcome comparison">
+        <article data-configuration="NO_MEMORY"><div><h3>No memory</h3><output>—</output></div><progress max="22" value="0" aria-label="No memory exact outcomes"></progress></article>
+        <article data-configuration="MONOLITHIC_GPTBRAIN"><div><h3>Monolithic GPTBrain</h3><output>—</output></div><progress max="22" value="0" aria-label="Monolithic GPTBrain exact outcomes"></progress></article>
+        <article data-configuration="SIMPLE_SPLIT_FILES"><div><h3>Simple split files</h3><output>—</output></div><progress max="22" value="0" aria-label="Simple split files exact outcomes"></progress></article>
+        <article class="benchmark-winner" data-configuration="TAMHEES"><div><h3>Tamhees</h3><output>—</output></div><progress max="22" value="0" aria-label="Tamhees exact outcomes"></progress></article>
       </div>
-      <div class="comparison-grid">
-        <article class="comparison-card ordinary-card">
-          <p class="card-index">01 / ORDINARY MEMORY</p>
-          <h3>Continuity without verification</h3>
-          <blockquote>“This project uses SQLite.”</blockquote>
-          <ul class="check-list negative-list">
-            <li><span aria-hidden="true">×</span> Source may be missing</li>
-            <li><span aria-hidden="true">×</span> Project changes can go unnoticed</li>
-            <li><span aria-hidden="true">×</span> Confidence can look like authority</li>
-          </ul>
-        </article>
-        <article class="comparison-card doubtful-card">
-          <p class="card-index">02 / DOUBTFUL MEMORY</p>
-          <h3>Continuity with an action gate</h3>
-          <blockquote>Claim + provenance + freshness + permission</blockquote>
-          <ul class="check-list">
-            <li><span aria-hidden="true">✓</span> Compares current evidence</li>
-            <li><span aria-hidden="true">✓</span> Separates confidence from authority</li>
-            <li><span aria-hidden="true">✓</span> Explains why action is allowed or blocked</li>
-          </ul>
-        </article>
-      </div>
-      <div class="failure-grid" aria-label="Three project memory failure modes">
-        <article>
-          <span class="failure-number">01</span>
-          <h3>Inaccurate</h3>
-          <p>The project changed. The memory did not.</p>
-          <span class="outcome-chip outcome-block">⊘ BLOCK_ACTION</span>
-        </article>
-        <article>
-          <span class="failure-number">02</span>
-          <h3>Invasive</h3>
-          <p>Useful context should never become secret storage.</p>
-          <span class="outcome-chip outcome-forget">⌫ FORGET_OR_REDACT</span>
-        </article>
-        <article>
-          <span class="failure-number">03</span>
-          <h3>Overconfident</h3>
-          <p>An agent inference is not an owner decision.</p>
-          <span class="outcome-chip outcome-ask">? ASK_OWNER</span>
-        </article>
-      </div>
+      <div class="benchmark-support"><article><strong id="metric-precision">—</strong><span>selected memories were relevant</span></article><article><strong id="metric-unsafe">—</strong><span>unsafe records exposed</span></article><article><strong id="metric-secret">—</strong><span>secret-like records exposed</span></article></div>
+      <p class="benchmark-note" id="benchmark-note">The two Tamhees recall misses are safe relevant records excluded by the hard context budget.</p>
+      <details class="benchmark-details"><summary>View complete benchmark and methodology</summary><div><div class="table-wrap" role="region" aria-label="Complete benchmark comparison" tabindex="0"><table><thead><tr><th scope="col">Configuration</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">Abstention</th><th scope="col">Budget</th><th scope="col">Exact outcome</th><th scope="col">Unsafe / secret</th></tr></thead><tbody id="benchmark-body"><tr><td colspan="7">Loading the local benchmark artifact…</td></tr></tbody></table></div><div class="methodology" id="benchmark-methodology"><p>Ground truth is fixture-authored independently of production output. Metrics expose their numerators and denominators.</p></div></div></details>
     </section>
 
-    <section class="audit-section section" id="live-audit" aria-labelledby="audit-title">
-      <div class="section-heading split-heading">
-        <div>
-          <p class="eyebrow">LIVE / CANONICAL ENGINE</p>
-          <h2 id="audit-title">Make memory prove itself.</h2>
-        </div>
-        <p>Every scenario below executes the real deterministic audit and context compiler using safe fixed fixtures. No outcome is selected by the interface.</p>
-      </div>
-
-      <div class="scenario-shell">
-        <aside class="scenario-rail" aria-labelledby="scenario-label">
-          <div class="rail-heading">
-            <span id="scenario-label">Choose a scenario</span>
-            <span id="scenario-count" aria-hidden="true"></span>
-          </div>
-          <div id="scenario-list" class="scenario-list" role="group" aria-labelledby="scenario-label"></div>
-        </aside>
-
-        <div class="audit-workbench">
-          <div class="workbench-header">
-            <div>
-              <p class="eyebrow" id="scenario-concept">CONFLICTING REPOSITORY EVIDENCE</p>
-              <h3 id="scenario-title">The database decision no longer matches reality</h3>
-              <p id="scenario-summary">Memory says SQLite while current repository evidence points to Supabase.</p>
-            </div>
-            <span class="fixture-badge">SAFE FIXTURE</span>
-          </div>
-
-          <div class="budget-control">
-            <label for="budget-input">Context budget <strong><output id="budget-output" for="budget-input">240</output> estimated tokens</strong></label>
-            <input id="budget-input" type="range" min="40" max="360" step="10" value="240">
-            <span>Adjust before running to see deterministic whole-record exclusions.</span>
-          </div>
-
-          <div class="audit-controls">
-            <button class="button button-primary" id="run-audit" type="button">Run audit <span aria-hidden="true">→</span></button>
-            <button class="button button-quiet" id="reset-audit" type="button">Reset scenario</button>
-          </div>
-
-          <div id="audit-progress" class="audit-progress" hidden aria-hidden="true">
-            <span>Provenance</span><i></i><span>Evidence</span><i></i><span>Permission</span><i></i><span>Outcome</span>
-          </div>
-
-          <div id="audit-result" class="result-placeholder" tabindex="-1" role="region" aria-label="Audit result">
-            <span class="placeholder-mark" aria-hidden="true">?</span>
-            <h4>Ready to audit</h4>
-            <p>Run the scenario to see the engine outcome, evidence trace, action consequence, and budgeted context.</p>
-          </div>
-          <p class="sr-only" id="result-announcement" aria-live="polite"></p>
-        </div>
-      </div>
+    <section class="section integration-section reveal-section" id="integrations" aria-labelledby="integration-title">
+      <div class="section-heading"><p class="section-kicker">A local layer, not another coding agent</p><h2 id="integration-title">Works beside the coding agent you already use.</h2><p>Tamhees does not replace Codex, Claude, Antigravity, or another agent. It prepares safer project context before work and evaluates proposed memory updates afterward.</p></div>
+      <div class="integration-flow" aria-label="Agent memory workflow"><span>Coding task</span><i aria-hidden="true">→</i><span>Retrieve relevant memory</span><i aria-hidden="true">→</i><span>Audit safety and authority</span><i aria-hidden="true">→</i><span>Give the agent a small context pack</span><i aria-hidden="true">→</i><span>Review proposed updates</span></div>
+      <div class="adapter-grid"><article><span>Implemented · tested</span><h3>Codex</h3></article><article><span>Implemented · tested</span><h3>Antigravity</h3></article><article><span>Implemented · tested</span><h3>Claude</h3></article><article><span>Implemented · tested</span><h3>Generic</h3></article><article><span>Limited subset · tested</span><h3>Local MCP</h3></article></div>
+      <details class="integration-details"><summary>View implementation details</summary><p>Five project-local adapters call the same canonical lifecycle boundary. Four managed instruction adapters use local files; the limited MCP subset exposes four strict JSON-RPC tools over stdio. No adapter copies audit policy or opens a remote service.</p></details>
     </section>
 
-    <section class="section architecture-section" id="how-it-works" aria-labelledby="architecture-title">
-      <div class="section-heading">
-        <p class="eyebrow">ONE LOCAL SOURCE OF TRUTH</p>
-        <h2 id="architecture-title">Thin interfaces. One set of rules.</h2>
-        <p>The dashboard presents canonical engine results. It does not own ranking, privacy, authority, lifecycle, or audit policy.</p>
-      </div>
-      <div class="architecture-layout">
-        <div class="architecture-stack" aria-label="Doubtful Memory local architecture">
-          <div class="architecture-row agent-row">
-            <span>Codex</span><span>Antigravity</span><span>Claude</span><span>Generic</span><span>MCP</span>
-          </div>
-          <div class="architecture-connector" aria-hidden="true">↓ thin adapters ↓</div>
-          <div class="architecture-core">
-            <span class="eyebrow">TEMPORARY CODENAME / GPTBRAIN</span>
-            <strong>Canonical deterministic engine</strong>
-            <div><span>Audit</span><span>Context</span><span>Lifecycle</span><span>Privacy</span></div>
-          </div>
-          <div class="architecture-connector" aria-hidden="true">↓ local files ↓</div>
-          <div class="architecture-store">
-            <strong>.gptbrain/</strong>
-            <span>JSON records · evidence · append-only audit metadata</span>
-          </div>
-        </div>
-        <div class="invariant-list">
-          <article><span>01</span><div><h3>Provenance stays attached</h3><p>A claim records where it came from and what supports or contradicts it.</p></div></article>
-          <article><span>02</span><div><h3>Authority cannot silently rise</h3><p>Repository facts and tests verify behavior; only explicit owner evidence authorizes owner decisions.</p></div></article>
-          <article><span>03</span><div><h3>Context remains ephemeral</h3><p>Task-specific context is returned in memory and is not persisted as a pack.</p></div></article>
-          <article><span>04</span><div><h3>Nothing leaves the machine</h3><p>No hosted model, telemetry, account, cloud database, or runtime external request is required.</p></div></article>
-        </div>
-      </div>
-    </section>
+    <section class="section limits-section reveal-section" id="limits" aria-labelledby="limits-title"><div class="section-heading"><p class="section-kicker">Honest boundaries</p><h2 id="limits-title">What Version 1 does—and does not—claim.</h2></div><div class="limits-grid"><article><h3>Exact lexical retrieval</h3><p>Normalized words and tags, not semantic understanding.</p></article><article><h3>Deterministic token estimates</h3><p>Repeatable local counts, not provider-exact tokenization.</p></article><article><h3>Pattern-based detection</h3><p>Defensive sensitive-value checks, not a universal secret guarantee.</p></article><article><h3>Cooperative local adapters</h3><p>They guide integrated agents but cannot force unrelated software to cooperate.</p></article><article><h3>Safe fixed fixtures</h3><p>Judge demonstrations are controlled examples, not arbitrary live repository access.</p></article></div></section>
 
-    <section class="benchmark-section section" id="benchmark" aria-labelledby="benchmark-title">
-      <div class="section-heading split-heading">
-        <div>
-          <p class="eyebrow">COMMITTED EVIDENCE / VERSION 0.7.0</p>
-          <h2 id="benchmark-title">Compare the memory strategies.</h2>
-        </div>
-        <p>The table is loaded from the integrity-checked deterministic benchmark artifact. Undefined classification metrics remain N/A rather than receiving invented credit.</p>
-      </div>
-      <div class="benchmark-highlight">
-        <div><strong id="metric-outcome">—</strong><span>Doubtful Memory exact outcomes</span></div>
-        <div><strong id="metric-precision">—</strong><span>Micro retrieval precision</span></div>
-        <div><strong id="metric-exposure">—</strong><span>Unsafe / secret exposures</span></div>
-        <div><strong id="metric-budget">—</strong><span>Hard-budget compliance</span></div>
-      </div>
-      <div class="table-wrap" role="region" aria-label="Benchmark comparison" tabindex="0">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Configuration</th>
-              <th scope="col">Precision</th>
-              <th scope="col">Recall</th>
-              <th scope="col">Abstention</th>
-              <th scope="col">Budget</th>
-              <th scope="col">Exact outcome</th>
-              <th scope="col">Unsafe / secret</th>
-            </tr>
-          </thead>
-          <tbody id="benchmark-body">
-            <tr><td colspan="7">Loading the local benchmark artifact…</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="benchmark-note" id="benchmark-note">The two Doubtful Memory recall misses are safe relevant records excluded by the hard context budget.</p>
-      <details class="methodology">
-        <summary>View benchmark methodology</summary>
-        <div id="benchmark-methodology">
-          <p>Ground truth is fixture-authored independently of production output. Metrics expose their numerators and denominators.</p>
-        </div>
-      </details>
-    </section>
-
-    <section class="section integration-section" aria-labelledby="integration-title">
-      <div class="section-heading">
-        <p class="eyebrow">USE IT BEFORE AN AGENT CHANGES YOUR PROJECT</p>
-        <h2 id="integration-title">One memory protocol, five local entry points.</h2>
-      </div>
-      <div class="integration-grid">
-        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Codex</h3><p>Managed AGENTS.md guidance and canonical lifecycle calls.</p></article>
-        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Antigravity</h3><p>Workspace rules backed by the same engine boundary.</p></article>
-        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Claude Code</h3><p>Managed CLAUDE.md integration without copied policy logic.</p></article>
-        <article><span class="verified-tag">IMPLEMENTED · TESTED</span><h3>Generic</h3><p>Tool-neutral instructions for local agent workflows.</p></article>
-        <article><span class="verified-tag">LIMITED SUBSET · TESTED</span><h3>Local MCP</h3><p>Four strict JSON-RPC tools over stdio, with no HTTP listener.</p></article>
-      </div>
-    </section>
-
-    <section class="limits-section section" id="limits" aria-labelledby="limits-title">
-      <div class="section-heading">
-        <p class="eyebrow">HONEST BY DESIGN</p>
-        <h2 id="limits-title">A system that doubts memory should state its own limits.</h2>
-      </div>
-      <div class="limits-grid">
-        <article><strong>Lexical, not semantic</strong><p>Retrieval matches normalized words and tags. It does not understand intent like a human.</p></article>
-        <article><strong>Estimated tokens</strong><p>The local byte-based estimate can differ from a provider-specific tokenizer.</p></article>
-        <article><strong>Defensive patterns</strong><p>Secret-like detection reduces risk but cannot identify every possible credential.</p></article>
-        <article><strong>Workflow cooperation</strong><p>The engine cannot force an unrelated coding agent to obey unless that workflow invokes it.</p></article>
-        <article><strong>Unsigned owner evidence</strong><p>Owner evidence is not cryptographically signed in Version 1.</p></article>
-        <article><strong>Unverified challenge detail</strong><p>The detailed Doo judging criteria and submission fields remain unverified.</p></article>
-      </div>
-      <div class="closing-statement">
-        <p>Doubtful Memory does not make AI memory perfect.</p>
-        <strong>It makes memory accountable.</strong>
-      </div>
-    </section>
+    <section class="final-cta reveal-section" aria-labelledby="final-title"><p class="section-kicker">Memory should help without taking control</p><h2 id="final-title">Give the agent context. Keep the right to doubt it.</h2><a class="button button-primary" href="#live-audit">Try the live audit</a></section>
   </main>
 
-  <footer class="site-footer">
-    <div><span class="brand-mark" aria-hidden="true">?</span><strong>Doubtful Memory</strong></div>
-    <p>Local demonstration · no upload · no telemetry · no external resources</p>
-    <p>Repository remains local. Publication requires owner approval.</p>
-  </footer>
-
-  <noscript>
-    <p class="noscript">JavaScript is required to execute the local engine demonstration. No external script is used.</p>
-  </noscript>
+  <footer class="site-footer"><div><span class="brand-mark" aria-hidden="true">?</span><strong>Tamhees · Memory under scrutiny.</strong></div><p>Local demonstration · no upload · no telemetry · no external resources</p><p>Repository remains local. Publication requires owner approval.</p></footer>
+  <noscript><p class="noscript">JavaScript is required to execute the local engine demonstration. No external script is used.</p></noscript>
 </body>
 </html>

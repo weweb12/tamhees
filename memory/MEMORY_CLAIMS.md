@@ -1,12 +1,12 @@
-# Doubtful Memory - Project Memory Claims
+# Tamhees - Project Memory Claims
 
 ## Purpose
 
 This file demonstrates the protocol by representing important project memories as claims rather than unquestioned facts.
 
-These claims describe the Doubtful Memory project itself. The project is therefore using its own protocol during development.
+These claims describe the Tamhees project itself. The project is therefore using its own protocol during development.
 
-This is an initial working format. The final claim schema and controlled vocabulary will be approved during protocol design. The production memory engine is not yet implemented. When it is, these bootstrap claims will be migrated to `.gptbrain/` JSON format.
+This preserved bootstrap ledger records historical and current project claims. The implemented canonical engine uses `.tamhees/` JSON; bootstrap import is controlled, and legacy `.gptbrain/` directory compatibility is explicit rather than automatic.
 
 ## Important rule
 
@@ -353,14 +353,15 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - claim: The CLI and engine use the temporary codename `gptbrain` and storage uses `.gptbrain/`. These are centralized in `src/core/identity.ts` for a later planned rename.
 - source_type: Approved project decision
 - source_reference: `DECISIONS.md` DM-DEC-026
-- status: OWNER_CONFIRMED
+- status: REVOKED
 - confidence: HIGH
-- last_verified: 2026-07-19
-- review_after: When preparing for the final product rename
+- last_verified: 2026-07-25
+- review_after: No routine review; retained as superseded identity history
 - sensitivity: INTERNAL
-- action_permission: MAY_ACT
+- action_permission: DO_NOT_ACT
 - recheck_method: Check `src/core/identity.ts` and DM-DEC-026
-- notes: Do not hardcode these names in strings; use the identity constants.
+- superseded_by: DM-CLAIM-028
+- notes: The temporary codename was replaced by the owner-approved Tamhees identity in DM-DEC-035. Historical text is preserved; do not act on the old names.
 
 ---
 
@@ -517,3 +518,18 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - action_permission: ACT_WITH_CAUTION
 - recheck_method: Run clean install, full verification, focused dashboard verification, isolated loopback smoke, mutation/dependency/Git checks
 - notes: Independently verified local Phase 8 checkpoint evidence; not OWNER_CONFIRMED release approval, publication authority, or proof of real assistive-technology or physical-device compatibility. Phase 9 has not started.
+---
+
+## DM-CLAIM-028
+
+- claim: The owner-approved active identity is Tamhees (تمحيص), with package and executable `tamhees`, canonical storage `.tamhees/`, tagline “Memory under scrutiny.”, exact four `tamhees_*` MCP tools, and explicit fail-closed `.gptbrain/` legacy-storage migration. Stable `DM-*` identifiers remain unchanged for traceability.
+- source_type: Explicit owner instruction
+- source_reference: Phase 8.2 owner directive and `DECISIONS.md` DM-DEC-035
+- status: OWNER_CONFIRMED
+- confidence: HIGH
+- last_verified: 2026-07-25
+- review_after: Before any future product, package, CLI, storage, or MCP namespace change
+- sensitivity: PUBLIC
+- action_permission: MAY_ACT
+- recheck_method: Check the owner directive, DM-DEC-035, `src/core/identity.ts`, package metadata, CLI help, and exact MCP tool list
+- notes: This owner confirmation approves the active identity only. It is not trademark clearance, uniqueness evidence, release approval, publication authority, or permission to begin Phase 9.

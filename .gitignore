@@ -20,8 +20,13 @@ npm-debug.log*
 Thumbs.db
 
 # Ephemeral runtime data
-.gptbrain/runtime/
+.tamhees/runtime/
 
 # Atomic-write temporary files
+.tamhees/**/*.tmp
+.tamhees/**/*.temp
+
+# Legacy storage safety while awaiting explicit migration
+.gptbrain/runtime/
 .gptbrain/**/*.tmp
 .gptbrain/**/*.temp

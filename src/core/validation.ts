@@ -1,5 +1,5 @@
 /**
- * Doubtful Memory — Runtime Validation
+ * Tamhees — Runtime Validation
  *
  * Deterministic runtime validation for memory records and controlled artifacts.
  * TypeScript types alone do not enforce constraints at runtime.

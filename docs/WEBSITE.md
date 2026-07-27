@@ -1,23 +1,25 @@
-# Doubtful Memory - Judge-Facing Website Specification
+# Tamhees - Judge-Facing Website Specification
 
 > Working document for the Doo challenge: **Memory That Knows It Might Be Wrong**
-> Product: **Doubtful Memory**
+> Product: **Tamhees**
 > Website role: Explain and demonstrate the real local product through a polished local interactive experience.
-> Build timing: Implement during the dashboard/release milestone after the core engine, lifecycle, adapters, and benchmark provide stable evidence.
+> Current candidate: Version 0.8.2, unstaged, pending independent owner review. Phase 9 has not started.
 
 ## 1. Website purpose
 
-The website is the challenge demonstration and product explanation layer for Doubtful Memory.
+The website is the challenge demonstration and product explanation layer for Tamhees.
 
 It is not the core product, a browser extension, or a fake dashboard. The actual product is a local deterministic engine, CLI, structured memory store, lifecycle system, adapters, benchmark, and local dashboard. The website makes that system understandable and testable for a judge who may spend only a few minutes on the submission.
 
-The website must answer five questions quickly:
+The website must answer seven questions quickly:
 
-1. What problem exists?
-2. Why are ordinary project-memory files insufficient?
-3. What does Doubtful Memory do differently?
-4. Can the judge see real deterministic behavior rather than a scripted animation?
-5. How could a developer use it with Codex, Claude Code, Antigravity, or another coding agent?
+1. What is Tamhees?
+2. What problem does it solve?
+3. Why is an ordinary memory file not enough?
+4. What exactly happens before an AI agent acts?
+5. What does the live audit demonstrate?
+6. How can a developer use it with Codex, Antigravity, Claude, generic agents, or local MCP?
+7. What is implemented today, and what remains limited?
 
 ## 2. Challenge alignment
 
@@ -70,11 +72,11 @@ Use plain language first. Put technical detail behind expandable explanations, q
 
 ### Primary headline
 
-**A project brain that knows when it might be wrong.**
+**Project memory that knows when it might be wrong.**
 
 ### Supporting line
 
-**Doubtful Memory helps AI coding agents remember decisions without blindly trusting stale, private, or overconfident context.**
+**Tamhees helps AI coding agents remember decisions without blindly trusting stale, private, or overconfident context.**
 
 ### One-sentence product explanation
 
@@ -122,7 +124,7 @@ Do not imply that:
 - a cloud service or AI model is performing the audit;
 - real credentials are scanned or stored;
 - the product has proven market demand;
-- Doubtful Memory is the first project-memory system;
+- Tamhees is the first project-memory system;
 - all secret formats can be detected;
 - integrations are complete before adapter tests pass;
 - the project was built to an unverified judging criterion.
@@ -175,11 +177,11 @@ Eyebrow:
 
 Headline:
 
-**A project brain that knows when it might be wrong.**
+**Project memory that knows when it might be wrong.**
 
 Body:
 
-**AI coding agents remember project decisions to work faster. But old, inferred, or sensitive memory can become dangerous. Doubtful Memory checks what an agent remembers before that memory is allowed to control an action.**
+**AI coding agents remember project decisions to work faster. But old, inferred, or sensitive memory can become dangerous. Tamhees checks what an agent remembers before that memory is allowed to control an action.**
 
 Primary button:
 
@@ -225,7 +227,7 @@ The animation must communicate meaning, not act as decoration. Provide `prefers-
 - May be repeated with high confidence.
 - Can influence code without asking whether it is still true.
 
-#### Doubtful Memory
+#### Tamhees
 
 - Stores the statement as a claim.
 - Records provenance and verification status.
@@ -454,7 +456,7 @@ Use a simple authority ladder animation. The inferred claim may move up to obser
 
 ## 15. Budgeted context compiler demonstration
 
-This section demonstrates why Doubtful Memory is better than rereading an unbounded Brain.md file.
+This section demonstrates why Tamhees is better than rereading an unbounded Brain.md file.
 
 ### Heading
 
@@ -503,7 +505,7 @@ Right:
 
 ### Important copy
 
-**The original Brain.md approach reread everything. Doubtful Memory retrieves only the safest relevant claims that fit the task budget.**
+**The original Brain.md approach reread everything. Tamhees retrieves only the safest relevant claims that fit the task budget.**
 
 ## 16. Lifecycle demonstration
 
@@ -538,9 +540,9 @@ Use a vertical architecture flow:
 
 1. Coding agents.
 2. Thin adapters.
-3. `gptbrain` CLI and engine.
+3. `tamhees` CLI and engine.
 4. Memory store, evidence, audit, context compiler, lifecycle.
-5. Local `.gptbrain/` JSON and JSONL.
+5. Local `.tamhees/` JSON and JSONL.
 
 ### Invariants shown beside the diagram
 
@@ -555,7 +557,7 @@ Use a vertical architecture flow:
 
 ### Product identity note
 
-Use **Doubtful Memory** publicly. Mention `gptbrain` only as the temporary local engine/CLI codename.
+Use **Tamhees** publicly. Mention `tamhees` only as the temporary local engine/CLI codename.
 
 ## 18. Agent integration section
 
@@ -563,8 +565,8 @@ Explain the final intended workflow without overstating completion.
 
 ### Generic workflow
 
-1. Install or copy Doubtful Memory into a local project.
-2. Initialize `.gptbrain/`.
+1. Install or copy Tamhees into a local project.
+2. Initialize `.tamhees/`.
 3. An adapter or CLI retrieves task-specific context before work.
 4. The agent works using the returned context.
 5. The agent proposes memory updates after work.
@@ -590,7 +592,7 @@ This section should use real Phase 7 output.
 1. No persistent memory.
 2. Original monolithic `GPTBrain.md` approach.
 3. Simple split-file memory.
-4. Doubtful Memory.
+4. Tamhees.
 
 ### Metrics
 
@@ -637,7 +639,7 @@ Use only commands that exist in the final verified release. Update this block wh
 
 ### Short explanation
 
-Doubtful Memory does not require the owner to reread or manually rewrite a giant brain file before every prompt. The lifecycle retrieves relevant context and validates proposed updates automatically while escalating owner-level decisions.
+Tamhees does not require the owner to reread or manually rewrite a giant brain file before every prompt. The lifecycle retrieves relevant context and validates proposed updates automatically while escalating owner-level decisions.
 
 ## 21. Limitations and trust boundaries
 
@@ -677,7 +679,7 @@ Confidence is separate from authority, and agent inference cannot silently becom
 
 Close with:
 
-**Doubtful Memory does not make AI memory perfect. It makes memory accountable.**
+**Tamhees does not make AI memory perfect. It makes memory accountable.**
 
 ## 23. Final call to action
 
@@ -1002,7 +1004,7 @@ Target duration: approximately 90-120 seconds unless official rules specify othe
 
 ### 15-35 seconds - Product
 
-"Doubtful Memory stores project knowledge as claims with evidence, freshness, sensitivity, and permission to act."
+"Tamhees stores project knowledge as claims with evidence, freshness, sensitivity, and permission to act."
 
 ### 35-70 seconds - Primary audit
 
@@ -1018,7 +1020,7 @@ Show local engine, CLI, adapters, deterministic benchmark, and zero-runtime-netw
 
 ### 110-120 seconds - Close
 
-"Doubtful Memory does not make AI memory perfect. It makes memory accountable."
+"Tamhees does not make AI memory perfect. It makes memory accountable."
 
 The Loom must use the final website and verified build. Do not record against temporary UI or outdated results.
 
@@ -1078,7 +1080,7 @@ The judge should leave with this sequence in mind:
 
 1. Project memory helps an AI agent continue work.
 2. That memory can become wrong, private, or too authoritative.
-3. Doubtful Memory stores memory as a claim with evidence and limits.
+3. Tamhees stores memory as a claim with evidence and limits.
 4. The claim is audited against current reality before action.
 5. When evidence conflicts, the agent refuses to guess.
 6. When information is sensitive, it is rejected or redacted.
@@ -1090,3 +1092,43 @@ The judge should leave with this sequence in mind:
 ## 39. Phase 8 local implementation note
 
 Version 0.8.0 is independently verified and checkpointed locally: Node built-in HTTP on `127.0.0.1`, local assets, seven canonical safe-fixture scenarios, and SHA-256-checked benchmark evidence. It adds no dependency, external resource, persistence, telemetry, account, model, database, upload, or deployment. Automated security, privacy, deterministic, semantic, responsive, and reduced-motion checks pass together with visual review at 1440×900, 1024×768, and 390×844 and an independent Chromium keyboard-only audit. Real assistive-technology, physical-device, judge-comprehension, release, and publication review remain pending; Phase 9 has not started.
+
+## 40. Phase 8.1 owner-directed visual correction
+
+The owner rejected the original Phase 8 visual design and explanation, not the verified canonical engine. Version 0.8.1 therefore changes the local presentation layer while preserving all seven deterministic scenarios, API contracts, benchmark integrity checks, loopback and security boundaries, privacy-safe rendering, and zero runtime dependencies.
+
+### Visual direction and information hierarchy
+
+The corrected experience is predominantly white and soft white, with black and charcoal text. Industrial blue is limited to connector lines, small labels, focus and selected states, diagram illumination, pale teaching surfaces, and soft depth. Semantic green, amber, and red communicate outcomes. The broad content frame is approximately 1440 pixels with larger system-font body copy and a wide, unboxed hero beginning at the left content boundary.
+
+The page sequence is: what the product is; why blind trust in memory is dangerous; the four checks; the real live audit; deterministic benchmark evidence; the five local adapter entry points; honest Version 1 limitations; and a final local call to action. Plain language precedes implementation detail. The audit result is absent until execution, explains why and what happens next before exposing IDs and rule traces, and shows context budget controls prominently only for the hard-budget example.
+
+### Native animation specification
+
+The hero contains a semantic HTML and inline-SVG teaching diagram. A remembered SQLite decision and current Supabase repository evidence enter from opposite sides, connectors draw into the audit core, Source, Freshness, Current evidence, and Permission to act resolve in sequence, and the engine ends at BLOCK ACTION with an owner-review next step. The approximately 8–10 second educational sequence pauses before restarting and has a visible Pause/Play control, an adjacent static text alternative, offscreen and page-hidden suspension, and no live announcements from decorative state changes.
+
+One-time intersection-triggered reveals connect the four checks, introduce sections, and animate the benchmark comparison. The live audit begins its real API request immediately and uses a presentation-only five-stage path while awaiting the canonical response; the interface never invents an intermediate or final outcome. UI transitions use short transform-and-opacity changes. Reduced-motion mode exposes every meaningful final state immediately, disables repeated educational motion, and retains all content and controls.
+
+### Source and licensing boundary
+
+Awwwards animation collections supplied visual inspiration only for page rhythm, SVG motion, and scroll-triggered presentation; no showcased website source was copied. Anime.js and Motion supplied conceptual interaction references only for staged timelines, line drawing, stagger, and reveal behavior. Neither library was installed, bundled, copied, or imported, and no Motion+ or premium example was used. All implemented animation code is original and uses native CSS, semantic HTML, inline SVG, IntersectionObserver, document visibility events, and browser platform behavior. No third-party code, animation dependency, hosted asset, font, script, style, API, or network request was added.
+
+This remains a Phase 8 correction candidate. It does not start Phase 9 and does not authorize staging, commit, upload, deployment, or publication.
+## 41. Phase 8.2 approved identity and guided CLI candidate
+
+The active identity is Tamhees, with the restrained Arabic detail تمحيص, executable/package name `tamhees`, canonical storage `.tamhees/`, tagline “Memory under scrutiny.”, and opening explanation “Tamhees checks what an AI remembers before that memory is allowed to guide an action.” The old GPTBrain.md reference appears only in the origin story as the useful monolithic experiment that grew costly and unsafe to trust blindly.
+
+A prominent guided CLI lesson precedes the live audit. It exposes five fixed presentation states: `tamhees init`, memory apply with `<safe-memory-fixture>`, evidence add with `<safe-evidence-fixture>`, `tamhees audit`, and task context for “prepare the database migration.” The lesson has Run full demo, Next step, Reset, direct step selection, pause/play, a labelled contained log, concise announcements, and a complete non-animated equivalent. It accepts no command input and calls no shell. Its first three outputs are fixed teaching copy; outcome, permission, recommended next step, and selected/excluded context are derived from the existing strict canonical architecture-conflict audit response.
+
+The live audit first explains its safety-check purpose and the three-stage model: remembered claim, current proof, and safe action permission. After execution, it shows decision, canonical reason, permission consequence, recommended next step, and selected/excluded context before a collapsed evidence/rule trace. Protocol IDs never precede comprehension.
+
+The candidate retains white/soft-white surfaces, black typography, restrained industrial blue, semantic outcome colors, the native hero teaching animation, responsive layouts, keyboard operation, offscreen and page-hidden pause, and reduced-motion final states. Benchmark data remains derived from the integrity-checked deterministic artifact. Limitations remain explicit: exact lexical/tag retrieval, estimated rather than provider-exact tokens, pattern-based secret detection, a limited local stdio MCP subset, fixed safe fixtures, and no universal enforcement claim.
+
+### Owner hero follow-up
+
+The desktop hero now uses a 1,510-pixel maximum frame with viewport-responsive outer margins and a measured 60/40 copy-to-visual split. The copy begins at the main content boundary, the headline has a 940-pixel maximum measure with balanced `clamp()` typography and natural wrapping, and the supporting explanation can reach 760 pixels. At the verified 1536 x 864 and 1440 x 900 viewports the headline resolves to two broad editorial lines; at 390 x 844 it remains two readable lines with no clipping or horizontal page overflow. Tablet and mobile retain a single-column stack.
+
+The hero diagram is a purpose-built memory-scrutiny pipeline rather than an orbit. The owner claim and repository evidence enter at the top, converge on a Tamhees chamber, pass visibly through Source, Freshness, Current evidence, and Permission gates, and end with BLOCK ACTION, the owner question, and a labelled context exclusion. The panel uses its full vertical area, and every meaningful label remains visible throughout the 10-second emphasis cycle so the complete lesson is understandable in a screenshot. Pause/Play, offscreen suspension, page-hidden suspension, and the reduced-motion final state remain native and dependency-free.
+
+Industrial blue now defines connector paths, blueprint grid lines, chamber chrome, technical borders, focus rings, section bands, guided CLI depth, live-audit progress, benchmark emphasis, integration cards, and informational callouts. White remains dominant, black remains the primary text color, and green, amber, and red retain labelled semantic outcome meaning.
+Version 0.8.2 is implementation evidence only. Independent owner visual, CLI, assistive-technology, device, judge-comprehension, release, and publication review remain pending. No staging, checkpoint, upload, deployment, publication, or Phase 9 work is authorized here.

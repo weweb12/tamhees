@@ -1,10 +1,10 @@
-# Doubtful Memory — Architecture
+# Tamhees — Architecture
 
-> **Status**: Phases 1–8 are independently verified and checkpointed locally as Version 0.8.0. Phase 9 has not started.
+> **Status**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.2 is an unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 has not started.
 
 ## Overview
 
-Doubtful Memory is a local developer tool that treats AI coding-agent memory as evidence-backed claims subject to auditing, authority rules, and privacy controls. The system is built around a tool-neutral engine (`gptbrain`) that stores, retrieves, audits, and serves project memory through a CLI and thin agent adapters.
+Tamhees is a local developer tool that treats AI coding-agent memory as evidence-backed claims subject to auditing, authority rules, and privacy controls. The system is built around a tool-neutral engine (`tamhees`) that stores, retrieves, audits, and serves project memory through a CLI and thin agent adapters.
 
 ## Component boundaries
 
@@ -20,11 +20,11 @@ Doubtful Memory is a local developer tool that treats AI coding-agent memory as 
 │         └────────┬────────┴────────┬────────┘           │
 │                  │                 │                     │
 │  ┌───────────────▼─────────────────▼──────────────┐     │
-│  │              gptbrain CLI                       │     │
+│  │              tamhees CLI                       │     │
 │  └───────────────┬────────────────────────────────┘     │
 │                  │                                       │
 │  ┌───────────────▼──────────────────────────────┐       │
-│  │           gptbrain Engine                     │       │
+│  │           tamhees Engine                     │       │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐     │       │
 │  │  │ Memory   │ │ Context  │ │ Audit    │     │       │
 │  │  │ Store    │ │ Compiler │ │ Engine   │     │       │
@@ -32,7 +32,7 @@ Doubtful Memory is a local developer tool that treats AI coding-agent memory as 
 │  └───────────────┬──────────────────────────────┘       │
 │                  │                                       │
 │  ┌───────────────▼──────────────────────────────┐       │
-│  │           .gptbrain/ Local Storage            │       │
+│  │           .tamhees/ Local Storage            │       │
 │  └──────────────────────────────────────────────┘       │
 │                                                         │
 │  ┌──────────────┐  ┌──────────────┐                     │
@@ -44,12 +44,12 @@ Doubtful Memory is a local developer tool that treats AI coding-agent memory as 
 
 ## Canonical source of truth
 
-There is exactly one canonical representation of each memory record: its JSON file under `.gptbrain/memories/records/`. All adapters, the CLI, the MCP interface, and the dashboard read from and write to this single store through the engine. No adapter maintains its own copy of canonical memory.
+There is exactly one canonical representation of each memory record: its JSON file under `.tamhees/memories/records/`. All adapters, the CLI, the MCP interface, and the dashboard read from and write to this single store through the engine. No adapter maintains its own copy of canonical memory.
 
-## .gptbrain/ storage
+## .tamhees/ storage
 
 ```
-.gptbrain/
+.tamhees/
 ├── config.json           # Project configuration, schema version
 ├── state.json            # Runtime state (current phase, last operation)
 ├── memories/
@@ -166,7 +166,7 @@ The audit engine evaluates memory records against deterministic rules.
 - Every audit event is recorded in the append-only log.
 - No hosted model or API is required.
 
-## CLI (`gptbrain`)
+## CLI (`tamhees`)
 
 The CLI is the primary human interface to the engine.
 
@@ -174,14 +174,16 @@ The CLI is the primary human interface to the engine.
 
 | Command | Purpose |
 |---------|---------|
-| `gptbrain init` | Initialize `.gptbrain/` in the current project |
-| `gptbrain memory list` | List canonical memory records |
-| `gptbrain memory show <id>` | Show one canonical memory record |
-| `gptbrain memory apply --input <file>` | Apply a validated create, update, revoke, or redact candidate |
-| `gptbrain evidence list` | List evidence records |
-| `gptbrain evidence add --input <file>` | Add a validated evidence record |
-| `gptbrain audit` | Run audit on specified or all memories |
-| `gptbrain context --task <text> [--max-tokens <n>] [--format json|markdown]` | Compile a deterministic, audit-aware, hard-budgeted task context pack |
+| `tamhees init` | Initialize `.tamhees/` in the current project |
+| `tamhees memory list` | List canonical memory records |
+| `tamhees memory show <id>` | Show one canonical memory record |
+| `tamhees memory apply --input <file>` | Apply a validated create, update, revoke, or redact candidate |
+| `tamhees evidence list` | List evidence records |
+| `tamhees evidence add --input <file>` | Add a validated evidence record |
+| `tamhees audit` | Run audit on specified or all memories |
+| `tamhees context --task <text> [--max-tokens <n>] [--format json|markdown]` | Compile a deterministic, audit-aware, hard-budgeted task context pack |
+| `tamhees migrate legacy-storage [--dry-run]` | Explicitly validate and rename a lone legacy `.gptbrain/` store without merge or overwrite |
+| `tamhees migrate bootstrap [--input <file>]` | Import the preserved bootstrap claim ledger once |
 
 ### Invariants
 
@@ -191,7 +193,7 @@ The CLI is the primary human interface to the engine.
 
 ## Adapter boundaries
 
-Each adapter is a thin translation layer between a specific AI coding agent and the gptbrain engine. Adapters do not contain business logic, audit rules, or memory storage.
+Each adapter is a thin translation layer between a specific AI coding agent and the tamhees engine. Adapters do not contain business logic, audit rules, or memory storage.
 
 ### Adapter responsibilities
 
@@ -219,7 +221,7 @@ Each adapter is a thin translation layer between a specific AI coding agent and 
 
 ### Antigravity as development agent
 
-Antigravity IDE (with Claude Opus 4.6 Thinking) is the currently approved development agent. It is not a product runtime dependency. The Antigravity adapter enables Doubtful Memory to serve context to Antigravity, not the reverse.
+Antigravity IDE (with Claude Opus 4.6 Thinking) is the currently approved development agent. It is not a product runtime dependency. The Antigravity adapter enables Tamhees to serve context to Antigravity, not the reverse.
 
 ## Local MCP boundary
 
@@ -232,12 +234,15 @@ The local MCP adapter provides a stdio-based Model Context Protocol interface.
 - The MCP SDK was reviewed and rejected for Version 0.7.0; the isolated adapter uses Node.js built-ins and protocol revision `2025-11-25`.
 - Duplicate request IDs are tracked in a bounded rolling window of 4,096 requests; an evicted ID may be reused. Strict initialization and tool schemas, bounded line framing, sequential processing, and privacy-safe errors define the implemented subset.
 - MCP specification changes are a tracked risk; this implementation does not claim the full optional MCP feature surface.
+- The exact active tool names are `tamhees_initialize_project`, `tamhees_begin_task`, `tamhees_finalize_task`, and `tamhees_status`; the pre-release old namespace is not aliased.
 
 ## Dashboard boundary
 
 Version 0.8.0 serves local semantic assets from Node built-in HTTP on `127.0.0.1`. `src/dashboard/scenarios.ts` delegates safe fixtures to `auditRecord` and `compileContext`; `benchmark.ts` verifies and reads the committed artifact; `server.ts` enforces routing, schemas, limits, origin, privacy-safe errors, and security headers. UI code owns presentation only.
 
 The dashboard has zero runtime dependencies, no external requests or resources, no browser persistence, and no canonical mutation. It rejects traversal-like or query-bearing targets, unexpected Host or Origin values, unknown routes, unsupported methods and media types, oversized or interrupted bodies, malformed or duplicate-key JSON, and unknown fields. Safe fixtures demonstrate canonical behavior but do not expose arbitrary live repository data.
+
+Version 0.8.2 adds a five-state guided CLI presentation. It uses fixed strings and the existing strict architecture-conflict audit request; it does not expose a shell, command endpoint, arbitrary input, or write path. Full-run and step controls alter browser-only presentation state, while canonical outcome, permission, next step, and context selection come from the engine response.
 ## Privacy boundary
 
 ### Invariants
@@ -280,7 +285,7 @@ The system maintains project memory state automatically. Users do not manually u
 
 ## Migration from bootstrap Markdown
 
-The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDIT.md`. Migration to `.gptbrain/` JSON remains planned for the controlled lifecycle milestone. The Markdown sources will be preserved.
+The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDIT.md`. The controlled Phase 4 bootstrap migration to `.tamhees/` JSON is implemented. The Markdown sources are preserved.
 
 ### Migration invariants
 
@@ -290,6 +295,9 @@ The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDI
 4. The migration itself must be auditable.
 5. The bootstrap Markdown files are preserved during migration (not deleted during Phase 0).
 
+## Legacy storage-directory rename
+
+`src/core/legacy-storage.ts` implements one explicit compatibility boundary: `.gptbrain/` to `.tamhees/` beneath a verified project root. Both names are fixed constants, so callers cannot supply paths. It rejects links, junctions, reparse points, escapes, corrupt or unknown artifacts, inconsistent indexes, and over-limit stores before mutation. Neither store is a no-op, canonical-only is idempotent, legacy-only supports pure dry-run and one same-parent rename, and both stores fail closed without merge, overwrite, or deletion. Destination validation follows rename; failure attempts and validates rollback. The implementation does not claim filesystem-wide atomicity, and the storage schema remains `1.0.0`.
 ## Important invariants summary
 
 1. **Single source of truth**: One canonical JSON file per memory record.
@@ -305,7 +313,7 @@ The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDI
 
 ## Phase 4 controlled lifecycle architecture
 
-The interface-neutral lifecycle engine lives in `src/core/lifecycle.ts`; the CLI only parses inputs and formats results. `beginLifecycle` accepts an injected clock and ID generator, calls the Phase 3 context compiler, returns its pack ephemerally, and writes only safe correlation metadata beneath `.gptbrain/episodes/`. Task text, selected statements, evidence contents, and generated JSON or Markdown are never stored in lifecycle state.
+The interface-neutral lifecycle engine lives in `src/core/lifecycle.ts`; the CLI only parses inputs and formats results. `beginLifecycle` accepts an injected clock and ID generator, calls the Phase 3 context compiler, returns its pack ephemerally, and writes only safe correlation metadata beneath `.tamhees/episodes/`. Task text, selected statements, evidence contents, and generated JSON or Markdown are never stored in lifecycle state.
 
 Legal states are:
 

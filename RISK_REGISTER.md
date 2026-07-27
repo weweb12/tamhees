@@ -1,4 +1,4 @@
-# Doubtful Memory - Risk Register
+# Tamhees - Risk Register
 
 ## Purpose
 
@@ -221,7 +221,7 @@ The project could lose credibility by claiming that AI project memory does not e
 ### Mitigation
 
 - Acknowledge existing systems such as agent instruction files and memory banks.
-- Position Doubtful Memory as a verification and action-safety layer.
+- Position Tamhees as a verification and action-safety layer.
 - Use evidence-based comparisons.
 - Avoid absolute market claims.
 - Recheck current official product documentation before publishing comparisons.
@@ -646,20 +646,20 @@ Update the adapter to match the current specification. If breaking changes are s
 
 ### Risk
 
-The benchmark baselines (no memory, original GPTBrain.md, simple split-file) are constructed in a way that unfairly disadvantages them or unfairly advantages Doubtful Memory.
+The benchmark baselines (no memory, original GPTBrain.md, simple split-file) are constructed in a way that unfairly disadvantages them or unfairly advantages Tamhees.
 
 ### Warning signs
 
 - Baseline fixture data is intentionally poor quality.
-- Doubtful Memory fixture data is optimized for the benchmark.
-- Measurements exclude cases where Doubtful Memory performs worse.
+- Tamhees fixture data is optimized for the benchmark.
+- Measurements exclude cases where Tamhees performs worse.
 - Reviewers identify bias in the comparison methodology.
 
 ### Mitigation
 
 - Use the same underlying project data across all baselines.
 - Document the fixture construction methodology.
-- Include measurements where Doubtful Memory may not improve on simpler approaches.
+- Include measurements where Tamhees may not improve on simpler approaches.
 - Have the benchmark methodology reviewed before publication.
 
 ### Contingency
@@ -668,7 +668,7 @@ Reconstruct baselines with reviewer feedback. Acknowledge limitations in the ben
 
 ### Current evidence (Version 0.7.0 checkpoint)
 
-Independent verification corrected the candidate methodology: fixture ground truth is no longer generated, safe relevance is explicit, undefined classifications are null, and prevention is separate from detection. Doubtful Memory now records 22/22 abstention correctness, 22/22 exact outcomes, and zero unsafe or secret exposures on the fixed fixture. The risk remains OPEN because deterministic fixtures cannot prove external validity or prevent future benchmark drift.
+Independent verification corrected the candidate methodology: fixture ground truth is no longer generated, safe relevance is explicit, undefined classifications are null, and prevention is separate from detection. Tamhees now records 22/22 abstention correctness, 22/22 exact outcomes, and zero unsafe or secret exposures on the fixed fixture. The risk remains OPEN because deterministic fixtures cannot prove external validity or prevent future benchmark drift.
 
 ---
 
@@ -720,15 +720,15 @@ Ephemeral runtime data — including context packs with sensitive content — is
 
 ### Warning signs
 
-- Files appear in `.gptbrain/runtime/` in `git status`.
+- Files appear in `.tamhees/runtime/` in `git status`.
 - A commit includes runtime files.
 - A `.gitignore` entry is missing or incorrect.
 - Sensitive content appears in Git history.
 
 ### Mitigation
 
-- `gptbrain init` creates `.gptbrain/runtime/` with a `.gitignore` inside it.
-- The project `.gitignore` excludes `.gptbrain/runtime/`.
+- `tamhees init` creates `.tamhees/runtime/` with a `.gitignore` inside it.
+- The project `.gitignore` excludes `.tamhees/runtime/`.
 - Pre-commit checks warn about runtime files.
 - Documentation warns against committing runtime data.
 
@@ -761,7 +761,7 @@ The memory index (`index.json`) becomes inconsistent with the actual records in 
 ### Mitigation
 
 - Update the index atomically with every record write.
-- Provide an index-rebuild command (`gptbrain repair` or similar).
+- Provide an index-rebuild command (`tamhees repair` or similar).
 - Include index-consistency checks in the benchmark harness.
 - Test concurrent write scenarios.
 
@@ -867,7 +867,7 @@ The AI development agent (Antigravity or another) accidentally deletes files, ov
 - `AGENTS.md` rules require git status inspection before edits.
 - Rules prohibit destructive Git commands.
 - Rules require approval for dependencies and external services.
-- `.agents/rules/doubtful-memory.md` enforces preservation of user changes.
+- `.agents/rules/tamhees.md` enforces preservation of user changes.
 - Verification before claiming success.
 
 ### Contingency
@@ -915,6 +915,7 @@ Restore from the latest commit. Review and correct the agent's behavior. Add str
 12. DM-RISK-021 - Runtime context leaks into Git (MEDIUM, HIGH).
 13. DM-RISK-024 - Scope expansion delays competition release (HIGH, HIGH).
 14. DM-RISK-025 - Development agent performs destructive work (LOW, HIGH).
+15. DM-RISK-026 - Legacy storage rename splits or loses canonical memory (LOW, HIGH).
 
 ### Medium-priority open risks
 
@@ -935,8 +936,8 @@ Restore from the latest commit. Review and correct the agent's behavior. Add str
 
 ### Risk totals
 
-- Total risks: 25
-- Open: 23
+- Total risks: 26
+- Open: 24
 - Controlled: 2
 - Occurred: 0
 - Closed: 0
@@ -970,7 +971,7 @@ Review this register:
 - `DM-RISK-017` remains OPEN with stronger controls. Begin and mutating finalization are equivalent across isolated identical clones, including records, indexes, archives, lifecycle states, and normalized safe audit results.
 - `DM-RISK-018` remains OPEN. The local MCP subset is pinned to revision `2025-11-25`, tracks duplicate IDs in a bounded 4,096-request rolling window, and intentionally does not claim full optional MCP coverage.
 - `DM-RISK-019` remains OPEN with the candidate defects corrected. Fixture labels are independent of engine output; null metrics, safety-adjusted relevance, and all aggregate denominators are explicit. External validity still requires future review before publication.
-- `DM-RISK-021` remains OPEN with stronger controls. Complete isolated smokes persist no task, context, held/rejected proposal content, or secret and leave no repository `.gptbrain/` state.
+- `DM-RISK-021` remains OPEN with stronger controls. Complete isolated smokes persist no task, context, held/rejected proposal content, or secret and leave no repository `.tamhees/` state.
 - `DM-RISK-025` remains OPEN. The independent checkpoint used explicit staging and destructive-path checks; no upload, remote, dependency, or Phase 8 work was introduced.
 - No risk was silently changed to CONTROLLED or CLOSED based only on this local checkpoint.
 
@@ -982,7 +983,47 @@ Review this register:
 
 - `DM-RISK-004` remains OPEN. Fake secret-shaped input is rejected before browser output and privacy-safe errors were verified, but pattern-based detection cannot prove every arbitrary value safe.
 - `DM-RISK-009`, `DM-RISK-010`, and `DM-RISK-011` remain OPEN with stronger controls. Independent Chromium review verified text-and-symbol outcomes, native controls, logical keyboard traversal, visible focus, a concise live announcement, responsive layouts, and reasonable contrast. Real screen-reader, other assistive-technology, physical-device, and independent comprehension testing remain pending.
-- `DM-RISK-021` remains OPEN with stronger controls. All seven live scenarios, adversarial API checks, and repository manifests showed no persisted context, `.gptbrain/`, secret, or source mutation.
+- `DM-RISK-021` remains OPEN with stronger controls. All seven live scenarios, adversarial API checks, and repository manifests showed no persisted context, `.tamhees/`, secret, or source mutation.
 - `DM-RISK-024` remains OPEN. The local dashboard and fixture-based judge story are independently reviewable, but external judge comprehension and release presentation are not yet verified.
 - `DM-RISK-025` remains OPEN. The checkpoint uses exact staging and excludes generated assets, screenshots, temporary profiles, runtime files, and dependency directories; publication and remote configuration remain unauthorized.
 - No risk was changed to CONTROLLED or CLOSED from this local checkpoint alone.
+---
+
+## DM-RISK-026 - Legacy storage rename splits or loses canonical memory
+
+- Likelihood: LOW
+- Impact: HIGH
+- Status: OPEN
+- Owner: Storage and migration boundary
+- Related decision: DM-DEC-035
+- Added: 2026-07-25
+
+### Risk
+
+An existing `.gptbrain/` store and the new `.tamhees/` identity could create two competing sources of truth, overwrite data, accept corrupt or escaped content, or leave the only usable store inaccessible after a failed rename.
+
+### Warning signs
+
+- Both directories exist in one project.
+- Migration accepts a link, junction, reparse point, unknown artifact, inconsistent index, or caller-selected path.
+- Dry-run changes bytes.
+- A failed migration removes or damages the legacy store.
+- The implementation or documentation implies automatic merge or filesystem-wide atomicity.
+
+### Mitigation
+
+- Expose only explicit `tamhees migrate legacy-storage [--dry-run]` with fixed same-project source and target names.
+- Resolve and verify the project boundary; reject links, reparse points, traversal, escapes, corrupt or unknown artifacts, index mismatch, and size-limit violations before change.
+- Treat neither directory and canonical-only as idempotent states; fail closed when both exist without merge, overwrite, delete, or implicit choice.
+- Validate after one same-parent rename, attempt rollback on post-validation failure, and validate the restored legacy state.
+- Keep schema `1.0.0`, diagnostics privacy-safe, and tests isolated from the repository.
+
+### Contingency
+
+Stop using either store, preserve both directory trees byte-for-byte, report the structured failure code, and require explicit owner-directed recovery. Never merge or delete automatically.
+
+## Phase 8.2 implementation-candidate risk review - 2026-07-25
+
+- `DM-RISK-026` remains OPEN with strong local controls. Adversarial tests cover no-store, canonical-only, dry-run, successful replay, both-store conflict, corruption, unexpected paths, byte limits, links/reparse points where supported, failed post-validation, rollback, byte preservation, and idempotency. Filesystem and external-project diversity remain pending independent review.
+- `DM-RISK-004`, `DM-RISK-009`, `DM-RISK-010`, `DM-RISK-011`, `DM-RISK-017`, `DM-RISK-018`, `DM-RISK-019`, `DM-RISK-021`, `DM-RISK-023`, `DM-RISK-024`, and `DM-RISK-025` remain OPEN. Phase 8.2 strengthens deterministic naming, migration, explanation, guided controls, privacy, and audit presentation but cannot establish universal detection, enforcement, usability, accessibility, external validity, or release readiness.
+- No risk was changed to CONTROLLED or CLOSED from implementation tests alone.

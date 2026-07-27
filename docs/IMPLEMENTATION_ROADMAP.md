@@ -1,8 +1,8 @@
-# Doubtful Memory — Implementation Roadmap
+# Tamhees — Implementation Roadmap
 
-> **Status**: This roadmap defines the implementation phases for Doubtful Memory Version 1.
+> **Status**: This roadmap defines the implementation phases for Tamhees Version 1. Version 0.8.2 is an unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 is `NOT_STARTED`.
 
-> **Current Position**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.0 passes 220 tests plus isolated responsive-browser and keyboard review. Phase 9 has not started.
+> **Current Position**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.2 is the unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 has not started.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -20,7 +20,7 @@
 ### Outputs
 
 - Updated project documentation aligned with approved architecture corrections.
-- New governance files (`AGENTS.md`, `.agents/rules/doubtful-memory.md`).
+- New governance files (`AGENTS.md`, `.agents/rules/tamhees.md`).
 - New specification files (`docs/ARCHITECTURE.md`, `docs/PROTOCOL_SPECIFICATION.md`, `docs/IMPLEMENTATION_ROADMAP.md`).
 - Updated `README.md`.
 - Superseded decisions marked and replaced.
@@ -61,19 +61,19 @@ Status: **COMPLETE — LOCALLY VERIFIED**
 **Goal**: Build the smallest working slice of the local engine.
 
 **Deliverables**:
-- [x] Initial `.gptbrain/` storage structure logic.
+- [x] Initial `.tamhees/` storage structure logic.
 - [x] TypeScript types and runtime validation for memory records.
-- [x] `gptbrain init` command (creates bootstrap memory).
-- [x] `gptbrain context --task ""` command (reads, validates, outputs deterministic JSON).
-- [x] `gptbrain audit` command (one rule: DM-RULE-AUTH-001).
+- [x] `tamhees init` command (creates bootstrap memory).
+- [x] `tamhees context --task ""` command (reads, validates, outputs deterministic JSON).
+- [x] `tamhees audit` command (one rule: DM-RULE-AUTH-001).
 - [x] Local JSONL audit history appending.
 - [x] Test suite using `node:test` (no outside dependencies).
 
-**Exit condition**: `gptbrain init`, `gptbrain context`, and `gptbrain audit` run locally, pass validation, and successfully execute without network access.
+**Exit condition**: `tamhees init`, `tamhees context`, and `tamhees audit` run locally, pass validation, and successfully execute without network access.
 
 ### Acceptance criteria
 
-- `gptbrain init` creates the correct directory structure with `config.json` and `state.json`.
+- `tamhees init` creates the correct directory structure with `config.json` and `state.json`.
 - A memory record can be created and read back identically.
 - The record includes all required schema fields.
 - Atomic write uses temp file + rename.
@@ -86,7 +86,7 @@ Status: **COMPLETE — LOCALLY VERIFIED**
 ### Tests
 
 - `node --test` passes all unit tests.
-- `gptbrain init` in a temp directory succeeds.
+- `tamhees init` in a temp directory succeeds.
 - Created files match expected schema.
 - Audit output is deterministic across runs.
 
@@ -97,7 +97,7 @@ All acceptance criteria and independent tests pass. Phase 1 is included in the v
 ### Current evidence
 
 - Passing test output: 51 tests passed, 0 failed, 0 skipped.
-- Example `.gptbrain/` directory listing.
+- Example `.tamhees/` directory listing.
 - Example memory record JSON.
 - Example audit event JSONL line.
 
@@ -230,7 +230,7 @@ Implementation and independent local owner-verification passed for Phase 4. The 
 
 - Full clean-install, typecheck, build, test, and verify output.
 - A real temporary-project trace with applied, held, and rejected proposals plus identical replay.
-- Dependency inspection, Git diff checks, and proof that no task, context pack, service, remote, or repository `.gptbrain/` was introduced.
+- Dependency inspection, Git diff checks, and proof that no task, context pack, service, remote, or repository `.tamhees/` was introduced.
 
 ---
 ## Phase 5 — Codex and Antigravity adapters
@@ -311,7 +311,7 @@ All adapters pass equivalence tests and the documented limited MCP subset passes
 
 - Benchmark fixture data.
 - Deterministic benchmark measurements.
-- Baseline comparisons (no memory, original GPTBrain.md, simple split-file, Doubtful Memory).
+- Baseline comparisons (no memory, original GPTBrain.md, simple split-file, Tamhees).
 
 ### Acceptance criteria
 
@@ -370,7 +370,35 @@ Canonical outcomes, determinism, schemas, methods, routes, traversal, Host and O
 
 ---
 
+## Phase 8.1 — Owner-directed visual correction
+
+**Status**: IMPLEMENTED AS AN UNSTAGED VERSION 0.8.1 CANDIDATE; superseded as the active candidate by Phase 8.2, not independently owner-accepted.
+
+The white-first hierarchy, native educational engine animation, simplified benchmark presentation, hidden-until-run result, and plain-language live-audit flow remain the visual foundation.
+
+---
+
+## Phase 8.2 — Tamhees identity, legacy migration, guided CLI, and clarity
+
+**Status**: IMPLEMENTATION CANDIDATE — VERSION 0.8.2, UNSTAGED, PENDING INDEPENDENT OWNER REVIEW.
+
+### Outputs
+
+- Approved Tamhees, `tamhees`, `.tamhees/`, and `tamhees_*` identities with centralized runtime constants.
+- Explicit fail-closed `tamhees migrate legacy-storage [--dry-run]` compatibility boundary.
+- Renamed Antigravity rule and managed instruction identity.
+- Five-step fixed-fixture guided CLI lesson backed by the canonical architecture-conflict audit.
+- Live-audit decision/reason/permission/next/context hierarchy before collapsed rule trace.
+- Regenerated and integrity-pinned Version 0.8.2 benchmark artifact.
+
+### Stop gate
+
+Typecheck, build, full and focused suites, migration adversarial cases, rename regression, benchmark byte identity, dependency inspection, isolated CLI smokes, responsive/keyboard/reduced-motion browser review, repository isolation, and Git boundary checks must pass. Automated evidence cannot mark the candidate owner-accepted or start Phase 9.
+
+---
 ## Phase 9 — Release hardening, documentation, and submission
+
+**Status**: NOT_STARTED; requires separate owner authorization after Phase 8.2 review.
 
 ### Outputs
 

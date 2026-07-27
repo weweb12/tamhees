@@ -1,5 +1,6 @@
 import { beginLifecycle, finalizeLifecycle, randomLifecycleId } from '../core/lifecycle.js';
 import { systemClock } from '../core/types.js';
+import { ANTIGRAVITY_RULE_PATH, GENERIC_AGENT_PATH, MCP_INSTRUCTION_PATH } from '../core/identity.js';
 import { ADAPTER_NAMES, type Adapter, type AdapterDefinition, type AdapterName } from './types.js';
 
 const DEFINITIONS: Readonly<Record<AdapterName, AdapterDefinition>> = {
@@ -8,7 +9,7 @@ const DEFINITIONS: Readonly<Record<AdapterName, AdapterDefinition>> = {
     description: 'Project-local Codex instructions.',
   },
   antigravity: {
-    name: 'antigravity', displayName: 'Antigravity', instructionPath: '.agents/rules/doubtful-memory.md',
+    name: 'antigravity', displayName: 'Antigravity', instructionPath: ANTIGRAVITY_RULE_PATH,
     description: 'Project-local Antigravity agent rule.',
   },
   claude: {
@@ -16,11 +17,11 @@ const DEFINITIONS: Readonly<Record<AdapterName, AdapterDefinition>> = {
     description: 'Project-local Claude instructions.',
   },
   generic: {
-    name: 'generic', displayName: 'Generic agent', instructionPath: 'DOUBTFUL_MEMORY_AGENT.md',
+    name: 'generic', displayName: 'Generic agent', instructionPath: GENERIC_AGENT_PATH,
     description: 'Portable project-local agent instructions.',
   },
   mcp: {
-    name: 'mcp', displayName: 'Local stdio MCP', instructionPath: 'DOUBTFUL_MEMORY_MCP.md',
+    name: 'mcp', displayName: 'Local stdio MCP', instructionPath: MCP_INSTRUCTION_PATH,
     description: 'Project-local MCP configuration example and instructions.',
   },
 };

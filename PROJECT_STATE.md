@@ -1,4 +1,4 @@
-# Doubtful Memory - Project State
+# Tamhees - Project State
 
 ## Purpose
 
@@ -6,40 +6,40 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.8.0 is the independently verified, locally checkpointed Phase 8 implementation built on the Phase 1–7 checkpoints.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.8.2 is the unstaged Phase 8.2 Tamhees identity, legacy-storage migration, guided CLI, and clarity implementation candidate built on the independently verified Phase 8 checkpoint and the Phase 8.1 visual foundation.
 
 ## Status summary
 
-- Project: Doubtful Memory
-- Current phase: Phase 8 — independently verified and checkpointed locally; Phase 9 has not started.
+- Project: Tamhees
+- Current phase: Phase 8.2 — implementation candidate pending independent owner review; Phase 9 has not started.
 - Overall status: In progress
 - Development environment: Windows, local-only, Node 24.
 - Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
 - Latest committed checkpoint: Phase 8 local dashboard checkpoint
-- Current unstaged candidate: None
+- Current unstaged candidate: Version 0.8.2 Tamhees rename, controlled legacy-storage migration, guided CLI lesson, live-audit clarity, and owner-directed hero/pipeline depth correction
 - Git remote: None
 - Repository upload/publication: None
 - External services: None
 - Paid services: None
 - Application dependencies: None (zero runtime dependencies)
-- Application code: Phases 1–8 are independently verified and checkpointed locally.
+- Application code: Phases 1–8 remain independently verified; Phase 8.2 changes active identity, adds explicit legacy migration, extends the presentation/tests, and preserves canonical audit, privacy, authority, ranking, lifecycle, mutation, and context rules.
 - Packages:
   - typescript@6.0.3
   - @types/node@22.20.1
   - zero runtime dependencies
-- CLI, engine, and storage identity: `gptbrain` and `.gptbrain/` remain temporary codenames.
+- Approved CLI, engine, and storage identity: `tamhees` and `.tamhees/`; legacy `.gptbrain/` is recognized only by the explicit controlled migration.
 - Current local verification evidence:
-  - 220 passed
+  - 239 passed across 36 suites
   - 0 failed
   - 0 skipped
   - 0 todo
-- Last updated: 2026-07-24
+- Last updated: 2026-07-26
 
 ## Current objective
 
-Version 0.8.0 adds the dependency-free, loopback-only local dashboard and judge demonstration. Seven safe deterministic scenarios call canonical audit and context functions, and the benchmark view reads the integrity-checked committed Version 0.7.0 artifact. Independent source, security, privacy, responsive-browser, and keyboard review passes with 220 tests. Phase 8 is checkpointed locally; Phase 9 has not started.
+Version 0.8.2 implements the owner-approved Tamhees identity, fail-closed `.gptbrain/` to `.tamhees/` migration, five-step fixed-fixture CLI lesson, clearer live-audit result hierarchy, and the owner-directed wider hero with a full memory-scrutiny pipeline and stronger industrial-blue depth. The candidate is unstaged and awaits independent owner visual and CLI review; Phase 9 has not started.
 ## Completed work
 
 - Reviewed the two existing project-planning PDFs.
@@ -56,7 +56,7 @@ Version 0.8.0 adds the dependency-free, loopback-only local dashboard and judge 
 - Created first verified local Git commit (`1c6bc6f`).
 - Phase 0: Realigned specification with approved architecture corrections.
 - Phase 0: Superseded DM-DEC-007 (Vite/React stack) with engine-first decisions.
-- Phase 0: Created AGENTS.md, README.md, and .agents/rules/doubtful-memory.md.
+- Phase 0: Created AGENTS.md, README.md, and .agents/rules/tamhees.md.
 - Phase 0: Created docs/ARCHITECTURE.md, docs/PROTOCOL_SPECIFICATION.md, docs/IMPLEMENTATION_ROADMAP.md.
 - Phase 0: Appended 12 new decisions (DM-DEC-013 through DM-DEC-024).
 - Phase 0: Added engine/CLI/adapter/benchmark requirements.
@@ -68,13 +68,13 @@ Version 0.8.0 adds the dependency-free, loopback-only local dashboard and judge 
 - Phase 1: Implemented fail-safe deterministic audit engine (DM-RULE-AUTH-001).
 - Phase 1: Implemented local JSON and JSONL atomic storage with deep path safety.
 - Phase 1: Implemented strict CLI argument parsing.
-- Phase 1: Created `gptbrain init`, `gptbrain context`, and `gptbrain audit` commands.
+- Phase 1: Created `tamhees init`, `tamhees context`, and `tamhees audit` commands.
 - Phase 1: Comprehensive `node:test` regression suite independently verified at 51 passing tests.
 
 - Phase 1: `PROTOCOL_SPECIFICATION.md` updated to match canonical schema (DM-DEC-025).
 - Phase 2: Implemented controlled `CREATE`, `UPDATE`, `REVOKE`, and `REDACT` operations.
 - Phase 2: Implemented strict update-candidate and evidence-record validation.
-- Phase 2: Implemented evidence storage and retrieval under `.gptbrain/evidence/`.
+- Phase 2: Implemented evidence storage and retrieval under `.tamhees/evidence/`.
 - Phase 2: Implemented optimistic concurrency and authority non-escalation for mutations.
 - Phase 2: Implemented pre-update/pre-revoke archive snapshots and privacy-safe redaction.
 - Phase 2: Implemented stable privacy, revocation, conflict, authority, freshness, evidence, and trust rule precedence.
@@ -97,7 +97,7 @@ Version 0.8.0 adds the dependency-free, loopback-only local dashboard and judge 
 - Phase 5: Added one exact five-adapter registry, thin shared lifecycle translation, and project-local managed install/status/remove behavior.
 - Phase 6: Added Claude, generic, and dependency-free local stdio MCP adapters with JSON-RPC 2.0 protocol revision `2025-11-25` and four canonical MCP tools.
 - Phase 7: Added a 22-scenario deterministic benchmark comparing four configurations with JSON and Markdown artifacts and transparent null-metric handling.
-- Phases 5–7: Advanced package and engine version to 0.7.0 while retaining storage schema 1.0.0, zero runtime dependencies, local-only operation, and the temporary `gptbrain` codename.
+- Phases 5–7: Advanced package and engine version to 0.7.0 while retaining storage schema 1.0.0, zero runtime dependencies, local-only operation, and the temporary `tamhees` codename.
 - Phases 5–7: Expanded the suite from 150 to 202 tests; independent typecheck, build, all tests, benchmark generation, isolated adapter/MCP/retrieval smokes, and byte-identical regeneration pass.
 ## Current files in focus
 
@@ -171,7 +171,7 @@ Phase 9 release hardening remains not started and requires a separately authoriz
 
 ## Next immediate action
 
-Obtain explicit owner authorization before beginning Phase 9 release hardening. Do not push, upload, publish, deploy, configure a remote, or begin Phase 9 from this checkpoint.
+Have the owner review the unstaged Version 0.8.2 visual experience, exact CLI identity, migration behavior, and documentation. If accepted, use a separate explicitly authorized local checkpoint task. Do not stage, commit, push, upload, publish, deploy, configure a remote, or begin Phase 9 from this candidate.
 ## Safe restart instructions
 
 When resuming work:
@@ -188,8 +188,21 @@ Version 0.4.0 lifecycle and migration behavior is complete and independently ver
 
 ## Phases 5–7 checkpoint status
 
-Version 0.7.0 adapter, limited MCP, corrected exact lexical/tag eligibility, and benchmark behavior is independently verified locally with 202 passing tests, zero failures, zero skips, and zero todos. The corrected benchmark records 22/22 Doubtful Memory abstention correctness and separates null detection metrics from safe prevention. This is test-verified implementation evidence and a local checkpoint, not OWNER_CONFIRMED release approval.
+Version 0.7.0 adapter, limited MCP, corrected exact lexical/tag eligibility, and benchmark behavior is independently verified locally with 202 passing tests, zero failures, zero skips, and zero todos. The corrected benchmark records 22/22 Tamhees abstention correctness and separates null detection metrics from safe prevention. This is test-verified implementation evidence and a local checkpoint, not OWNER_CONFIRMED release approval.
 
 ## Phase 8 independent checkpoint status
 
-The dashboard binds only to `127.0.0.1`, uses local assets and zero new dependencies, and calls canonical `auditRecord` and `compileContext` functions. It persists no context pack or browser state and creates no repository `.gptbrain/`. Independent review corrected strict request-target, Host, Origin, media-type, duplicate-key, body-limit, semantic-control, live-region, mobile navigation, contrast, and overflow boundaries. Typecheck, build, 220 tests, all seven live outcomes, desktop/tablet/mobile browser checks, and an independent Chromium keyboard-only audit pass. This is a local implementation checkpoint, not release approval or proof of real assistive-technology compatibility.
+The dashboard binds only to `127.0.0.1`, uses local assets and zero new dependencies, and calls canonical `auditRecord` and `compileContext` functions. It persists no context pack or browser state and creates no repository `.tamhees/`. Independent review corrected strict request-target, Host, Origin, media-type, duplicate-key, body-limit, semantic-control, live-region, mobile navigation, contrast, and overflow boundaries. Typecheck, build, 220 tests, all seven live outcomes, desktop/tablet/mobile browser checks, and an independent Chromium keyboard-only audit pass. This is a local implementation checkpoint, not release approval or proof of real assistive-technology compatibility.
+
+## Phase 8.1 visual-correction candidate status
+
+The owner rejected the original Phase 8 visual design and explanation while preserving its verified functionality. Version 0.8.1 is an unstaged presentation correction: broad white-first hierarchy, larger plain-language copy, a semantic audit-engine teaching animation, a hidden-until-run audit result, a five-stage audit path, and simplified benchmark evidence backed by the same integrity-checked artifact. The full suite passes 224 tests. Canonical audit, context, scenario, API, security, privacy, and benchmark behavior did not change. This candidate is not staged, committed, released, published, or authorized for Phase 9.
+## Phase 8.2 implementation-candidate status
+
+The owner approved the Tamhees identity and directed the Version 0.8.2 implementation. Active runtime, package, CLI, canonical storage, managed adapter, dashboard, current documentation, and MCP identities are renamed while historical decision/claim/audit evidence and stable `DM-*` IDs remain traceable. The old executable and MCP namespace are not active aliases.
+
+`tamhees migrate legacy-storage [--dry-run]` provides explicit compatibility for a lone validated `.gptbrain/` store. It rejects dual stores, links/reparse points, corrupt or unknown artifacts, index mismatch, escapes, and unsafe sizes; dry-run is pure; successful migration is a same-parent rename followed by validation; failure preserves or restores legacy bytes. Storage schema remains `1.0.0`.
+
+The local page retains the Phase 8.1 white-first native design and adds the product origin story, a five-step fixed-fixture guided CLI lesson backed by the canonical architecture-conflict audit, and a live result hierarchy of decision, reason, permission, next step, context, then collapsed rule trace. The owner hero follow-up widens the desktop frame to 1,510 pixels with a measured 60/40 copy-to-visual split, rebuilds the full-height teaching panel as a four-gate Tamhees scrutiny chamber, keeps the contradiction, BLOCK ACTION, owner next step, and context exclusion visible in the final state, and extends restrained industrial-blue depth across technical surfaces. The lesson cannot execute shell commands, accepts no arbitrary input, persists no browser state, and writes no project memory.
+
+The active deterministic artifact is Version 0.8.2. JSON SHA-256 is `311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6`, and two generations are byte-identical. The candidate remains implementation evidence only: unstaged, uncommitted, unpushed, unpublished, undeployed, without a remote, and final verification passed and pending independent owner review. Phase 9 is `NOT_STARTED`.
