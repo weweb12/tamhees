@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm, writeFile, readdir, mkdir, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { beginLifecycle, finalizeLifecycle, formatLifecycleBeginAsMarkdown, formatLifecycleFinalizeAsMarkdown } from '../src/core/lifecycle.js';
 import { loadBootstrapMigrationSource, migrateBootstrapClaims } from '../src/core/migration.js';
@@ -51,6 +51,7 @@ describe('Phase 4 lifecycle finalization',()=>{
 describe('Phase 4 bootstrap migration',()=>{
   const markdown='# Memory Claims\n\n## DM-CLAIM-901\n\n- claim: A preserved local fact.\n- source_type: Repository inspection\n- source_reference: `package.json`\n- status: REPO_VERIFIED\n- confidence: HIGH\n- last_verified: 2026-07-22\n- sensitivity: INTERNAL\n- action_permission: MAY_ACT\n- recheck_method: Inspect package.json.\n';
   it('imports valid claims once, preserves source text, and is idempotent',async()=>{const first=await migrateBootstrapClaims(projectDir,markdown,clock2);assert.equal(first.success,true);assert.deepEqual(first.importedIds,['DM-CLAIM-901']);const second=await migrateBootstrapClaims(projectDir,markdown,clock2);assert.equal(second.success,true);assert.equal(second.alreadyMigrated,true);assert.equal((await loadAllRecords(projectDir)).records.filter(r=>r.id==='DM-CLAIM-901').length,1);});
+  it('imports the complete current claim ledger with explicit legacy vocabulary mapping',async()=>{const currentLedger=await readFile(resolve('memory/MEMORY_CLAIMS.md'),'utf8');const result=await migrateBootstrapClaims(projectDir,currentLedger,clock2);assert.equal(result.success,true);assert.equal(result.importedIds.length,29);assert.ok(result.importedIds.includes('DM-CLAIM-018'));assert.ok(result.importedIds.includes('DM-CLAIM-028'));assert.ok(result.importedIds.includes('DM-CLAIM-029'));const records=await loadAllRecords(projectDir);assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-018')?.actionPermission,'MUST_NOT_ACT');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-028')?.source.type,'OWNER_INSTRUCTION');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-029')?.source.type,'TEST_RESULT');});
   it('rejects changed source after completion',async()=>{assert.equal((await migrateBootstrapClaims(projectDir,markdown,clock2)).success,true);const result=await migrateBootstrapClaims(projectDir,markdown+'\n',clock2);assert.equal(result.errors[0]?.code,'MIGRATION_SOURCE_CHANGED');});
   it('rejects ambiguous or unmapped Markdown before writing records',async()=>{const bad=markdown.replace('Repository inspection','Unknown source').replace('- claim:','- mystery:');const result=await migrateBootstrapClaims(projectDir,bad,clock2);assert.equal(result.success,false);assert.ok(!(await loadAllRecords(projectDir)).records.some(r=>r.id==='DM-CLAIM-901'));});
 });

@@ -3,7 +3,7 @@
 > Working document for the Doo challenge: **Memory That Knows It Might Be Wrong**
 > Product: **Tamhees**
 > Website role: Explain and demonstrate the real local product through a polished local interactive experience.
-> Current candidate: Version 0.8.2, unstaged, pending independent owner review. Phase 9 has not started.
+> Current candidate: Version 1.0.0-rc.1, independently verified Phase 9 local checkpoint. Publication has not started.
 
 ## 1. Website purpose
 

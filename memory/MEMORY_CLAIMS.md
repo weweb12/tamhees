@@ -533,3 +533,19 @@ These vocabularies remain candidates until protocol design is approved. The stat
 - action_permission: MAY_ACT
 - recheck_method: Check the owner directive, DM-DEC-035, `src/core/identity.ts`, package metadata, CLI help, and exact MCP tool list
 - notes: This owner confirmation approves the active identity only. It is not trademark clearance, uniqueness evidence, release approval, publication authority, or permission to begin Phase 9.
+---
+
+## DM-CLAIM-029
+
+- claim: Version 1.0.0-rc.1 implements the safe local Phase 9 release-hardening scope after the committed Phase 8.2 checkpoint, with zero runtime dependencies, release documentation, threat modeling, deterministic packaging preparation, and explicit owner-only release gates.
+- source_type: Repository and local verification evidence
+- source_reference: `def6b2a`, Phase 9 changed files, `docs/RELEASE_CHECKLIST.md`, `docs/THREAT_MODEL.md`, `scripts/prepare-release.ps1`, clean-copy verification, full/focused test output, benchmark hashes, and browser review dated 2026-07-27
+- status: TEST_VERIFIED
+- confidence: HIGH
+- last_verified: 2026-07-27
+- review_after: After release, dependency, packaging, security, CLI, dashboard, benchmark, or documentation changes
+- sensitivity: INTERNAL
+- action_permission: ACT_WITH_CAUTION
+- recheck_method: Run the complete Phase 9 verification checklist from a clean copy and compare every stated owner gate with actual evidence.
+- notes: Local automated and browser evidence does not establish Node 22 execution, real assistive-technology or physical-device compatibility, judge comprehension, trademark clearance, public-license approval, final release approval, publication authority, or challenge submission authority.
+---

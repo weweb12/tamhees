@@ -1,6 +1,6 @@
 {
   "name": "tamhees",
-  "version": "0.8.2",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
   "description": "Memory under scrutiny. Local-first project-memory auditing for AI coding agents.",
@@ -15,7 +15,8 @@
     "verify:dashboard": "npm run typecheck && npm run build && node --test dist/test/phase8-dashboard.test.js",
     "dashboard": "npm run build && node dist/src/dashboard/server.js",
     "tamhees": "node dist/src/cli.js",
-    "benchmark": "npm run build && node dist/src/benchmark/generate.js"
+    "benchmark": "npm run build && node dist/src/benchmark/generate.js",
+    "release:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-release.ps1"
   },
   "engines": {
     "node": ">=22"

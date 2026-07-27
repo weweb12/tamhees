@@ -27,6 +27,7 @@ const MIGRATION_AUDIT_ID = 'evt-bootstrap-migration';
 const ALLOWED_KEYS = new Set(['claim','source_type','source_reference','status','superseded_by','confidence','last_verified','review_after','sensitivity','action_permission','recheck_method','notes']);
 const SOURCE_MAP: Readonly<Record<string, SourceType>> = {
   'Owner instruction':'OWNER_INSTRUCTION',
+  'Explicit owner instruction':'OWNER_INSTRUCTION',
   'Approved project decision':'OWNER_INSTRUCTION',
   'Owner observation':'AGENT_OBSERVATION',
   'Visible submission message':'DOCUMENT_REFERENCE',
@@ -34,6 +35,7 @@ const SOURCE_MAP: Readonly<Record<string, SourceType>> = {
   'Product analysis':'AGENT_INFERENCE',
   'Repository inspection':'REPOSITORY_STATE',
   'Repository and test inspection':'TEST_RESULT',
+  'Repository and local verification evidence':'TEST_RESULT',
 };
 const STATUS_MAP: Readonly<Record<string, VerificationStatus>> = {
   OWNER_CONFIRMED:'OWNER_CONFIRMED', REPO_VERIFIED:'REPO_VERIFIED', TEST_VERIFIED:'TEST_VERIFIED',
@@ -43,7 +45,7 @@ const CONFIDENCE_MAP: Readonly<Record<string, Confidence>> = { HIGH:'HIGH', MEDI
 const SENSITIVITY_MAP: Readonly<Record<string, Sensitivity>> = { PUBLIC:'PUBLIC', INTERNAL:'INTERNAL', SENSITIVE:'SENSITIVE', SECRET:'SECRET' };
 const PERMISSION_MAP: Readonly<Record<string, ActionPermission>> = {
   MAY_ACT:'MAY_ACT', ACT_WITH_CAUTION:'ACT_WITH_CAUTION', ASK_BEFORE_CHANGE:'ASK_BEFORE_CHANGE',
-  MUST_NOT_ACT:'MUST_NOT_ACT', FORGET_OR_REDACT:'FORGET_OR_REDACT',
+  MUST_NOT_ACT:'MUST_NOT_ACT', DO_NOT_ACT:'MUST_NOT_ACT', FORGET_OR_REDACT:'FORGET_OR_REDACT',
 };
 
 export interface BootstrapMigrationResult {

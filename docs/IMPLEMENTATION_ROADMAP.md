@@ -1,8 +1,8 @@
 # Tamhees — Implementation Roadmap
 
-> **Status**: This roadmap defines the implementation phases for Tamhees Version 1. Version 0.8.2 is an unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 is `NOT_STARTED`.
+> **Status**: Phases 1–9 are implemented, independently verified, and checkpointed locally as Version 1.0.0-rc.1. Public release remains gated.
 
-> **Current Position**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.2 is the unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 has not started.
+> **Current Position**: The locally automatable Phase 9 outputs and private portable workflow are verified. Node 22 execution, second-laptop and real assistive-technology/device review, judge comprehension, licensing, publication, and submission remain explicit owner or external gates.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -398,7 +398,7 @@ Typecheck, build, full and focused suites, migration adversarial cases, rename r
 ---
 ## Phase 9 — Release hardening, documentation, and submission
 
-**Status**: NOT_STARTED; requires separate owner authorization after Phase 8.2 review.
+**Status**: LOCAL_CHECKPOINT_COMPLETE; independent local verification passed and owner/external release gates remain.
 
 ### Outputs
 

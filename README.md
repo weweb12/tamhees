@@ -37,32 +37,28 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 0.8.2 — the Phase 8.2 Tamhees rename, legacy-storage migration, guided CLI lesson, and clarity work are an unstaged implementation candidate pending independent owner review. Phase 9 has not started.**
+> **Version 1.0.0-rc.1 — Phase 9 is implemented, independently verified, and checkpointed locally. It remains an unpublished release candidate, not a final public release.**
 
-The verified Phase 1–8 foundation now has an unstaged Phase 8.2 candidate with the approved Tamhees identity, explicit fail-closed migration from `.gptbrain/` to `.tamhees/`, a fixed-fixture guided CLI lesson, seven real deterministic live-audit scenarios, and integrity-checked benchmark evidence. Automated evidence does not constitute independent owner acceptance. No remote, upload, external service, telemetry, or runtime dependency exists.
+Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. No remote, upload, deployment, publication, external service, telemetry, or runtime dependency exists. The candidate is not a final public release: Node 22 execution, real assistive-technology and physical-device review, judge-comprehension review, license/publication decisions, second-laptop portable review, and challenge submission remain owner or external gates.
+
+![Tamhees desktop dashboard](docs/assets/tamhees-dashboard-desktop.png)
+
+![Tamhees mobile dashboard](docs/assets/tamhees-dashboard-mobile.png)
 
 Implemented commands:
 
 - `tamhees init [directory]`: Initialize safe `.tamhees/` storage.
-- `tamhees memory list`: List canonical memory records.
-- `tamhees memory show <memory-id>`: Show one canonical record.
-- `tamhees memory apply --input <candidate.json>`: Apply a controlled `CREATE`, `UPDATE`, `REVOKE`, or `REDACT` candidate.
-- `tamhees evidence list`: List evidence records.
-- `tamhees evidence add --input <evidence.json>`: Add validated evidence.
-- `tamhees context --task "..." [--max-tokens <1-1000000>] [--format json|markdown]`: Compile an ephemeral, deterministically ranked context pack. The default hard budget is 2,048 estimated tokens.
-- `tamhees audit`: Apply the complete Phase 2 precedence chain and append privacy-safe audit events.
-- `tamhees lifecycle begin --task "..." [--max-tokens <n>] [--format json|markdown]`: Retrieve ephemeral safe context and open a lifecycle.
-- `tamhees lifecycle finalize --input <finalization.json> [--format json|markdown]`: Classify and safely process proposed updates.
-- `tamhees migrate bootstrap [--input memory/MEMORY_CLAIMS.md]`: Import the documented bootstrap ledger once without modifying it.
-- `tamhees migrate legacy-storage [--dry-run]`: Explicitly validate and rename a safe legacy `.gptbrain/` store to `.tamhees/`; never merge or overwrite two stores.
-- `tamhees adapter list|status|install|remove|begin|finalize`: Manage and invoke the five project-local adapters.
-- `tamhees mcp serve`: Run the local JSON-RPC 2.0 stdio MCP server at protocol revision `2025-11-25`.
-- `tamhees benchmark run [--format json|markdown] [--output <safe-path>]`: Run the deterministic benchmark.
-- `npm run dashboard`: Build and start the dashboard on `http://127.0.0.1:8787/` without opening a browser.
-- `npm run verify:dashboard`: Verify dashboard and core integration.
-
-Phases 1–8 are independently verified and checkpointed locally. Phase 9 and publication remain pending separate owner authorization.
-
+- `tamhees memory list|show|apply`: Inspect or apply controlled memory operations.
+- `tamhees evidence list|add`: Inspect or add validated evidence.
+- `tamhees context --task "..." [--max-tokens <n>] [--format json|markdown]`: Compile ephemeral ranked context under a hard budget.
+- `tamhees audit`: Apply the complete precedence chain and append privacy-safe audit events.
+- `tamhees lifecycle begin|finalize`: Use the controlled pre-task and post-task boundary.
+- `tamhees migrate bootstrap|legacy-storage`: Run the bootstrap import or explicitly validate and rename one safe legacy `.gptbrain/` store to `.tamhees/` without merge or overwrite.
+- `tamhees adapter list|status|install|remove|begin|finalize`: Manage all five local adapters.
+- `tamhees mcp serve`: Run the four-tool JSON-RPC 2.0 stdio server.
+- `tamhees benchmark run`: Run the deterministic benchmark.
+- `npm run dashboard`: Build and start the loopback dashboard.
+- `npm run verify`: Typecheck, build, and run the full suite.
 ## Design principles
 
 - **Local-only**: No cloud services, accounts, API keys, or telemetry.
@@ -200,7 +196,7 @@ The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `
 
 The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.js built-ins, one UTF-8 JSON object per line, protocol revision `2025-11-25`, a bounded rolling 4,096-request duplicate-ID window, and exactly four tools for initialization, begin, finalize, and privacy-safe status. It has no HTTP listener, global configuration, SDK dependency, or runtime network request; this is the documented project subset, not a claim of full MCP feature coverage.
 
-`npm run benchmark` regenerates `benchmark/results/v0.8.2.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
+`npm run benchmark` regenerates `benchmark/results/v1.0.0-rc.1.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
 
 ## Phase 8 local dashboard
 
@@ -215,8 +211,19 @@ Open the exact printed `http://127.0.0.1:8787/` URL. For the primary demonstrati
 Fixtures are fake and fixed. Results come from production audit/context functions, benchmark values come from the SHA-256-checked committed artifact, and execution creates no repository memory or persisted context.
 ## Next planned work
 
-**Phase 8.2**: Version 0.8.2 is an unstaged identity, migration, guided-demo, and explanation candidate awaiting independent owner review. Do not begin Phase 9 or checkpoint this candidate without separate owner authorization. Publication has not started.
+The exact next action after local private-package inspection is owner testing on the second Windows x64 laptop. Challenge-submission preparation requires separate authorization. Do not push, upload, publish, deploy, configure a remote, choose a public license, or call the candidate final before the remaining gates pass.
 
+## Local release preparation
+
+After the independently verified Phase 9 checkpoint, review `docs/RELEASE_CHECKLIST.md`, then dry-run the path-safe workflow to an output directory outside this repository:
+
+```powershell
+npm ci
+npm run verify
+npm run release:prepare -- -OutputDirectory C:\tmp\tamhees-release -DryRun
+```
+
+A real private archive additionally requires `-NodeRuntimeDirectory` pointing to an existing local Windows x64 runtime directory containing only the reviewed `node.exe` and its complete `LICENSE` or `LICENSE.txt`. The workflow produces one `Tamhees-Portable-Website-v1.0.0-rc.1-Windows-x64.zip`, refuses repository-contained output and existing artifacts unless `-Force` is explicitly selected, validates every entry, embeds stable per-file SHA-256 values, and creates no source archive, public release, or upload.
 ## Runtime requirements
 
 - **Minimum**: Node.js 22
@@ -232,4 +239,4 @@ This project was initially inspired by the Doo challenge ("Memory That Knows It 
 
 ## License
 
-Not yet determined.
+`UNLICENSED`. All rights reserved; no public license has been granted. See `THIRD_PARTY_NOTICES.md`. Selecting a public license requires explicit owner approval.

@@ -11,7 +11,7 @@ import {
 
 export const DASHBOARD_BENCHMARK_RELATIVE_PATH = `benchmark/results/v${ENGINE_VERSION}.json`;
 export const DASHBOARD_BENCHMARK_SHA256 =
-  '311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6';
+  '5a97d9f8d511f8ed327a962129e655081b3894746646f93e3e71f758bffa0c29';
 
 export interface DashboardBenchmarkConfiguration {
   readonly name: BenchmarkConfiguration;

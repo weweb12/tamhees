@@ -513,3 +513,38 @@ tr[data-configuration="TAMHEES"] { background: var(--blue-pale); }
   .benchmark-overview progress, .check-path > i { transform: none; }
   .cli-demo-progress li { transition: none; }
 }
+
+@media (forced-colors: active) {
+  .button,
+  .motion-toggle,
+  .scenario-button,
+  .engine-demo,
+  .engine-chamber,
+  .terminal-panel,
+  .workbench,
+  .plain-result,
+  .table-wrap {
+    border: 2px solid ButtonText;
+  }
+
+  .button:focus-visible,
+  .motion-toggle:focus-visible,
+  .scenario-button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .outcome-icon,
+  .engine-state-mark,
+  .status-dot {
+    forced-color-adjust: none;
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+}

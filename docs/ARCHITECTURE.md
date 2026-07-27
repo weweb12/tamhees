@@ -1,6 +1,6 @@
 # Tamhees — Architecture
 
-> **Status**: Phases 1–8 are independently verified and checkpointed locally. Version 0.8.2 is an unstaged Phase 8.2 implementation candidate pending independent owner review; Phase 9 has not started.
+> **Status**: Version 1.0.0-rc.1 local architecture is implemented and release-hardened; independent Phase 9 owner verification and external release gates remain.
 
 ## Overview
 

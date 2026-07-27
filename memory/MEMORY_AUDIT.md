@@ -989,3 +989,31 @@ No staging, commit, remote, upload, deployment, publication, new dependency, ext
 ## Recommended action
 
 Give the unstaged candidate to the owner for visual and CLI review. If accepted, use a separate explicitly authorized local checkpoint task. Do not begin Phase 9, publish, deploy, configure a remote, or commit from this task.
+---
+
+# Audit DM-AUDIT-2026-07-27-009
+
+## Audit metadata
+
+- Date: 2026-07-27
+- Audit type: Phase 9 local release-hardening implementation-candidate audit
+- Scope: Phase 8.2 checkpoint gate, 12 remaining requirements, release consistency, clean-copy reproducibility, CLI/adapters/MCP/lifecycle/migrations, dashboard, benchmark, security/privacy, dependencies/licenses, accessibility, judge materials, screenshots, and distribution preparation
+- Auditor: Codex implementation process
+- Engine version: 1.0.0-rc.1
+- Repository state: Unstaged Phase 9 candidate after local Phase 8.2 commit `def6b2a`
+- Overall result: TRUST (local implementation evidence only)
+
+## Evidence and status
+
+Phase 8.2 was independently verified, every staged blob matched the reviewed working bytes, and the authorized checkpoint was created before Phase 9 began. Phase 9 adds no runtime dependency, remote, service, account, telemetry, hosted model, deployment, publication, or post-Version-1 feature.
+
+The local release candidate adds a concise threat model, dependency/license notices, setup and judge guidance, a 3–5 minute walkthrough script, FAQ, owner-gated release checklist, changelog and release notes, clean browser screenshots, release-consistency tests, and a deterministic dry-run-first archive workflow that refuses repository-contained output and overwrite by default. Benchmark semantics remain `2.0.0`; only the engine-versioned view changes.
+
+Eleven of the 12 formerly `IN_PROGRESS` requirements now have implemented local behavior and evidence. `DM-REQ-TECH-004` remains `IN_PROGRESS` because Node 22 has not been executed on this machine and no final portable/public release artifact is authorized. No requirement is elevated to `VERIFIED` from this audit alone.
+
+## Residual gates and permission
+
+Node 22 execution, real assistive-technology and physical-device review, independent judge comprehension, public-license selection, trademark/name clearance, private Windows x64 portable packaging, external benchmark validity, publication, deployment, upload, and challenge submission remain unresolved or owner-controlled. This audit is not a formal external security assessment.
+
+The Phase 9 candidate must remain unstaged, uncommitted, unpushed, unpublished, undeployed, and without a remote. The next action is a final independent Phase 9 owner-verification checkpoint; private portable ZIP generation and challenge-submission preparation require separate authorization.
+---

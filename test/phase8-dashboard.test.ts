@@ -274,7 +274,7 @@ describe('Phase 8 benchmark, privacy, and UI contract', () => {
     try {
       await mkdir(temporaryResults, { recursive: true });
       const artifact = await readFile(DASHBOARD_BENCHMARK_RELATIVE_PATH);
-      await writeFile(join(temporaryResults, 'v0.8.2.json'), Buffer.concat([artifact, Buffer.from(' ')]));
+      await writeFile(join(temporaryResults, 'v1.0.0-rc.1.json'), Buffer.concat([artifact, Buffer.from(' ')]));
       await assert.rejects(
         loadDashboardBenchmark(temporaryRoot),
         /integrity check failed/,

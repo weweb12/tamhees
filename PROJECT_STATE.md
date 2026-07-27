@@ -6,40 +6,27 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 0.8.2 is the unstaged Phase 8.2 Tamhees identity, legacy-storage migration, guided CLI, and clarity implementation candidate built on the independently verified Phase 8 checkpoint and the Phase 8.1 visual foundation.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 1.0.0-rc.1 is the independently verified Phase 9 local release checkpoint recorded by this commit and built on the committed Phase 8.2 checkpoint.
 
 ## Status summary
 
 - Project: Tamhees
-- Current phase: Phase 8.2 — implementation candidate pending independent owner review; Phase 9 has not started.
-- Overall status: In progress
-- Development environment: Windows, local-only, Node 24.
-- Development agent: Phase 1 used Antigravity IDE; Phase 2 was independently implemented and reviewed by Codex in ChatGPT Work mode.
+- Current phase: Phase 9 — safe local release hardening implemented and independently verified.
+- Overall status: Release candidate, not a final public release.
+- Development environment: Windows, local-only, Node 24; Node 22 is not installed on this machine.
 - Repository location: `C:\Projects\doubtful-memory`
 - Git branch: `main`
-- Latest committed checkpoint: Phase 8 local dashboard checkpoint
-- Current unstaged candidate: Version 0.8.2 Tamhees rename, controlled legacy-storage migration, guided CLI lesson, live-audit clarity, and owner-directed hero/pipeline depth correction
-- Git remote: None
-- Repository upload/publication: None
-- External services: None
-- Paid services: None
-- Application dependencies: None (zero runtime dependencies)
-- Application code: Phases 1–8 remain independently verified; Phase 8.2 changes active identity, adds explicit legacy migration, extends the presentation/tests, and preserves canonical audit, privacy, authority, ranking, lifecycle, mutation, and context rules.
-- Packages:
-  - typescript@6.0.3
-  - @types/node@22.20.1
-  - zero runtime dependencies
-- Approved CLI, engine, and storage identity: `tamhees` and `.tamhees/`; legacy `.gptbrain/` is recognized only by the explicit controlled migration.
-- Current local verification evidence:
-  - 239 passed across 36 suites
-  - 0 failed
-  - 0 skipped
-  - 0 todo
-- Last updated: 2026-07-26
+- Latest committed checkpoint: Phase 9 Tamhees 1.0.0-rc.1 local release checkpoint (this commit)
+- Current unstaged candidate: None; private portable evidence is generated outside the source repository after this clean checkpoint.
+- Git remote/upload/publication/deployment: None.
+- External or paid services, telemetry, accounts, and runtime dependencies: None.
+- Direct development dependencies: `typescript@6.0.3`, `@types/node@22.20.1`.
+- Current local verification evidence: 250 tests across 38 suites with zero failures, skips, or todos; 23/23 focused dashboard tests; isolated clean-copy, benchmark, full-ledger bootstrap, CLI, packaging-dry-run, and browser release checks pass.
+- Last updated: 2026-07-27
 
 ## Current objective
 
-Version 0.8.2 implements the owner-approved Tamhees identity, fail-closed `.gptbrain/` to `.tamhees/` migration, five-step fixed-fixture CLI lesson, clearer live-audit result hierarchy, and the owner-directed wider hero with a full memory-scrutiny pipeline and stronger industrial-blue depth. The candidate is unstaged and awaits independent owner visual and CLI review; Phase 9 has not started.
+Preserve the independently verified Phase 9 checkpoint, generate and inspect only the owner-authorized private portable Windows x64 website outside the repository, and keep every publication or external gate explicit.
 ## Completed work
 
 - Reviewed the two existing project-planning PDFs.
@@ -167,11 +154,11 @@ Phase 3 retrieval, ranking, explanations, context-pack validation, and hard esti
 
 ## Next phase
 
-Phase 9 release hardening remains not started and requires a separately authorized task.
+Phase 9 local implementation is complete when the final verification gate passes; no post-Version-1 phase is authorized.
 
 ## Next immediate action
 
-Have the owner review the unstaged Version 0.8.2 visual experience, exact CLI identity, migration behavior, and documentation. If accepted, use a separate explicitly authorized local checkpoint task. Do not stage, commit, push, upload, publish, deploy, configure a remote, or begin Phase 9 from this candidate.
+After the private portable package passes local no-install inspection, the exact next action is owner testing on the second Windows x64 laptop. Challenge-submission preparation still requires separate authorization; do not push, upload, publish, deploy, or configure a remote.
 ## Safe restart instructions
 
 When resuming work:
@@ -205,4 +192,10 @@ The owner approved the Tamhees identity and directed the Version 0.8.2 implement
 
 The local page retains the Phase 8.1 white-first native design and adds the product origin story, a five-step fixed-fixture guided CLI lesson backed by the canonical architecture-conflict audit, and a live result hierarchy of decision, reason, permission, next step, context, then collapsed rule trace. The owner hero follow-up widens the desktop frame to 1,510 pixels with a measured 60/40 copy-to-visual split, rebuilds the full-height teaching panel as a four-gate Tamhees scrutiny chamber, keeps the contradiction, BLOCK ACTION, owner next step, and context exclusion visible in the final state, and extends restrained industrial-blue depth across technical surfaces. The lesson cannot execute shell commands, accepts no arbitrary input, persists no browser state, and writes no project memory.
 
-The active deterministic artifact is Version 0.8.2. JSON SHA-256 is `311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6`, and two generations are byte-identical. The candidate remains implementation evidence only: unstaged, uncommitted, unpushed, unpublished, undeployed, without a remote, and final verification passed and pending independent owner review. Phase 9 is `NOT_STARTED`.
+The Version 0.8.2 artifact remains historical checkpoint evidence at JSON SHA-256 `311868e2ef16116e20aff467e37f57aff3aaf13e373b44460b63303da75f62c6`. Phase 8.2 was independently verified and committed as `def6b2a` before Phase 9 began.
+
+## Phase 9 local release-hardening candidate status
+
+Version 1.0.0-rc.1 completes the locally automatable release-hardening scope: cross-artifact consistency, setup and judge documentation, threat model, dependency/license notices, release checklist and notes, exact CLI and browser review, clean-copy reproducibility, and a deterministic dry-run-first packaging workflow. Phase 8.2 was independently verified and committed before this work began.
+
+Independent Phase 9 verification corrected the preserved-ledger bootstrap vocabulary boundary and replaced the developer-oriented archive draft with a private, integrity-checked, no-install Windows x64 website workflow. The local checkpoint contains no portable binary or source archive. Node 22 execution, real assistive-technology and physical-device review, independent judge comprehension, public-license selection, trademark clearance, external benchmark validity, publication, and challenge submission remain owner-controlled or external gates. No remote, upload, publication, deployment, service, telemetry, account, or runtime dependency was added.

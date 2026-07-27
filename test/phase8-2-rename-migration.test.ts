@@ -220,7 +220,7 @@ describe('Phase 8.2 active-identity regression boundary', () => {
     assert.equal(CLI_NAME, 'tamhees');
     assert.equal(STORAGE_DIR, '.tamhees');
     assert.equal(LEGACY_STORAGE_DIR, '.gptbrain');
-    assert.equal(ENGINE_VERSION, '0.8.2');
+    assert.equal(ENGINE_VERSION, '1.0.0-rc.1');
     assert.equal(ANTIGRAVITY_RULE_PATH, '.agents/rules/tamhees.md');
     assert.equal(MANAGED_BLOCK_START, '<!-- TAMHEES:START -->');
     assert.deepEqual(TAMHEES_MCP_TOOL_NAMES, [
@@ -238,7 +238,7 @@ describe('Phase 8.2 active-identity regression boundary', () => {
       devDependencies: Record<string, string>;
     };
     assert.equal(packageMetadata.name, 'tamhees');
-    assert.equal(packageMetadata.version, '0.8.2');
+    assert.equal(packageMetadata.version, '1.0.0-rc.1');
     assert.deepEqual(packageMetadata.bin, { tamhees: 'dist/src/cli.js' });
     assert.deepEqual(packageMetadata.dependencies, undefined);
     assert.deepEqual(packageMetadata.devDependencies, {
@@ -249,9 +249,9 @@ describe('Phase 8.2 active-identity regression boundary', () => {
     const help = await execFileAsync('node', [CLI_PATH, '--help']);
     const version = await execFileAsync('node', [CLI_PATH, '--version']);
     const migrationHelp = await execFileAsync('node', [CLI_PATH, 'migrate', '--help']);
-    assert.match(help.stdout, /^tamhees v0\.8\.2 — Tamhees\nMemory under scrutiny\./);
+    assert.match(help.stdout, /^tamhees v1\.0\.0-rc\.1 — Tamhees\nMemory under scrutiny\./);
     assert.match(migrationHelp.stdout, /tamhees migrate legacy-storage \[--dry-run\]/);
-    assert.equal(version.stdout, 'tamhees v0.8.2\n');
+    assert.equal(version.stdout, 'tamhees v1.0.0-rc.1\n');
     assert.doesNotMatch(`${help.stdout}${version.stdout}`, /Doubtful Memory|\bgptbrain\b|doubtful_memory_/);
   });
 
@@ -278,8 +278,8 @@ describe('Phase 8.2 active-identity regression boundary', () => {
       ['.gitignore', 3],
       ['AGENTS.md', 0],
       ['PROJECT_BRAIN.md', 1],
-      ['PROJECT_STATE.md', 3],
-      ['README.md', 2],
+      ['PROJECT_STATE.md', 1],
+      ['README.md', 1],
       ['REQUIREMENTS_AND_ASSUMPTIONS.md', 1],
       ['RISK_REGISTER.md', 1],
       ['docs/ARCHITECTURE.md', 2],

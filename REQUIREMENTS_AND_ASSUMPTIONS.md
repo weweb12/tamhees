@@ -67,7 +67,7 @@ The `tamhees init` command must create the `.tamhees/` directory structure.
 ## DM-REQ-ENGINE-003 - Atomic JSON memory storage
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-017
 
 Each canonical memory must be stored as one atomic JSON file.
@@ -86,7 +86,7 @@ Each canonical memory must be stored as one atomic JSON file.
 ## DM-REQ-ENGINE-004 - Schema versioning and migration
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 - Related decision: DM-DEC-017
 
 Every stored artifact must include a schema version, and the engine must handle version differences.
@@ -426,7 +426,7 @@ Every memory claim must contain a plain-language statement describing what is be
 ## DM-REQ-CLAIM-003 - Provenance and source
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 Every claim must identify where it came from.
 
@@ -468,7 +468,7 @@ Status values:
 ## DM-REQ-CLAIM-005 - Confidence
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 Every claim must contain a controlled confidence value.
 
@@ -722,7 +722,7 @@ Version 0.4.0 provides the strict one-time migrate bootstrap engine and CLI boun
 ## DM-REQ-LIFE-003 - Clean local installation and removal
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 The product must install and remove cleanly.
 
@@ -938,7 +938,7 @@ The core application must run locally without a backend, account, cloud database
 ## DM-REQ-TECH-002 - Type safety
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 The application and audit engine must use TypeScript types for the claim schema, evidence, rules, findings, permissions, and outcomes.
 
@@ -953,7 +953,7 @@ The application and audit engine must use TypeScript types for the claim schema,
 ## DM-REQ-TECH-003 - Automated tests
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 Critical audit behavior must have automated tests.
 
@@ -1017,7 +1017,7 @@ Every direct dependency must have a documented purpose and must not require a pa
 ## DM-REQ-DOC-001 - Setup documentation
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 A new user must be able to install and run the project locally using documented commands.
 
@@ -1034,7 +1034,7 @@ A new user must be able to install and run the project locally using documented 
 ## DM-REQ-DOC-002 - Architecture and protocol documentation
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 Documentation must explain the system architecture, claim schema, audit rules, outcome priority, privacy behavior, and limitations.
 
@@ -1068,7 +1068,7 @@ Documentation must provide a short reproducible path through the primary contrad
 ## DM-REQ-QUAL-001 - No knowingly fake functionality
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 Controls and displayed results must represent real implemented behavior.
 
@@ -1084,7 +1084,7 @@ Controls and displayed results must represent real implemented behavior.
 ## DM-REQ-QUAL-002 - Cross-artifact consistency
 
 - Priority: MUST
-- Status: IN_PROGRESS
+- Status: IMPLEMENTED
 
 The application, tests, protocol, README, and submission description must not contradict one another.
 

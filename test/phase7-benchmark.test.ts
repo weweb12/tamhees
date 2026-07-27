@@ -45,8 +45,8 @@ describe('Phase 7 deterministic benchmark', () => {
     const report = runBenchmark();
     assert.equal(formatBenchmarkJson(report), formatBenchmarkJson(runBenchmark()));
     assert.equal(formatBenchmarkMarkdown(report), formatBenchmarkMarkdown(report));
-    assert.equal(await readFile('benchmark/results/v0.8.2.json', 'utf8'), formatBenchmarkJson(report));
-    assert.equal(await readFile('benchmark/results/v0.8.2.md', 'utf8'), formatBenchmarkMarkdown(report));
+    assert.equal(await readFile('benchmark/results/v1.0.0-rc.1.json', 'utf8'), formatBenchmarkJson(report));
+    assert.equal(await readFile('benchmark/results/v1.0.0-rc.1.md', 'utf8'), formatBenchmarkMarkdown(report));
     assert.match(report.fixtureSha256, /^[a-f0-9]{64}$/);
   });
 
@@ -136,7 +136,7 @@ describe('Phase 7 deterministic benchmark', () => {
     const canonical = formatBenchmarkJson(report);
     const manipulated = canonical.replace('"truePositive": 0', '"truePositive": 999');
     assert.notEqual(manipulated, canonical);
-    assert.equal(await readFile('benchmark/results/v0.8.2.json', 'utf8'), canonical);
+    assert.equal(await readFile('benchmark/results/v1.0.0-rc.1.json', 'utf8'), canonical);
     const markdown = formatBenchmarkMarkdown(report);
     for (const marker of [
       'Micro precision', 'Micro recall', 'Authority prevention', 'Authority detection',
