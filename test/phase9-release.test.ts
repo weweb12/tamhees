@@ -23,7 +23,7 @@ describe('Phase 9 release identity and documentation', () => {
     assert.equal(PRODUCT_NAME, 'Tamhees');
     assert.equal(STORAGE_DIR, '.tamhees');
     assert.equal(packageJson.name, 'tamhees');
-    assert.equal(packageJson.version, '1.0.0-rc.1');
+    assert.equal(packageJson.version, '1.0.0-rc.2');
     assert.equal(ENGINE_VERSION, packageJson.version);
     assert.equal(packageJson.license, 'UNLICENSED');
     assert.deepEqual(packageJson.dependencies ?? {}, {});
@@ -55,6 +55,7 @@ describe('Phase 9 release identity and documentation', () => {
       'docs/JUDGE_FAQ.md',
       'docs/RELEASE_CHECKLIST.md',
       'docs/RELEASE_NOTES_V1_RC1.md',
+      'docs/RELEASE_NOTES_V1_RC2.md',
     ]) {
       assert.ok((await text(path)).length > 200, `${path} should be substantive`);
     }
@@ -67,7 +68,7 @@ describe('Phase 9 release identity and documentation', () => {
     assert.match(css, /:focus-visible/);
     const combined = [
       await text('docs/RELEASE_CHECKLIST.md'),
-      await text('docs/RELEASE_NOTES_V1_RC1.md'),
+      await text('docs/RELEASE_NOTES_V1_RC2.md'),
     ].join('\n');
     assert.match(combined, /assistive-technology/i);
     assert.match(combined, /physical/i);
@@ -100,7 +101,7 @@ describe('Phase 9 local distribution safety', () => {
     assert.match(script, /Refusing to overwrite/);
     assert.match(script, /DRY_RUN_OK/);
     assert.match(script, /NodeRuntimeDirectory/);
-    assert.match(script, /Tamhees-Portable-Website-v1\.0\.0-rc\.1-Windows-x64\.zip/);
+    assert.match(script, /Tamhees-Portable-Website-v1\.0\.0-rc\.2-Windows-x64\.zip/);
     assert.doesNotMatch(script, /source\.zip/i);
     assert.match(command, /PowerShell\.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-Tamhees\.ps1"/);
     assert.match(launcher, /runtime\\node\.exe/);

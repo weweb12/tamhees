@@ -37,9 +37,9 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 ## Current status
 
-> **Version 1.0.0-rc.1 — Phase 9 is implemented, independently verified, and checkpointed locally. It remains an unpublished release candidate, not a final public release.**
+> **Version 1.0.0-rc.2 — frozen local release source. Final independent Windows Node 22.23.2 x64 verification and RC2 PowerShell packaging dry-run passed. Local release tag: `v1.0.0-rc.2`.**
 
-Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. No remote, upload, deployment, publication, external service, telemetry, or runtime dependency exists. The candidate is not a final public release: Node 22 execution, real assistive-technology and physical-device review, judge-comprehension review, license/publication decisions, second-laptop portable review, and challenge submission remain owner or external gates.
+Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. No remote, upload, deployment, publication, external service, telemetry, or runtime dependency exists. The candidate is not a final public release: native-Windows portable build, real assistive-technology and physical-device review, judge-comprehension review, license/publication decisions, second-laptop portable review, and challenge submission remain owner or external gates.
 
 ![Tamhees desktop dashboard](docs/assets/tamhees-dashboard-desktop.png)
 
@@ -186,7 +186,7 @@ Owner-confirmed promotion is intentionally two-step: create a lower-authority me
 }
 ```
 
-Every candidate receives `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, or `NO_CHANGE`. Authorized items are applied independently in input order through the canonical mutation boundary. The engine journals `FINALIZING` before mutation; interrupted work requires controlled recovery and is never replayed automatically. Identical completed input is idempotent, while different replay is rejected. Owner-policy proposals without sufficient owner evidence are held and cannot mutate memory.
+Every candidate receives `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, or `NO_CHANGE`. Authorized items apply in input order through the canonical mutation boundary only after all bundle candidates pass preflight; an invalid candidate prevents all canonical writes. The engine journals `FINALIZING` before mutation; interrupted work requires controlled recovery and is never replayed automatically. Identical completed input is idempotent, while different replay is rejected. Owner-policy proposals without sufficient owner evidence are held and cannot mutate memory.
 
 `migrate bootstrap` is the one-time deterministic migration for the documented Markdown claim ledger. It maps legacy vocabulary explicitly, validates every claim before writing, preserves IDs and authority, retains the source Markdown, rejects unsafe source paths, and uses staged recovery markers to reconcile an audit/completion interruption without duplication.
 
@@ -196,7 +196,7 @@ The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `
 
 The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.js built-ins, one UTF-8 JSON object per line, protocol revision `2025-11-25`, a bounded rolling 4,096-request duplicate-ID window, and exactly four tools for initialization, begin, finalize, and privacy-safe status. It has no HTTP listener, global configuration, SDK dependency, or runtime network request; this is the documented project subset, not a claim of full MCP feature coverage.
 
-`npm run benchmark` regenerates `benchmark/results/v1.0.0-rc.1.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
+`npm run benchmark` regenerates `benchmark/results/v1.0.0-rc.2.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
 
 ## Phase 8 local dashboard
 
@@ -211,7 +211,7 @@ Open the exact printed `http://127.0.0.1:8787/` URL. For the primary demonstrati
 Fixtures are fake and fixed. Results come from production audit/context functions, benchmark values come from the SHA-256-checked committed artifact, and execution creates no repository memory or persisted context.
 ## Next planned work
 
-The exact next action after local private-package inspection is owner testing on the second Windows x64 laptop. Challenge-submission preparation requires separate authorization. Do not push, upload, publish, deploy, configure a remote, choose a public license, or call the candidate final before the remaining gates pass.
+The next action is a native-Windows portable build from the frozen RC2 commit/tag, followed by clean-extraction smoke testing and owner testing on the second Windows x64 laptop. Core changes require a confirmed defect, failed release verification or an explicit new post-challenge decision. Publication and challenge-submission work require separate authorization.
 
 ## Local release preparation
 
@@ -223,7 +223,7 @@ npm run verify
 npm run release:prepare -- -OutputDirectory C:\tmp\tamhees-release -DryRun
 ```
 
-A real private archive additionally requires `-NodeRuntimeDirectory` pointing to an existing local Windows x64 runtime directory containing only the reviewed `node.exe` and its complete `LICENSE` or `LICENSE.txt`. The workflow produces one `Tamhees-Portable-Website-v1.0.0-rc.1-Windows-x64.zip`, refuses repository-contained output and existing artifacts unless `-Force` is explicitly selected, validates every entry, embeds stable per-file SHA-256 values, and creates no source archive, public release, or upload.
+A real private archive additionally requires `-NodeRuntimeDirectory` pointing to an existing local Windows x64 runtime directory containing only the reviewed `node.exe` and its complete `LICENSE` or `LICENSE.txt`. The native-Windows build handoff uses the frozen RC2 commit/tag and official Node 22.23.2 x64 to produce one `Tamhees-Portable-Website-v1.0.0-rc.2-Windows-x64.zip`, refuses repository-contained output and existing artifacts unless `-Force` is explicitly selected, validates every entry, embeds stable per-file SHA-256 values, and creates no source archive, public release, or upload.
 ## Runtime requirements
 
 - **Minimum**: Node.js 22
@@ -240,3 +240,30 @@ This project was initially inspired by the Doo challenge ("Memory That Knows It 
 ## License
 
 `UNLICENSED`. All rights reserved; no public license has been granted. See `THIRD_PARTY_NOTICES.md`. Selecting a public license requires explicit owner approval.
+
+## RC2 accepted engineering basis
+
+The accepted 2026-09-20 implementation adds explicit memory applicability and
+same-finalization evidence. RC2 changes release identity, not that implementation.
+The five audit outcomes remain unchanged. See `docs/PROTOCOL_SPECIFICATION.md`
+for the contract and `docs/RELEASE_NOTES_V1_RC2.md` for verification and pending gates.
+Final independent Windows Node 22.23.2 x64 verification passed 294/294 complete,
+44/44 focused and 24/24 release/migration tests; benchmark bytes were unchanged,
+the RC2 PowerShell dry-run passed, and `NODE22_RC2_CHECK_PASSED` was recorded.
+No product source changed during that verification. Raw QA logs are retained
+separately as private evidence, outside the product repository.
+
+- A memory can carry `scope: {"kind":"RESTRICTED","environment":"production"}`.
+- Supply `--scope-input task-scope.json` to context, lifecycle begin or adapter
+  begin; the file contains `{"environment":"production"}`. MCP begin uses `scope`.
+- Omitted task scope excludes narrower memories. Old records without scope read
+  as PROJECT; subsequent controlled writes serialize explicit scope.
+- Finalization accepts `proposedEvidence` alongside `proposedUpdates`. See
+  `examples/finalize-with-evidence.json`; replace its lifecycle ID with the ID
+  returned by begin. Evidence and a new REPO_VERIFIED claim can be created together.
+- Invalid bundles perform no canonical writes. Runtime interruptions require
+  journal-guided manual recovery; this is not a multi-file transaction.
+- PowerShell JSON files with one initial UTF-8 BOM are accepted.
+
+Coordinate one writer per project. Existing local caller trust, owner-policy
+holds, secret-pattern limits, and non-ambient adapter invocation still apply.

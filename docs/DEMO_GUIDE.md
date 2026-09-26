@@ -46,3 +46,17 @@ deterministic estimate; secret detection is pattern-based; adapters require
 cooperation; and the dashboard uses safe fixed fixtures. Real
 assistive-technology, physical-device, judge-comprehension, external-validity,
 publication, and submission review remain owner gates.
+
+## Engine applicability and bundle check
+
+In a temporary initialized project, begin a lifecycle and put its returned ID in
+`examples/finalize-with-evidence.json`. Finalize that file to create the parser
+claim and repository evidence together. Request parser context with
+`{"environment":"staging"}` via `--scope-input`: it is out-of-scope. Change the
+file to `{"environment":"production"}`: the scoped claim becomes eligible,
+subject to normal audit and relevance gates. The scope examples do not require
+external services. Automated equivalents are in `test/submission-engineering.test.ts`.
+
+The fixed dashboard fixtures do not demonstrate these new inputs; use the real
+CLI or MCP workflow. Repository evidence is supplied by the external agent and
+must truthfully describe its observation; the engine does not inspect files itself.

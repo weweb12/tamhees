@@ -1017,3 +1017,40 @@ Node 22 execution, real assistive-technology and physical-device review, indepen
 
 The Phase 9 candidate must remain unstaged, uncommitted, unpushed, unpublished, undeployed, and without a remote. The next action is a final independent Phase 9 owner-verification checkpoint; private portable ZIP generation and challenge-submission preparation require separate authorization.
 ---
+## 2026-09-20 engineering evidence note
+
+The uncommitted candidate implements scope applicability, bundled evidence and
+BOM handling. This is implementation/test evidence, not OWNER_CONFIRMED release
+approval. The engineering report and QA handoff are retained as private evidence;
+Windows packaging was environment-blocked during that Linux pass. Historical
+numbered claims remain intact.
+
+## 2026-09-21 RC2 release-preparation evidence note
+
+The owner accepted the engineering candidate after independent Windows QA reported
+294/294 complete tests, 44/44 focused tests, 26/26 adversarial scenarios and a passing
+PowerShell packaging dry-run. RC2 changes release identity and housekeeping only.
+Node 22 execution and final RC2 Windows runtime/release verification remain pending.
+No commit, tag, portable build, publication or submission is authorized by this note.
+
+## 2026-09-26 RC2 final Windows acceptance and engine freeze
+
+The owner supplied final independent Windows evidence for the unchanged RC2
+candidate: official Node 22.23.2 x64 and its SHA-256 verified, locked npm ci,
+294/294 complete tests, 44/44 focused tests, 24/24 release/migration tests, exact
+CLI identity, byte-identical benchmark and a successful native PowerShell RC2
+dry-run with no archive created. `NODE22_RC2_CHECK_PASSED` was recorded. The host
+Node 24 installation and product source remained unchanged. This closes the
+Node 22/Windows gates that were pending in the historical 2026-09-21 note.
+
+This records owner-supplied independent evidence, not a local Linux reproduction
+of Windows execution. Raw transcripts and machine-specific paths remain private.
+The owner explicitly authorized the local RC2 release commit and annotated tag
+`v1.0.0-rc.2`; publication, remote creation, deployment and submission remain
+unauthorized. Freeze finalization changes documentation only.
+
+The core engine is frozen. Further core modifications require a confirmed defect,
+failed release verification or an explicit new post-challenge development decision.
+A final native-Windows portable build from the frozen commit is still pending.
+Known authority, privacy, evidence-truth, concurrency, recovery, downgrade and
+non-ambient-operation limitations are unchanged.

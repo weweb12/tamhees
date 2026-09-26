@@ -1,3 +1,4 @@
+import { normalizeLegacyMemory } from './scope.js';
 /**
  * Tamhees — Memory Store
  *
@@ -154,7 +155,7 @@ export async function initTamhees(
     recordPath,
     absProjectDir,
     bootstrapRecord,
-    validateMemoryRecord,
+    (value) => validateMemoryRecord(value && typeof value === 'object' ? normalizeLegacyMemory(value) : value),
     `memories/records/${bootstrapId}.json`
   );
   trackResult(recordResult, `memories/records/${bootstrapId}.json`, created, existing, errors);
@@ -211,6 +212,7 @@ function createBootstrapRecord(id: string, now: string): MemoryRecord {
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id,
+    scope: { kind: 'PROJECT' },
     kind: 'OBSERVATION',
     statement: `${PRODUCT_NAME} storage is initialized for this project.`,
     source: {
@@ -267,7 +269,8 @@ export async function loadAllRecords(
 
     try {
       const content = await readFile(filePath, 'utf-8');
-      const data: unknown = JSON.parse(content);
+      const raw: unknown = JSON.parse(content);
+      const data: unknown = raw && typeof raw === 'object' && 'statement' in raw ? normalizeLegacyMemory(raw) : raw;
       const validation = validateMemoryRecord(data);
       if (!validation.valid) {
         const issueMessages = validation.issues.map((i) => `  ${i.field}: ${i.message}`).join('\n');
@@ -386,7 +389,8 @@ async function buildValidatedIndex(recordsDir: string, projectRoot: string): Pro
 
     try {
       const content = await readFile(filePath, 'utf-8');
-      const data: unknown = JSON.parse(content);
+      const raw: unknown = JSON.parse(content);
+      const data: unknown = raw && typeof raw === 'object' && 'statement' in raw ? normalizeLegacyMemory(raw) : raw;
       const validation = validateMemoryRecord(data);
 
       if (!validation.valid) {

@@ -6,27 +6,32 @@ This file records the project's current working position.
 
 Update it after meaningful work sessions. It should describe the present state, not serve as a permanent history log.
 
-During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 1.0.0-rc.1 is the independently verified Phase 9 local release checkpoint recorded by this commit and built on the committed Phase 8.2 checkpoint.
+During development, AI agents must update PROJECT_STATE.md after material work. End users are not expected to perform routine manual state maintenance once the planned lifecycle automation is implemented. Version 1.0.0-rc.1 remains the historical Phase 9 checkpoint; the current frozen local release source is Version 1.0.0-rc.2.
 
 ## Status summary
 
 - Project: Tamhees
-- Current phase: Phase 9 — safe local release hardening implemented and independently verified.
+- Current phase: RC2 local release freeze; accepted engineering implementation preserved.
 - Overall status: Release candidate, not a final public release.
-- Development environment: Windows, local-only, Node 24; Node 22 is not installed on this machine.
-- Repository location: `C:\Projects\doubtful-memory`
+- Verification runtimes: engineering Windows Node 24.11.1, Linux Node 24.19.0, and final independent Windows Node 22.23.2 x64 (official runtime checksum verified).
+- Repository root: `doubtful-memory` (local path is environment-specific).
 - Git branch: `main`
-- Latest committed checkpoint: Phase 9 Tamhees 1.0.0-rc.1 local release checkpoint (this commit)
-- Current unstaged candidate: None; private portable evidence is generated outside the source repository after this clean checkpoint.
+- Release checkpoint: Tamhees 1.0.0-rc.2, identified by local annotated tag `v1.0.0-rc.2`; historical RC1 HEAD is `42bc6cfae856611ab8c516e87664771400be1927`.
+- Accepted scope/bundle/BOM implementation is frozen; see docs/RELEASE_NOTES_V1_RC2.md.
 - Git remote/upload/publication/deployment: None.
 - External or paid services, telemetry, accounts, and runtime dependencies: None.
 - Direct development dependencies: `typescript@6.0.3`, `@types/node@22.20.1`.
-- Current local verification evidence: 250 tests across 38 suites with zero failures, skips, or todos; 23/23 focused dashboard tests; isolated clean-copy, benchmark, full-ledger bootstrap, CLI, packaging-dry-run, and browser release checks pass.
-- Last updated: 2026-07-27
+- Accepted engineering QA: Windows 294/294 tests, 44/44 focused checks, 26/26 adversarial scenarios, PowerShell dry-run, unchanged benchmark, 88/88 manifest matches.
+- RC2 Linux verification: typecheck/build, 44/44 focused tests and benchmark pass; full suite 293/294, with Windows powershell.exe unavailable. The separate independent Windows check closes the Windows/Node 22 gates.
+- Final Windows Node 22 acceptance: 294/294 complete, 44/44 focused, 24/24 release/migration; benchmark byte-identical; RC2 PowerShell dry-run passed; `NODE22_RC2_CHECK_PASSED`. No product source changed during that verification.
+- Last updated: 2026-09-26
 
 ## Current objective
 
-Preserve the independently verified Phase 9 checkpoint, generate and inspect only the owner-authorized private portable Windows x64 website outside the repository, and keep every publication or external gate explicit.
+Preserve the frozen local Tamhees 1.0.0-rc.2 source and its owner-authorized local commit/tag. Final Node 22/Windows acceptance is recorded; private evidence stays outside product source. No publication is authorized.
+
+Core modifications after this freeze require a confirmed defect, failed release verification, or an explicit new post-challenge development decision. No additional engine features are authorized.
+
 ## Completed work
 
 - Reviewed the two existing project-planning PDFs.
@@ -154,11 +159,12 @@ Phase 3 retrieval, ranking, explanations, context-pack validation, and hard esti
 
 ## Next phase
 
-Phase 9 local implementation is complete when the final verification gate passes; no post-Version-1 phase is authorized.
+RC2 Node 22/Windows runtime and dry-run gates are closed. Pending final native-Windows portable build from frozen commit. No feature development or product expansion is authorized.
 
 ## Next immediate action
 
-After the private portable package passes local no-install inspection, the exact next action is owner testing on the second Windows x64 laptop. Challenge-submission preparation still requires separate authorization; do not push, upload, publish, deploy, or configure a remote.
+Use the separately supplied RC2_WINDOWS_PORTABLE_BUILD_HANDOFF.md on native Windows to verify the frozen commit/tag and build, checksum and smoke-test a fresh portable package with official Node 22.23.2 x64. Do not modify source, push, publish, deploy, submit or configure a remote.
+
 ## Safe restart instructions
 
 When resuming work:

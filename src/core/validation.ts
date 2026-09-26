@@ -8,6 +8,8 @@
  * Does not depend on any external validation library.
  */
 
+import { validMemoryScope, normalizeLegacyMemory } from './scope.js';
+
 import {
   CURRENT_SCHEMA_VERSION,
   VERIFICATION_STATUSES,
@@ -228,10 +230,12 @@ export function validateMemoryRecord(data: unknown): ValidationResult {
 
   addUnknownFieldIssues(
     data,
-    ['schemaVersion', 'id', 'kind', 'statement', 'source', 'verificationStatus', 'confidence', 'freshness', 'sensitivity', 'actionPermission', 'relationships', 'tags', 'recheckMethod', 'notes', 'createdAt', 'updatedAt'],
+    ['scope', 'schemaVersion', 'id', 'kind', 'statement', 'source', 'verificationStatus', 'confidence', 'freshness', 'sensitivity', 'actionPermission', 'relationships', 'tags', 'recheckMethod', 'notes', 'createdAt', 'updatedAt'],
     '',
     issues,
   );
+
+  if (!validMemoryScope(data['scope'])) issues.push({ field: 'scope', code: 'INVALID_SCOPE', message: 'A valid explicit memory scope is required.' });
 
   // schemaVersion
   if (!isNonEmptyString(data['schemaVersion'])) {
@@ -719,7 +723,7 @@ export function validateUpdateCandidate(data: unknown): ValidationResult {
     if (data['memoryId'] !== undefined) {
       issues.push({ field: 'memoryId', code: 'UNEXPECTED_FIELD', message: 'memoryId must be omitted for CREATE; proposedRecord.id is canonical.' });
     }
-    const recordValidation = validateMemoryRecord(data['proposedRecord']);
+    const recordValidation = validateMemoryRecord(isObject(data['proposedRecord']) ? normalizeLegacyMemory(data['proposedRecord']) : data['proposedRecord']);
     for (const issue of recordValidation.issues) {
       issues.push({ ...issue, field: `proposedRecord${issue.field ? `.${issue.field}` : ''}` });
     }
@@ -727,7 +731,7 @@ export function validateUpdateCandidate(data: unknown): ValidationResult {
     if (!isSafeArtifactId(data['memoryId'])) {
       issues.push({ field: 'memoryId', code: 'MISSING_REQUIRED', message: 'memoryId is required for UPDATE.' });
     }
-    const recordValidation = validateMemoryRecord(data['proposedRecord']);
+    const recordValidation = validateMemoryRecord(isObject(data['proposedRecord']) ? normalizeLegacyMemory(data['proposedRecord']) : data['proposedRecord']);
     for (const issue of recordValidation.issues) {
       issues.push({ ...issue, field: `proposedRecord${issue.field ? `.${issue.field}` : ''}` });
     }
@@ -822,10 +826,11 @@ export function validateContextPack(data: unknown): ValidationResult {
       }
       addContextUnknownFieldIssues(
         item,
-        ['memoryId', 'statement', 'reason', 'auditOutcome', 'verificationStatus', 'confidence', 'tags', 'rank', 'ranking', 'estimatedTokens'],
+        ['scope', 'memoryId', 'statement', 'reason', 'auditOutcome', 'verificationStatus', 'confidence', 'tags', 'rank', 'ranking', 'estimatedTokens'],
         prefix,
         issues,
       );
+      if (!validMemoryScope(item['scope'])) issues.push({ field: `${prefix}.scope`, code: 'INVALID_SCOPE', message: 'Selected scope is invalid.' });
       if (!isSafeArtifactId(item['memoryId'])) {
         issues.push({ field: `${prefix}.memoryId`, code: 'UNSAFE_ID', message: 'memoryId must be a safe artifact ID.' });
       } else {
@@ -1105,7 +1110,7 @@ function estimateContextSelectionTokens(value: Record<string, unknown>): number 
   ) {
     return null;
   }
-  const payload = JSON.stringify({ memoryId, statement, auditOutcome, verificationStatus, confidence, tags });
+  const payload = JSON.stringify({ memoryId, statement, auditOutcome, verificationStatus, confidence, tags, ...(validMemoryScope(value['scope']) && value['scope'].kind === 'RESTRICTED' ? { scope: value['scope'] } : {}) });
   return Math.max(1, Math.ceil(Buffer.byteLength(payload, 'utf8') / 4));
 }
 
@@ -1177,7 +1182,7 @@ function addLifecycleUnknownFieldIssues(object: Record<string, unknown>, allowed
 export function validateLifecycleFinalizationInput(data: unknown): ValidationResult {
   const issues: ValidationIssue[] = [];
   if (!isObject(data)) return { valid: false, issues: [{ field: '', code: 'INVALID_ROOT', message: 'Lifecycle finalization must be a non-null object.' }] };
-  addLifecycleUnknownFieldIssues(data, ['schemaVersion', 'lifecycleId', 'proposer', 'proposedUpdates', 'reason'], '', issues);
+  addLifecycleUnknownFieldIssues(data, ['schemaVersion', 'lifecycleId', 'proposer', 'proposedUpdates', 'proposedEvidence', 'reason'], '', issues);
   if (data['schemaVersion'] !== CURRENT_SCHEMA_VERSION) issues.push({ field: 'schemaVersion', code: 'UNSUPPORTED_SCHEMA', message: 'Lifecycle schema version is unsupported.' });
   if (!isSafeArtifactId(data['lifecycleId'])) issues.push({ field: 'lifecycleId', code: 'UNSAFE_ID', message: 'lifecycleId must be a safe artifact identifier.' });
   validateLifecycleProposer(data['proposer'], 'proposer', issues);
@@ -1199,6 +1204,20 @@ export function validateLifecycleFinalizationInput(data: unknown): ValidationRes
         if (target) targets.add(target);
       }
     });
+  }
+  if (data['proposedEvidence'] !== undefined) {
+    if (!Array.isArray(data['proposedEvidence'])) issues.push({ field: 'proposedEvidence', code: 'INVALID_TYPE', message: 'proposedEvidence must be an array.' });
+    else {
+      const ids = new Set<string>();
+      for (const item of data['proposedEvidence']) {
+        const result = validateEvidenceRecord(item);
+        for (const problem of result.issues) issues.push({ ...problem, field: 'proposedEvidence.' + problem.field });
+        if (isObject(item) && typeof item['id'] === 'string') {
+          if (ids.has(item['id'])) issues.push({ field: 'proposedEvidence', code: 'DUPLICATE_ID', message: 'Duplicate evidence ID.' });
+          ids.add(item['id']);
+        }
+      }
+    }
   }
   if (data['reason'] !== undefined && !isNonEmptyString(data['reason'])) issues.push({ field: 'reason', code: 'INVALID_TYPE', message: 'reason must be a non-empty string if present.' });
   return { valid: issues.length === 0, issues };
@@ -1250,7 +1269,8 @@ function validateLifecycleBudget(value: unknown, issues: ValidationIssue[]): voi
 }
 function validateFinalizationMetadata(value: unknown, status: unknown, metadata: Record<string, unknown>, issues: ValidationIssue[]): void {
   if (!isObject(value)) { issues.push({ field: 'finalization', code: 'INVALID_STATE', message: 'This lifecycle state requires finalization metadata.' }); return; }
-  addLifecycleUnknownFieldIssues(value, ['fingerprint','proposer','startedAt','completedAt','dispositions'], 'finalization', issues);
+  if (value['evidenceIds'] !== undefined) validateSafeUniqueArray(value['evidenceIds'], 'finalization.evidenceIds', issues);
+  addLifecycleUnknownFieldIssues(value, ['fingerprint','proposer','startedAt','completedAt','dispositions','evidenceIds'], 'finalization', issues);
   if (typeof value['fingerprint'] !== 'string' || !/^[a-f0-9]{64}$/.test(value['fingerprint'])) issues.push({ field: 'finalization.fingerprint', code: 'INVALID_VALUE', message: 'Finalization fingerprint must be SHA-256 hexadecimal.' });
   validateLifecycleProposer(value['proposer'], 'finalization.proposer', issues);
   if (!isIso8601(value['startedAt'])) issues.push({ field: 'finalization.startedAt', code: 'INVALID_TIMESTAMP', message: 'startedAt must be ISO-8601 UTC.' });

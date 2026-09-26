@@ -1,3 +1,4 @@
+import { normalizeLegacyMemory } from '../core/scope.js';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -176,7 +177,7 @@ export function parseBenchmarkFixture(value: unknown): BenchmarkFixture {
     observedIds.push(expectedId);
     const recordIds = new Set<string>();
     for (const record of raw['records']) {
-      const validation = validateMemoryRecord(record);
+      const validation = validateMemoryRecord(normalizeLegacyMemory(record));
       if (!validation.valid) throw new Error('Benchmark fixture contains an invalid memory record.');
       const id = (record as MemoryRecord).id;
       if (recordIds.has(id) || allRecordIds.has(id)) throw new Error('Benchmark record IDs must be globally unique.');

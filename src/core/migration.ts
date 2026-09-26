@@ -256,6 +256,7 @@ function parseClaims(markdown:string,now:string):{success:true;records:MemoryRec
     if(superseded.some((value)=>!isSafeArtifactId(value)))errors.push(issue(id,'INVALID_RELATIONSHIP','Claim '+id+' has an unsafe supersession identifier.'));
 
     const record:MemoryRecord={
+      scope:{kind:'PROJECT'},
       schemaVersion:CURRENT_SCHEMA_VERSION,
       id,
       kind:kindFor(status??'UNKNOWN'),

@@ -1,6 +1,6 @@
 # Tamhees — Protocol Specification
 
-> **Status**: Version 1.0.0-rc.1 protocol behavior is implemented, independently verified, and checkpointed locally; no public release is authorized.
+> **Status**: Version 1.0.0-rc.2 retains the accepted engineering protocol under storage schema 1.0.0; no public release is authorized.
 
 ## Overview
 
@@ -18,6 +18,7 @@ A memory record is the canonical unit of project memory.
 {
   "schemaVersion": "1.0.0",
   "id": "<memory-id>",
+  "scope": { "kind": "PROJECT" },
   "kind": "<OBSERVATION | REQUIREMENT | DECISION | ...>",
   "statement": "<plain-language statement of what is believed>",
   "source": {
@@ -51,7 +52,7 @@ A memory record is the canonical unit of project memory.
 
 ### Required fields
 
-- `schemaVersion`, `id`, `kind`, `statement`, `source`, `verificationStatus`, `confidence`, `sensitivity`, `actionPermission`, `freshness`, `relationships`, `tags`, `createdAt`, `updatedAt`
+- `schemaVersion`, `id`, `scope`, `kind`, `statement`, `source`, `verificationStatus`, `confidence`, `sensitivity`, `actionPermission`, `freshness`, `relationships`, `tags`, `createdAt`, `updatedAt`
 
 ### Optional fields
 
@@ -498,7 +499,7 @@ Each audit event is appended to the JSONL audit log.
 
 ### Begin contract
 
-Core signature: `beginLifecycle(projectDir, taskDescription, clock, idGenerator, { maxTokens })`.
+Core signature: `beginLifecycle(projectDir, taskDescription, clock, idGenerator, { maxTokens, scope })`.
 
 The operation rejects an empty or secret-like task before retrieval or persistence. On success it returns a lifecycle ID, `OPEN` status, opening timestamp, safe audit references, and the exact Phase 3 context pack. Only this metadata is persisted: `schemaVersion`, `lifecycleId`, `status`, `openedAt`, `updatedAt`, `selectedMemoryIds`, unique controlled `exclusionReasonCodes`, the Phase 3 `budget` summary, and `auditReferences`. Unknown fields and unsupported states fail strict runtime validation.
 
@@ -513,6 +514,7 @@ The operation rejects an empty or secret-like task before retrieval or persisten
     "id": "<safe-id>"
   },
   "proposedUpdates": ["<canonical UpdateCandidate>"],
+  "proposedEvidence": ["<optional canonical EvidenceRecord>"],
   "reason": "<optional privacy-safe reason>"
 }
 ```
@@ -532,13 +534,13 @@ Every disposition contains only its proposal index, action, safe memory ID, cont
 
 ### State, transaction, and recovery
 
-Legal transitions are `OPEN -> FINALIZING -> COMPLETED | COMPLETED_WITH_HELD_ITEMS`; a commit failure may produce `FAILED`. All proposal dispositions are planned before mutation. `APPLIED` items are independently executed in input order through the Phase 2 mutation API. The implementation guarantees atomic replacement only for individual controlled files and their existing mutation rollback boundary, not one atomic filesystem transaction for the batch.
+Legal transitions are `OPEN -> FINALIZING -> COMPLETED | COMPLETED_WITH_HELD_ITEMS`; a commit failure may produce `FAILED`. All proposal dispositions are planned before mutation. `APPLIED` items execute in input order only after the whole bundle passes preflight (see the pre-submission extension below). The implementation guarantees atomic replacement only for individual controlled files and their existing mutation rollback boundary, not one atomic filesystem transaction for the batch.
 
 A durable `FINALIZING` journal precedes the first mutation and is rewritten after each attempt. Interrupted `FINALIZING` and `FAILED` states refuse automatic replay to prevent duplicate writes and require controlled inspection. An identical request against completed state returns the stored result idempotently without another mutation or audit row. Different content fails `ALREADY_FINALIZED`.
 
 ### Authority and evidence rules
 
-Automatic verified status requires matching stored `SUPPORTS` evidence. Owner confirmation requires an `OWNER` proposer, `OWNER_CONFIRMED` candidate authority, and supporting `OWNER_INSTRUCTION` evidence for the affected memory. Repository or test evidence cannot approve owner-controlled scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload decisions. Context packs, generated summaries, lifecycle results, audit output, and engine summaries are never independent evidence. Lower authority cannot alter stronger canonical authority. Privacy rejection remains fail-closed and confidence creates no authority.
+Automatic verified status requires matching stored or same-bundle `SUPPORTS` evidence. Owner confirmation requires an `OWNER` proposer, `OWNER_CONFIRMED` candidate authority, and supporting `OWNER_INSTRUCTION` evidence for the affected memory. Repository or test evidence cannot approve owner-controlled scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload decisions. Context packs, generated summaries, lifecycle results, audit output, and engine summaries are never independent evidence. Lower authority cannot alter stronger canonical authority. Privacy rejection remains fail-closed and confidence creates no authority.
 
 ### Bootstrap migration
 
@@ -572,4 +574,131 @@ The active product, package, CLI, engine, canonical directory, managed marker, g
 
 The dashboard guided CLI lesson has exactly five allowlisted presentation states and uses the real command syntax. Browser code can issue only the fixed `architecture-conflict` request to the existing strict `POST /api/audit` route. It accepts no command input, executes no shell, writes no memory, persists no state, and derives the audit outcome, permission consequence, next step, and context selection from the canonical response. Step selection, next, reset, full run, pause/play, hidden-page pause, offscreen pause, concise live announcements, a contained labelled log, a complete static equivalent, and a reduced-motion final-state path are presentation behavior only.
 
-The active release-candidate benchmark view is `benchmark/results/v1.0.0-rc.1.json`, pinned at SHA-256 `5a97d9f8d511f8ed327a962129e655081b3894746646f93e3e71f758bffa0c29`. Benchmark semantics remain Version `2.0.0` and the fixture identity is unchanged. It and the Markdown view regenerate byte-identically from the same 22 fixed scenarios. The prior v0.7.0 artifacts remain historical evidence.
+The historical RC1 benchmark view is `benchmark/results/v1.0.0-rc.1.json`, pinned at SHA-256 `5a97d9f8d511f8ed327a962129e655081b3894746646f93e3e71f758bffa0c29`. Benchmark semantics remain Version `2.0.0` and the fixture identity is unchanged. It and the Markdown view regenerate byte-identically from the same 22 fixed scenarios. The prior v0.7.0 artifacts remain historical evidence.
+
+## Pre-submission applicability and bundle extension (2026-09-20)
+
+At this engineering checkpoint, package/engine version remained `1.0.0-rc.1`;
+RC2 advances only the product version to `1.0.0-rc.2`. Storage schema remains `1.0.0`.
+This additive reader upgrade supersedes the Phase 4 independent-application rule
+for invalid bundles: any preflight rejection now prevents all canonical writes.
+Owner holds and no-change items are valid dispositions, not invalid input.
+
+### Canonical scope
+
+```typescript
+interface TaskScope {
+  readonly environment?: string;
+  readonly component?: string;
+  readonly path?: string;
+}
+type MemoryScope =
+  | { readonly kind: 'PROJECT' }
+  | ({ readonly kind: 'RESTRICTED' } & TaskScope);
+```
+
+`MemoryRecord.scope` is required in the canonical TypeScript model and strict
+record validator. `RESTRICTED` requires at least one constraint. Environment
+and component labels are case-sensitive ASCII identifiers, 1–64 characters,
+starting with a letter or digit and otherwise letters/digits/dot/underscore/hyphen.
+Paths are case-sensitive project-relative slash-separated paths, at most 256
+characters, with no empty, dot, dot-dot, absolute, drive, backslash, or wildcard
+segments; segment characters are letters/digits/dot/underscore/hyphen and start
+with a letter, digit or underscore. Unknown keys and secret-shaped values fail.
+These labels are applicability constraints, not identity or access-control claims.
+
+Project scope applies throughout the *current local store*, never across stores.
+Restricted constraints are conjunctive. Environment/component match exactly;
+path matches itself or descendants at a slash boundary. `src/parser` does not
+match `src/parser2`. Missing task dimensions cannot match restricted dimensions.
+No wildcard, normalization, globbing, inferred environment, user scope, or tenant
+ACL exists. Tags cannot override a mismatch. Existing audit/privacy gates retain
+precedence; applicable records then reach lexical ranking and budgeting.
+
+Current scope is supplied as `compileContext(..., {maxTokens, scope})` or
+`beginLifecycle(..., {maxTokens, scope})`, the same adapter begin options, MCP
+`tamhees_begin_task` argument `scope`, or CLI `--scope-input task-scope.json` on
+context/lifecycle begin/adapter begin. Omission means `{}`: only project-wide
+memories are eligible. Example file: `{"environment":"production","component":"parser"}`.
+Scope is explicit in selected JSON and its Markdown reason. Restricted scope is
+included in the estimated payload; implicit PROJECT scope preserves historical
+project-only budget and benchmark results. Scope never authorizes an action.
+
+### Compatibility, serialization and privacy
+
+Schema-1.0 records missing scope are normalized to `{kind:'PROJECT'}` at the
+storage read, index rebuild, initialization, legacy-directory validation and
+benchmark boundaries without rewriting disk. This preserves their historical
+project-wide behavior; it cannot infer a narrower historical intent. Canonical
+writes and bootstrap imports include explicit scope using existing sorted JSON.
+Legacy CREATE input defaults to PROJECT; legacy UPDATE input omitting scope
+preserves the current target scope. Explicit malformed/null scope is rejected.
+This is forward reader compatibility: old binaries reject the new field, so do
+not downgrade against upgraded records without restoring a backup.
+
+REVOKE preserves scope but remains blocked. REDACT removes all scope labels,
+replacing them with PROJECT on the revoked privacy tombstone, without creating
+a pre-redaction archive. Restricted/sensitive retention requires PROJECT scope;
+legacy sensitive display replaces scope with PROJECT. Existing older archives or
+independently stored evidence are not retroactively erased by REDACT.
+
+### Evidence bundle
+
+`LifecycleFinalizationInput` adds optional `proposedEvidence: EvidenceRecord[]`.
+Old callers may omit it. Existing evidence and proposed evidence form a validated
+in-memory union; proposed evidence may name stored memories or same-bundle CREATE
+IDs. Evidence IDs cannot overwrite stored evidence or duplicate each other.
+`collectedBy` must match `proposer.id`; non-OWNER proposers cannot introduce
+OWNER_INSTRUCTION artifacts. Each new evidence item must be used in a candidate's
+`evidence` array. `supportedBy` links must resolve to SUPPORTS evidence for that
+memory. Memory relationship IDs must resolve. Dependencies on a held new memory
+are rejected. General ordered multi-memory supersession is not introduced.
+
+The existing independent-evidence type/relationship and generated-artifact tests
+remain unchanged. A repository artifact cannot confer owner-policy authority.
+Owner role remains self-declared local input, not authenticated identity; the
+existing trusted-local-caller boundary is unchanged.
+
+Validation order: whole-input privacy scan; strict schema/IDs; lifecycle state
+and fingerprint; store reads; evidence/proposer/references; every disposition;
+read-only preview through the **same canonical mutation implementation**; final
+retained-reference checks. Any invalid item leaves records, evidence, audit and
+OPEN journal unchanged. Corrected input can retry the same OPEN lifecycle.
+Only evidence used by an APPLIED candidate is written, and it may target only
+APPLIED memories; evidence for held/no-change proposals is not persisted.
+
+Commit order: FINALIZING journal including intended `evidenceIds`; all accepted
+evidence in input order; memory mutations in proposal order with progress journal
+updates; audit event; terminal journal. Evidence is durable before its verified
+memory. A runtime failure stops further application and marks FAILED where
+possible, preserving the last durable journal otherwise. Orphan evidence or
+already-applied memory may remain: inspect the listed IDs and controlled files.
+Do not delete required evidence or blindly replay. FAILED/FINALIZING blocks
+same-lifecycle automatic replay. Completed identical content (including evidence)
+is idempotent; different content fails ALREADY_FINALIZED.
+
+There is **no filesystem-wide atomicity**, automatic rollback of the entire
+bundle, multi-process locking, or new recovery command. An in-process guard
+rejects concurrent finalizations for the same resolved project. Direct mutation,
+other processes, aliases and manual file edits still require external single-writer
+coordination. A failure result is not proof that storage is unchanged; follow its
+RECOVERY_REQUIRED guidance and journal. Existing per-file rollback semantics remain.
+
+### MCP and BOM
+
+There are still exactly four MCP tools. Finalize forwards its input to the core,
+so MCP alone can initialize, begin, finalize evidence plus memory, and read status.
+No CLI evidence ingestion or new tool is required. The shared CLI JSON file loader
+removes exactly one initial U+FEFF before JSON.parse. It does not trim, sanitize,
+remove embedded BOMs, tolerate multiple BOMs, or change persistent-file parsers.
+
+## RC2 release metadata
+
+Active engine/package version is `1.0.0-rc.2`. Storage schema stays `1.0.0`: the
+accepted scope normalization provides forward reader compatibility without an
+additional migration. Older binaries still cannot read newly scoped records.
+The current benchmark is `benchmark/results/v1.0.0-rc.2.json`, pinned at SHA-256
+`20cdd58eff65805622d6bfc05eb3128e0ca99afe51e7d94ef32be7b0dac1f237`. Relative to RC1, only engine-version metadata
+changes; the fixture, methodology, scenarios and metrics are identical. Historical
+RC1 artifacts/checksums remain intact. This hash is a benchmark hash, not a Windows
+portable-package hash; no RC2 portable package has been built.

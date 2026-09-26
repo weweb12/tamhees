@@ -18,6 +18,7 @@ export interface AdapterRuntime {
 }
 
 export interface AdapterBeginOptions {
+  readonly scope?: import('../core/types.js').TaskScope;
   readonly maxTokens?: number;
 }
 

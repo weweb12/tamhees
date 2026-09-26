@@ -1,3 +1,4 @@
+import { normalizeLegacyMemory, scopeMatches, validTaskScope } from './scope.js';
 /**
  * Tamhees — deterministic Phase 3 context compiler.
  *
@@ -49,6 +50,7 @@ const COMMON_TASK_TERMS = new Set([
 ]);
 
 export interface ContextCompileOptions {
+  readonly scope?: import('./types.js').TaskScope;
   readonly maxTokens?: number | undefined;
 }
 
@@ -91,6 +93,8 @@ export function compileContext(
 ): ContextPack {
   const maxTokens = options.maxTokens ?? DEFAULT_CONTEXT_MAX_TOKENS;
   assertContextBudget(maxTokens);
+  const taskScope = options.scope ?? {};
+  if (!validTaskScope(taskScope)) throw new Error('Invalid task scope.');
 
   const taskScan = scanSecretLikeText([taskDescription]);
   const safeTaskDescription = taskScan.secretLike
@@ -106,7 +110,7 @@ export function compileContext(
     warnings.push(`Task description was redacted because it matched: ${taskScan.patternIds.join(', ')}.`);
   }
 
-  const sortedRecords = [...records].sort((left, right) => compareOrdinal(left.id, right.id));
+  const sortedRecords = records.map(normalizeLegacyMemory).sort((left, right) => compareOrdinal(left.id, right.id));
 
   for (const record of sortedRecords) {
     const secretScan = scanMemoryRecord(record);
@@ -144,6 +148,10 @@ export function compileContext(
       continue;
     }
 
+    if (!scopeMatches(record.scope, taskScope)) {
+      excluded.push(exclusion(record.id, 'out-of-scope', 'Memory scope does not apply to the requested task.'));
+      continue;
+    }
     const safeRecord = memoryForOutput(record);
     const relevance = computeRelevance(taskWords, record, record.sensitivity !== 'SENSITIVE');
     if (relevance.score === 0) {
@@ -195,8 +203,9 @@ export function compileContext(
   for (let index = 0; index < candidates.length; index += 1) {
     const candidate = candidates[index]!;
     const rank = index + 1;
-    const reason = selectionReason(candidate);
+    const reason = selectionReason(candidate) + ' Scope: ' + JSON.stringify(candidate.safeRecord.scope) + '.';
     const selectedWithoutEstimate = {
+      scope: candidate.safeRecord.scope,
       memoryId: candidate.record.id,
       statement: candidate.safeRecord.statement,
       reason,
@@ -257,7 +266,7 @@ export function estimateTextTokens(text: string): number {
 }
 
 export function estimateSelectedMemoryTokens(
-  selection: Pick<ContextSelection, 'memoryId' | 'statement' | 'auditOutcome' | 'verificationStatus' | 'confidence' | 'tags'>,
+  selection: Pick<ContextSelection, 'memoryId' | 'statement' | 'auditOutcome' | 'verificationStatus' | 'confidence' | 'tags'> & { readonly scope?: import('./types.js').MemoryScope },
 ): number {
   const canonicalAgentPayload = JSON.stringify({
     memoryId: selection.memoryId,
@@ -266,6 +275,7 @@ export function estimateSelectedMemoryTokens(
     verificationStatus: selection.verificationStatus,
     confidence: selection.confidence,
     tags: selection.tags,
+    ...(selection.scope?.kind === 'RESTRICTED' ? { scope: selection.scope } : {}),
   });
   return estimateTextTokens(canonicalAgentPayload);
 }

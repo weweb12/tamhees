@@ -27,6 +27,7 @@ function memory(id: string, statement: string, overrides: Partial<MemoryRecord> 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id,
+    scope: { kind: 'PROJECT' },
     kind: 'DECISION',
     statement,
     source: { type: 'REPOSITORY_STATE', reference: 'owner verification fixture' },

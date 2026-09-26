@@ -1,3 +1,4 @@
+import { normalizeLegacyMemory } from './scope.js';
 /** Explicit, fail-closed migration from the one supported legacy storage directory. */
 import { lstat, readFile, readdir, rename } from 'node:fs/promises';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
@@ -236,7 +237,7 @@ async function validateControlledStorage(
     } else if (file.relativePath === 'memories/index.json') {
       if (!validateMemoryIndex(parsed).valid) return invalidStorage();
     } else if (file.relativePath.startsWith('memories/records/')) {
-      if (!validateMemoryRecord(parsed).valid) return invalidStorage();
+      if (!validateMemoryRecord(parsed && typeof parsed === 'object' ? normalizeLegacyMemory(parsed) : parsed).valid) return invalidStorage();
       const record = parsed as MemoryRecord;
       if (`${record.id}.json` !== basename(file.relativePath) || records.has(record.id)) return invalidStorage();
       records.set(record.id, record);
@@ -251,7 +252,7 @@ async function validateControlledStorage(
         if (`${(parsed as { readonly lifecycleId: string }).lifecycleId}.json` !== basename(file.relativePath)) return invalidStorage();
       }
     } else if (file.relativePath.startsWith('archive/memories/')) {
-      if (!validateMemoryRecord(parsed).valid) return invalidStorage();
+      if (!validateMemoryRecord(parsed && typeof parsed === 'object' ? normalizeLegacyMemory(parsed) : parsed).valid) return invalidStorage();
       const segments = file.relativePath.split('/');
       if ((parsed as MemoryRecord).id !== segments[2]) return invalidStorage();
     }
