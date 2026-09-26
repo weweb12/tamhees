@@ -47,7 +47,7 @@ export const TAMHEES_MCP_TOOL_NAMES = [
 ] as const;
 
 /** Engine version — matches package.json version. */
-export const ENGINE_VERSION = '1.0.0-rc.1' as const;
+export const ENGINE_VERSION = '1.0.0-rc.2' as const;
 
 /** Directory rename does not alter the stored artifact schema. */
 export const CURRENT_SCHEMA_VERSION = '1.0.0' as const;

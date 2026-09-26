@@ -53,6 +53,7 @@ export function scanMemoryRecord(record: MemoryRecord): SecretScanResult {
     record.recheckMethod ?? '',
     record.notes ?? '',
     ...record.tags,
+    ...Object.values(record.scope ?? {}).filter((v): v is string => typeof v === 'string'),
   ]);
 }
 
@@ -84,6 +85,7 @@ export function memoryForOutput(record: MemoryRecord): MemoryRecord {
     : '[REDACTED — restricted content]';
   return {
     ...record,
+    scope: { kind: 'PROJECT' },
     statement: label,
     source: { type: record.source.type, reference: '[REDACTED]' },
     tags: ['redacted'],

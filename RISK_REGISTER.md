@@ -1027,3 +1027,16 @@ Stop using either store, preserve both directory trees byte-for-byte, report the
 - `DM-RISK-026` remains OPEN with strong local controls. Adversarial tests cover no-store, canonical-only, dry-run, successful replay, both-store conflict, corruption, unexpected paths, byte limits, links/reparse points where supported, failed post-validation, rollback, byte preservation, and idempotency. Filesystem and external-project diversity remain pending independent review.
 - `DM-RISK-004`, `DM-RISK-009`, `DM-RISK-010`, `DM-RISK-011`, `DM-RISK-017`, `DM-RISK-018`, `DM-RISK-019`, `DM-RISK-021`, `DM-RISK-023`, `DM-RISK-024`, and `DM-RISK-025` remain OPEN. Phase 8.2 strengthens deterministic naming, migration, explanation, guided controls, privacy, and audit presentation but cannot establish universal detection, enforcement, usability, accessibility, external validity, or release readiness.
 - No risk was changed to CONTROLLED or CLOSED from implementation tests alone.
+
+## Pre-submission candidate review — 2026-09-20
+
+- Scope labels are caller-supplied applicability, not ACLs. Legacy missing scope is
+  project-wide by compatibility; owners must explicitly narrow old claims where needed.
+- Bundle preflight reduces invalid-input partial writes. Evidence-first commit can
+  leave orphan evidence after interruption; journal inspection remains mandatory.
+- In-process finalization serialization does not fix multi-process or direct-writer
+  races. Single-writer coordination remains necessary.
+- Owner identity and evidence truth remain local caller trust boundaries. Pattern
+  secret detection, policy keywords and generated-artifact markers are not exhaustive.
+- REDACT does not recursively remove historical archives or independent evidence.
+- No existing risk is declared CLOSED based on implementing-agent tests.

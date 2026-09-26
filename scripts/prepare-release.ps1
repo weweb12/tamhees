@@ -18,9 +18,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$releaseVersion = '1.0.0-rc.1'
-$portableName = 'Tamhees-Portable-Website-v1.0.0-rc.1-Windows-x64.zip'
-$packageRootName = 'Tamhees-Portable-Website-v1.0.0-rc.1-Windows-x64'
+$releaseVersion = '1.0.0-rc.2'
+$portableName = 'Tamhees-Portable-Website-v1.0.0-rc.2-Windows-x64.zip'
+$packageRootName = 'Tamhees-Portable-Website-v1.0.0-rc.2-Windows-x64'
 $fixedZipTime = [DateTimeOffset]::new(2000, 1, 1, 0, 0, 0, [TimeSpan]::Zero)
 $utf8 = [System.Text.UTF8Encoding]::new($false)
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -121,7 +121,7 @@ foreach ($target in @($portablePath, $partialPath)) {
 }
 
 $distRoot = Join-Path $repoRoot 'dist\src'
-$benchmarkPath = Join-Path $repoRoot 'benchmark\results\v1.0.0-rc.1.json'
+$benchmarkPath = Join-Path $repoRoot 'benchmark\results\v1.0.0-rc.2.json'
 $launcherPath = Join-Path $repoRoot 'scripts\portable\Start-Tamhees.ps1'
 $cmdPath = Join-Path $repoRoot 'scripts\portable\Open Tamhees Website.cmd'
 $projectNoticesPath = Join-Path $repoRoot 'THIRD_PARTY_NOTICES.md'
@@ -194,7 +194,7 @@ foreach ($file in $compiledFiles) {
   $relative = Get-SafeRelativePath $distRoot $file.FullName
   $portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/application/dist/src/$relative"; SourcePath = $file.FullName; Bytes = $null }
 }
-$portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/application/benchmark/results/v1.0.0-rc.1.json"; SourcePath = $benchmarkPath; Bytes = $null }
+$portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/application/benchmark/results/v1.0.0-rc.2.json"; SourcePath = $benchmarkPath; Bytes = $null }
 $portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/runtime/node.exe"; SourcePath = $runtimeNode; Bytes = $null }
 $portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/Open Tamhees Website.cmd"; SourcePath = $cmdPath; Bytes = $null }
 $portableEntries += [pscustomobject]@{ ArchivePath = "$packageRootName/Start-Tamhees.ps1"; SourcePath = $launcherPath; Bytes = $null }

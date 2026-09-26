@@ -51,6 +51,7 @@ not a formal external audit or certification.
 
 ## What still needs owner review?
 
-Node 22 execution, real assistive technology, physical devices, judge
-comprehension, second-laptop portable review, license/publication decisions,
-and challenge submission.
+Real assistive technology, physical devices, judge comprehension, the new native-
+Windows portable build and second-laptop review, license/publication decisions,
+and challenge submission. Final Windows Node 22.23.2 x64 execution and the RC2
+PowerShell packaging dry-run have passed.

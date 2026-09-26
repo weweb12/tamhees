@@ -117,6 +117,7 @@ function memory(
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id,
+    scope: { kind: 'PROJECT' },
     kind: 'DECISION',
     statement,
     source: { type: 'REPOSITORY_STATE', reference: 'Safe deterministic dashboard fixture' },
@@ -169,6 +170,7 @@ const staleMemory = memory(
   'DM-MEM-DEMO-002',
   'The release build uses the legacy packaging command.',
   {
+    scope: { kind: 'PROJECT' },
     kind: 'CONVENTION',
     freshness: {
       lastVerified: '2025-10-01T09:00:00.000Z',
@@ -196,6 +198,7 @@ const inferenceMemory = memory(
   'DM-MEM-DEMO-004',
   'The owner prefers purple interfaces for every product.',
   {
+    scope: { kind: 'PROJECT' },
     kind: 'PREFERENCE',
     source: {
       type: 'AGENT_INFERENCE',
@@ -214,6 +217,7 @@ const secretMemory = memory(
   'DM-MEM-DEMO-005',
   'api_key=dm_fake_key_DO_NOT_USE_123456789',
   {
+    scope: { kind: 'PROJECT' },
     kind: 'OBSERVATION',
     source: { type: 'AGENT_OBSERVATION', reference: 'Obviously fake privacy fixture' },
     verificationStatus: 'OBSERVED',
@@ -228,6 +232,7 @@ const budgetRecords: readonly MemoryRecord[] = [
     'DM-MEM-DEMO-006',
     'Database adapter changes must preserve the local-only runtime boundary.',
     {
+      scope: { kind: 'PROJECT' },
       kind: 'CONSTRAINT',
       tags: ['database', 'adapter', 'local'],
     },
@@ -236,6 +241,7 @@ const budgetRecords: readonly MemoryRecord[] = [
     'DM-MEM-DEMO-007',
     'The current database adapter is selected through deterministic repository configuration.',
     {
+      scope: { kind: 'PROJECT' },
       kind: 'OBSERVATION',
       verificationStatus: 'TEST_VERIFIED',
       source: { type: 'TEST_RESULT', reference: 'Safe deterministic adapter test' },
@@ -246,6 +252,7 @@ const budgetRecords: readonly MemoryRecord[] = [
     'DM-MEM-DEMO-008',
     'Database migrations require an explicit review of persistence compatibility before release.',
     {
+      scope: { kind: 'PROJECT' },
       kind: 'REQUIREMENT',
       verificationStatus: 'OWNER_CONFIRMED',
       source: { type: 'OWNER_INSTRUCTION', reference: 'Safe fixture owner constraint' },
@@ -258,6 +265,7 @@ const budgetRecords: readonly MemoryRecord[] = [
     'DM-MEM-DEMO-009',
     'Navigation labels use sentence case.',
     {
+      scope: { kind: 'PROJECT' },
       kind: 'CONVENTION',
       tags: ['navigation', 'labels'],
     },
@@ -268,6 +276,7 @@ const supportedMemory = memory(
   'DM-MEM-DEMO-010',
   'The dashboard binds only to the local loopback interface.',
   {
+    scope: { kind: 'PROJECT' },
     kind: 'CONSTRAINT',
     verificationStatus: 'TEST_VERIFIED',
     source: { type: 'TEST_RESULT', reference: 'Safe dashboard server test' },

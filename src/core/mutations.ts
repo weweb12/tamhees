@@ -1,3 +1,4 @@
+import { normalizeLegacyMemory } from './scope.js';
 /** Tamhees — controlled memory create/update/revoke/redact operations. */
 
 import { randomBytes } from 'node:crypto';
@@ -33,16 +34,24 @@ const STATUS_ALLOWED_BY_AUTHORITY: Readonly<Record<VerificationStatus, readonly 
   REVOKED: [],
 };
 
-export async function applyUpdateCandidate(
+export async function previewUpdateCandidate(projectDir: string, input: unknown, clock: Clock, evidence: readonly EvidenceRecord[]): Promise<MutationResult> {
+  return mutateCandidate(projectDir, input, clock, { evidence });
+}
+export async function applyUpdateCandidate(projectDir: string, input: unknown, clock: Clock): Promise<MutationResult> {
+  return mutateCandidate(projectDir, input, clock);
+}
+async function mutateCandidate(
   projectDir: string,
   input: unknown,
   clock: Clock,
+  preview?: { readonly evidence: readonly EvidenceRecord[] },
 ): Promise<MutationResult> {
   const candidateValidation = validateUpdateCandidate(input);
   if (!candidateValidation.valid) {
     return failure(actionFromUnknown(input), null, candidateValidation.issues);
   }
-  const candidate = input as UpdateCandidate;
+  const rawCandidate = input as UpdateCandidate;
+  let candidate = { ...rawCandidate, ...(rawCandidate.proposedRecord ? { proposedRecord: normalizeLegacyMemory(rawCandidate.proposedRecord) } : {}) };
   const candidateMetadataScan = scanSecretLikeText([
     candidate.proposedBy,
     candidate.reason,
@@ -73,7 +82,7 @@ export async function applyUpdateCandidate(
       evidenceLoaded.errors.map((message) => issue('evidence', 'EVIDENCE_STORE_INVALID', message)));
   }
 
-  const evidenceById = new Map(evidenceLoaded.evidence.map((item) => [item.id, item]));
+  const evidenceById = new Map((preview?.evidence ?? evidenceLoaded.evidence).map((item) => [item.id, item]));
   const missingEvidence = candidate.evidence.filter((id) => !evidenceById.has(id));
   if (missingEvidence.length > 0) {
     return failure(candidate.action, candidate.memoryId ?? candidate.proposedRecord?.id ?? null, [
@@ -82,6 +91,11 @@ export async function applyUpdateCandidate(
   }
   const candidateEvidence = candidate.evidence.map((id) => evidenceById.get(id) as EvidenceRecord);
   const recordsById = new Map(loaded.records.map((record) => [record.id, record]));
+
+  if (candidate.action === 'UPDATE' && rawCandidate.proposedRecord && !('scope' in rawCandidate.proposedRecord)) {
+    const priorScope = recordsById.get(candidate.memoryId!)?.scope;
+    if (priorScope) candidate = { ...candidate, proposedRecord: { ...candidate.proposedRecord!, scope: priorScope } };
+  }
 
   const approvalIssues = validateAuthority(candidate, candidateEvidence, recordsById);
   if (approvalIssues.length > 0) {
@@ -134,6 +148,7 @@ export async function applyUpdateCandidate(
         schemaVersion: CURRENT_SCHEMA_VERSION,
         id: prior.id,
         kind: prior.kind,
+        scope: { kind: 'PROJECT' },
         statement: '[REDACTED — controlled privacy removal]',
         source: { type: 'SYSTEM_OBSERVATION', reference: '[REDACTED]' },
         verificationStatus: 'REVOKED',
@@ -172,9 +187,9 @@ export async function applyUpdateCandidate(
           issue('proposedRecord', 'RAW_SENSITIVE_RETENTION', 'SENSITIVE, SECRET, or FORGET_OR_REDACT records may retain only explicitly redacted statement and source fields.'),
         ]);
       }
-      if (next.tags.some((tag) => tag.toLowerCase() !== 'redacted')) {
+      if (next.scope.kind !== 'PROJECT' || next.tags.some((tag) => tag.toLowerCase() !== 'redacted')) {
         return failure(candidate.action, next.id, [
-          issue('proposedRecord.tags', 'RAW_SENSITIVE_RETENTION', 'Restricted records may retain only the safe "redacted" tag.'),
+          issue('proposedRecord.tags', 'RAW_SENSITIVE_RETENTION', 'Restricted records require project scope and only the safe "redacted" tag.'),
         ]);
       }
     }
@@ -190,6 +205,8 @@ export async function applyUpdateCandidate(
   if (!recordSafety.safe) {
     return failure(candidate.action, next.id, [issue('', 'PATH_SAFETY', recordSafety.reason ?? 'Record path is unsafe.')]);
   }
+
+  if (preview !== undefined) return { success: true, action: candidate.action, memoryId: next.id, record: next, archivePath: null, errors: [] };
 
   let archivePath: string | null = null;
   if (prior && candidate.action !== 'REDACT') {

@@ -62,6 +62,7 @@ function input(): LifecycleFinalizationInput {
     proposedRecord: {
       schemaVersion: CURRENT_SCHEMA_VERSION,
       id: 'DM-MEM-CROSS-ADAPTER',
+      scope: { kind: 'PROJECT' },
       kind: 'OBSERVATION',
       statement: 'A bounded adapter lifecycle observation.',
       source: { type: 'AGENT_INFERENCE', reference: 'controlled adapter proposal', agent: 'equivalence-agent' },

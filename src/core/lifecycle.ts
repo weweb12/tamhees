@@ -1,14 +1,14 @@
 /** Tamhees - controlled Phase 4 task lifecycle. */
 
 import { createHash, randomBytes } from 'node:crypto';
-import { readFile, stat, unlink } from 'node:fs/promises';
+import { mkdir, readFile, stat, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { appendValidatedAuditEvents } from './audit.js';
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
 import { compileContext, formatContextAsMarkdown, type ContextCompileOptions } from './context.js';
 import { loadAllEvidence } from './evidence.js';
 import { ENGINE_AUDITOR, ENGINE_VERSION, STORAGE_DIR } from './identity.js';
-import { applyUpdateCandidate } from './mutations.js';
+import { applyUpdateCandidate, previewUpdateCandidate } from './mutations.js';
 import { isRedactedText, scanMemoryRecord, scanSecretLikeText } from './privacy.js';
 import { loadAllRecords } from './store.js';
 import {
@@ -62,6 +62,7 @@ export interface LifecycleBeginOptions extends ContextCompileOptions {}
 
 /** Optional operation hooks used by adapters and deterministic failure testing. */
 export interface LifecycleOperationHooks {
+  readonly beforeEvidenceWrite?: (evidence: EvidenceRecord) => void | Promise<void>;
   readonly beforeMetadataWrite?: (metadata: LifecycleMetadata) => void | Promise<void>;
   readonly beforeAuditAppend?: (events: readonly AuditEvent[]) => void | Promise<void>;
   readonly beforeMutation?: (candidate: UpdateCandidate, proposalIndex: number) => void | Promise<void>;
@@ -175,7 +176,16 @@ export async function beginLifecycle(
   };
 }
 
-export async function finalizeLifecycle(
+const activeFinalizations = new Set<string>();
+/** Serialize finalizations within this process. Cross-process writers still require coordination. */
+export async function finalizeLifecycle(projectDir: string, input: unknown, clock: Clock, hooks: LifecycleOperationHooks = {}): Promise<LifecycleFinalizeResult> {
+  const key = resolve(projectDir);
+  if (activeFinalizations.has(key)) return finalizeFailure(null, issue('', 'CONCURRENT_FINALIZATION', 'Another finalization is active in this process. Retry after it completes.'));
+  activeFinalizations.add(key);
+  try { return await finalizeLifecycleInternal(projectDir, input, clock, hooks); }
+  finally { activeFinalizations.delete(key); }
+}
+async function finalizeLifecycleInternal(
   projectDir: string,
   input: unknown,
   clock: Clock,
@@ -228,19 +238,67 @@ export async function finalizeLifecycle(
 
   const records = new Map(recordsLoaded.records.map((record) => [record.id, record]));
   const evidence = new Map(evidenceLoaded.evidence.map((item) => [item.id, item]));
+  const proposedEvidence = request.proposedEvidence ?? [];
+  const knownMemoryIds = new Set([...records.keys(), ...request.proposedUpdates.filter(c => c.action === 'CREATE').map(c => c.proposedRecord!.id)]);
+  for (const item of proposedEvidence) {
+    if (evidence.has(item.id)) return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'DUPLICATE_ID', 'Evidence ID already exists.'));
+    if (item.collectedBy !== request.proposer.id) return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'PROPOSER_MISMATCH', 'Evidence collector must match the proposer.'));
+    if (item.type === 'OWNER_INSTRUCTION' && request.proposer.type !== 'OWNER') return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'OWNER_EVIDENCE_REQUIRED', 'Only an owner may submit owner evidence.'));
+    if (!request.proposedUpdates.some(c => c.evidence.includes(item.id))) return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'UNUSED_EVIDENCE', 'Proposed evidence must be referenced by a proposal.'));
+    if (item.memoryIds.some(id => !knownMemoryIds.has(id))) return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'UNKNOWN_MEMORY', 'Evidence references an unknown memory.'));
+    evidence.set(item.id, item);
+  }
   const dispositions = request.proposedUpdates.map((candidate, index) => classifyCandidate(candidate, index, request.proposer, records, evidence));
+  // Preflight the same canonical boundary used for writes, with the validated union of evidence.
+  // Reject the whole bundle before journal/canonical mutation if any candidate is invalid.
+  for (let i = 0; i < request.proposedUpdates.length; i++) {
+    const candidate = request.proposedUpdates[i]!;
+    const disposition = dispositions[i]!;
+    if (disposition.disposition === 'REJECTED') return { ...finalizeFailure(request.lifecycleId, issue('proposedUpdates', disposition.reasonCode, disposition.explanation)), dispositions: dispositions.map(d => d.disposition === 'APPLIED' ? { ...d, disposition: 'REJECTED' as const, reasonCode: 'INVALID_CANDIDATE' as const, explanation: 'The bundle contains an invalid proposal; nothing was applied.' } : d) };
+    const references = candidate.proposedRecord?.relationships;
+    if ((references?.supportedBy ?? []).some(id => !evidence.has(id))) return finalizeFailure(request.lifecycleId, issue('proposedUpdates', 'UNKNOWN_EVIDENCE', 'A supporting evidence reference does not exist.'));
+    if ((references?.supportedBy ?? []).some(id => { const item = evidence.get(id)!; return item.relationship !== 'SUPPORTS' || !item.memoryIds.includes(candidate.proposedRecord!.id); })) return finalizeFailure(request.lifecycleId, issue('proposedUpdates', 'RELATIONSHIP_MISMATCH', 'Supporting evidence must support this memory.'));
+    if ([references?.supersedes, references?.supersededBy, ...(references?.conflictsWith ?? []), ...(references?.relatedTo ?? [])].some(id => id !== undefined && !knownMemoryIds.has(id))) return finalizeFailure(request.lifecycleId, issue('proposedUpdates', 'UNKNOWN_MEMORY', 'A memory relationship does not exist.'));
+    if (disposition.disposition === 'APPLIED') {
+      const preview = await previewUpdateCandidate(absProjectDir, candidate, () => timestamp, [...evidence.values()]);
+      if (!preview.success) return finalizeFailures(request.lifecycleId, preview.errors);
+    }
+  }
+  // Evidence is retained only for applied proposals. A held owner proposal cannot leave evidence
+  // that changes an existing memory's audit result or independently certifies authority.
+  const evidenceToWrite = proposedEvidence.filter(item => request.proposedUpdates.some((c, i) => dispositions[i]!.disposition === 'APPLIED' && c.evidence.includes(item.id)));
+  const appliedIds = new Set(dispositions.filter(d => d.disposition === 'APPLIED').map(d => d.memoryId));
+  const retainedIds = new Set([...records.keys(), ...appliedIds]);
+  if (request.proposedUpdates.some((c, i) => dispositions[i]!.disposition === 'APPLIED' && [c.proposedRecord?.relationships.supersedes, ...(c.proposedRecord?.relationships.relatedTo ?? []), ...(c.proposedRecord?.relationships.conflictsWith ?? [])].some(id => id !== undefined && !retainedIds.has(id)))) return finalizeFailure(request.lifecycleId, issue('proposedUpdates', 'HELD_REFERENCE', 'Applied memory cannot reference a held new memory.'));
+  if (evidenceToWrite.some(item => item.memoryIds.some(id => !appliedIds.has(id)))) return finalizeFailure(request.lifecycleId, issue('proposedEvidence', 'HELD_REFERENCE', 'Applied evidence may reference only applied proposal targets.'));
+
 
   let journal: LifecycleMetadata = {
     ...metadata,
     status: 'FINALIZING',
     updatedAt: timestamp,
-    finalization: { fingerprint, proposer: request.proposer, startedAt: timestamp, dispositions },
+    finalization: { fingerprint, proposer: request.proposer, startedAt: timestamp, dispositions, evidenceIds: evidenceToWrite.map(e => e.id) },
   };
   try {
     await hooks.beforeMetadataWrite?.(journal);
     await writeLifecycleMetadata(lifecyclePath, journal);
   } catch {
     return finalizeFailure(request.lifecycleId, issue('', 'WRITE_FAILED', 'Unable to create the finalization recovery journal; no proposal was applied.'));
+  }
+  // Evidence first: interruption can leave orphan evidence, never a verified memory without it.
+  // The journal contains every intended evidence ID before the first evidence write.
+  try {
+    for (const item of evidenceToWrite) {
+      await hooks.beforeEvidenceWrite?.(item);
+      const destination = join(storagePath, 'evidence', `${item.id}.json`);
+      const safety = await verifyPathSafety(destination, absProjectDir);
+      if (!safety.safe) throw new Error('Unsafe evidence destination.');
+      await mkdir(join(storagePath, 'evidence'), { recursive: true });
+      await atomicWriteJson(destination, item, { allowOverwrite: false });
+    }
+  } catch {
+    await markLifecycleFailed(lifecyclePath, journal, timestamp, 'EVIDENCE_WRITE_FAILED');
+    return finalizeFailure(request.lifecycleId, issue('', 'RECOVERY_REQUIRED', 'Evidence persistence was interrupted. Inspect journal evidence IDs and canonical storage; automatic replay is blocked.'));
   }
   for (let index = 0; index < dispositions.length; index += 1) {
     const disposition = dispositions[index];
@@ -253,9 +311,11 @@ export async function finalizeLifecycle(
       await markLifecycleFailed(lifecyclePath, journal, timestamp, 'MUTATION_FAILED');
       return finalizeFailure(request.lifecycleId, issue('', 'RECOVERY_REQUIRED', 'A controlled mutation was interrupted. Inspect the finalization journal and canonical storage before recovery.'));
     }
-    dispositions[index] = mutation.success
-      ? { ...disposition, storageChanged: true }
-      : rejectedAfterMutation(disposition, mutation.errors);
+    if (!mutation.success) {
+      await markLifecycleFailed(lifecyclePath, journal, timestamp, 'MUTATION_FAILED');
+      return finalizeFailure(request.lifecycleId, issue('', 'RECOVERY_REQUIRED', 'Canonical mutation failed after preflight. Inspect journal and storage before recovery.'));
+    }
+    dispositions[index] = { ...disposition, storageChanged: true };
     journal = { ...journal, updatedAt: timestamp, finalization: { ...journal.finalization!, dispositions: [...dispositions] } };
     try {
       await hooks.beforeMetadataWrite?.(journal);
@@ -309,7 +369,7 @@ function classifyCandidate(
   const base = { proposalIndex: index, action: candidate.action, memoryId } as const;
   const validation = validateUpdateCandidate(candidate);
   if (!validation.valid) return rejected(base, 'INVALID_CANDIDATE', 'The proposal failed strict update-candidate validation.', ['DM-RULE-LIFE-VALIDATE-001']);
-  if (candidate.proposedBy !== proposer.id) return rejected(base, 'INSUFFICIENT_AUTHORITY', 'The candidate proposer does not match the authenticated lifecycle proposer.', ['DM-RULE-LIFE-PROPOSER-001']);
+  if (candidate.proposedBy !== proposer.id) return rejected(base, 'INSUFFICIENT_AUTHORITY', 'The candidate proposer does not match the declared lifecycle proposer.', ['DM-RULE-LIFE-PROPOSER-001']);
 
   const missingEvidence = candidate.evidence.filter((id) => !evidence.has(id));
   if (missingEvidence.length > 0) return rejected(base, 'MISSING_ARTIFACT', 'One or more referenced evidence artifacts are unavailable.', ['DM-RULE-LIFE-EVIDENCE-001']);
@@ -412,13 +472,6 @@ function noChange(base: DispositionBase, explanation: string): LifecycleDisposit
     triggeredRules: ['DM-RULE-LIFE-IDEMPOTENCY-001'], storageChanged: false, auditReferences: [],
     recommendedAction: 'No canonical storage change is needed.' };
 }
-function rejectedAfterMutation(base: LifecycleDispositionRecord, errors: readonly ValidationIssue[]): LifecycleDispositionRecord {
-  return { ...base, disposition: 'REJECTED', reasonCode: 'MUTATION_FAILED',
-    explanation: 'The canonical mutation boundary rejected this proposal after lifecycle planning.', storageChanged: false,
-    triggeredRules: [...base.triggeredRules, ...errors.map((item) => `MUTATION-${item.code}`)].sort(compareOrdinal),
-    recommendedAction: 'Inspect the controlled error codes and submit a fresh lifecycle proposal.' };
-}
-
 function lifecycleFinalizeAudit(lifecycleId: string, metadata: LifecycleMetadata, eventId: string, timestamp: string): AuditEvent {
   const dispositions = metadata.finalization?.dispositions ?? [];
   return { schemaVersion: CURRENT_SCHEMA_VERSION, eventId, timestamp, memoryId: lifecycleId,

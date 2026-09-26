@@ -100,6 +100,7 @@ export type UpdateAction = (typeof UPDATE_ACTIONS)[number];
 
 export const CONTEXT_EXCLUSION_REASONS = [
   'irrelevant',
+  'out-of-scope',
   'revoked',
   'conflicted',
   'redacted',
@@ -179,7 +180,15 @@ export interface Relationships {
   readonly relatedTo?: readonly string[] | undefined;
 }
 
+export interface TaskScope {
+  readonly environment?: string;
+  readonly component?: string;
+  readonly path?: string;
+}
+export type MemoryScope = { readonly kind: 'PROJECT' } | ({ readonly kind: 'RESTRICTED' } & TaskScope);
+
 export interface MemoryRecord {
+  readonly scope: MemoryScope;
   readonly schemaVersion: string;
   readonly id: string;
   readonly kind: MemoryKind;
@@ -323,6 +332,7 @@ export interface ContextRanking {
 }
 
 export interface ContextSelection {
+  readonly scope: MemoryScope;
   readonly memoryId: string;
   readonly statement: string;
   readonly reason: string;
@@ -378,6 +388,7 @@ export interface LifecycleFinalizationInput {
   readonly lifecycleId: string;
   readonly proposer: LifecycleProposer;
   readonly proposedUpdates: readonly UpdateCandidate[];
+  readonly proposedEvidence?: readonly EvidenceRecord[];
   readonly reason?: string | undefined;
 }
 
@@ -395,6 +406,7 @@ export interface LifecycleDispositionRecord {
 }
 
 export interface LifecycleFinalizationMetadata {
+  readonly evidenceIds?: readonly string[];
   readonly fingerprint: string;
   readonly proposer: LifecycleProposer;
   readonly startedAt: string;

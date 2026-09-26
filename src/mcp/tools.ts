@@ -1,3 +1,4 @@
+import { validTaskScope } from '../core/scope.js';
 import { getAdapter } from '../adapters/registry.js';
 import { DEFAULT_CONTEXT_MAX_TOKENS } from '../core/types.js';
 import { initTamhees, loadAllRecords } from '../core/store.js';
@@ -12,9 +13,9 @@ const EMPTY_SCHEMA = { type: 'object', properties: {}, additionalProperties: fal
 const TOOLS: readonly McpToolDefinition[] = [
   { name: MCP_TOOL_NAMES[0], description: `Initialize local ${PRODUCT_NAME} storage in this project.`, inputSchema: EMPTY_SCHEMA },
   { name: MCP_TOOL_NAMES[1], description: 'Begin a controlled task and return ephemeral ranked context.', inputSchema: {
-    type: 'object', properties: { task: { type: 'string' }, maxTokens: { type: 'integer', minimum: 1, maximum: 1_000_000 } }, required: ['task'], additionalProperties: false,
+    type: 'object', properties: { scope: { type: 'object', properties: { environment: { type: 'string' }, component: { type: 'string' }, path: { type: 'string' } }, additionalProperties: false }, task: { type: 'string' }, maxTokens: { type: 'integer', minimum: 1, maximum: 1_000_000 } }, required: ['task'], additionalProperties: false,
   } },
-  { name: MCP_TOOL_NAMES[2], description: 'Finalize a task through the canonical lifecycle policy boundary.', inputSchema: {
+  { name: MCP_TOOL_NAMES[2], description: 'Finalize with proposedUpdates and optional proposedEvidence through the canonical lifecycle policy boundary; evidence and new verified memories can be submitted together.', inputSchema: {
     type: 'object', properties: { input: { type: 'object' } }, required: ['input'], additionalProperties: false,
   } },
   { name: MCP_TOOL_NAMES[3], description: 'Return privacy-safe local storage counts and readiness.', inputSchema: EMPTY_SCHEMA },
@@ -31,11 +32,12 @@ export function createMcpTools(projectDir: string): McpToolProvider {
         requireKeys(args, []);
         result = await initTamhees(projectDir, systemClock);
       } else if (name === MCP_TOOL_NAMES[1]) {
-        requireKeys(args, ['task', 'maxTokens']);
+        requireKeys(args, ['task', 'maxTokens', 'scope']);
         if (typeof args['task'] !== 'string' || args['task'].trim().length === 0) throw new McpInvalidParamsError();
         const maxTokens = args['maxTokens'] === undefined ? DEFAULT_CONTEXT_MAX_TOKENS : args['maxTokens'];
         if (!Number.isSafeInteger(maxTokens) || (maxTokens as number) < 1 || (maxTokens as number) > 1_000_000) throw new McpInvalidParamsError();
-        result = await adapter.begin(projectDir, args['task'], { maxTokens: maxTokens as number });
+        if (args['scope'] !== undefined && !validTaskScope(args['scope'])) throw new McpInvalidParamsError();
+        result = await adapter.begin(projectDir, args['task'], { maxTokens: maxTokens as number, scope: (args['scope'] ?? {}) as import('../core/types.js').TaskScope });
       } else if (name === MCP_TOOL_NAMES[2]) {
         requireKeys(args, ['input']);
         if (!isObject(args['input'])) throw new McpInvalidParamsError();

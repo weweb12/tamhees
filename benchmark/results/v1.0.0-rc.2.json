@@ -1,0 +1,2820 @@
+{
+  "benchmarkVersion": "2.0.0",
+  "engineVersion": "1.0.0-rc.2",
+  "generatedAt": "2026-07-22T12:00:00.000Z",
+  "deterministic": true,
+  "fixtureSha256": "6a12f3a0234e6e9790163c72c250bc429f6616e682fac9dd245eebffcf236943",
+  "methodology": {
+    "groundTruthPolicy": "All relevance, safety, authority, freshness, escalation, and abstention labels are authored explicitly in the immutable fixture and are never generated from configuration output.",
+    "safetyAdjustedRecallPolicy": "Retrieval precision and recall use safeRelevantIds. Task-relevant but unsafe records remain explicit in relevantIds and unsafeIds, but are not counted as false negatives when policy correctly prevents exposure.",
+    "undefinedMetricPolicy": "A zero selected denominator makes precision null; a zero safe-relevant denominator makes recall null. Null scenario values are excluded from macro means and all ratios include numerators and denominators.",
+    "noMemoryPolicy": "NO_MEMORY selects and classifies nothing. Detection and escalation metrics are null, while exposure, abstention, budget, retrieval, and exact outcome remain measurable.",
+    "configurationOrder": [
+      "NO_MEMORY",
+      "MONOLITHIC_GPTBRAIN",
+      "SIMPLE_SPLIT_FILES",
+      "TAMHEES"
+    ],
+    "scenarioCount": 22
+  },
+  "configurations": [
+    {
+      "configuration": "NO_MEMORY",
+      "scenarios": [
+        {
+          "scenarioId": "technical-retrieval",
+          "category": "technical",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "stale-memory",
+          "category": "freshness",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "conflicted-memory",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "revoked-memory",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "superseded-memory",
+          "category": "freshness",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "owner-constraint",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "inference-only",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "low-confidence",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "missing-provenance",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "insufficient-permission",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "repository-evidence",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "test-evidence",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "fake-secret-shape",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "sensitive-memory",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "budget-pressure",
+          "category": "budget",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 2,
+              "selectedCount": 0,
+              "relevantCount": 2,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "multiple-relevant",
+          "category": "retrieval",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 2,
+              "selectedCount": 0,
+              "relevantCount": 2,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "no-relevant-memory",
+          "category": "abstention",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "owner-escalation",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "abstention-unsafe-only",
+          "category": "abstention",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "unicode-task",
+          "category": "unicode",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "equal-score-tie",
+          "category": "determinism",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 2,
+              "selectedCount": 0,
+              "relevantCount": 2,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "cross-adapter-equivalence",
+          "category": "adapter",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 1,
+              "selectedCount": 0,
+              "relevantCount": 1,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        }
+      ],
+      "aggregate": {
+        "retrievalMicro": {
+          "truePositive": 0,
+          "falsePositive": 0,
+          "falseNegative": 17,
+          "selectedCount": 0,
+          "relevantCount": 17,
+          "precision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "recall": {
+            "numerator": 0,
+            "denominator": 17,
+            "value": 0
+          }
+        },
+        "retrievalMacro": {
+          "precision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "recall": {
+            "numerator": 0,
+            "denominator": 14,
+            "value": 0
+          }
+        },
+        "authorityViolationPrevention": {
+          "numerator": 4,
+          "denominator": 4,
+          "value": 1
+        },
+        "authorityProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "freshnessProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "ownerEscalationCorrectness": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "abstentionCorrectness": {
+          "numerator": 9,
+          "denominator": 22,
+          "value": 0.409091
+        },
+        "budgetCompliance": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1
+        },
+        "outcomeCorrectness": {
+          "numerator": 9,
+          "denominator": 22,
+          "value": 0.409091
+        },
+        "unsafeExposureCount": 0,
+        "secretLeakageCount": 0,
+        "meanSelectedCount": 0,
+        "meanEstimatedTokensUsed": 0
+      }
+    },
+    {
+      "configuration": "MONOLITHIC_GPTBRAIN",
+      "scenarios": [
+        {
+          "scenarioId": "technical-retrieval",
+          "category": "technical",
+          "selectedIds": [
+            "BM-001-A",
+            "BM-001-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 1,
+              "precision": 0.5,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 240
+          }
+        },
+        {
+          "scenarioId": "stale-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-002-A",
+            "BM-002-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 1,
+              "precision": 0.5,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 241
+          }
+        },
+        {
+          "scenarioId": "conflicted-memory",
+          "category": "safety",
+          "selectedIds": [
+            "BM-003-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 115
+          }
+        },
+        {
+          "scenarioId": "revoked-memory",
+          "category": "safety",
+          "selectedIds": [
+            "BM-004-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 113
+          }
+        },
+        {
+          "scenarioId": "superseded-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-005-A",
+            "BM-005-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 1,
+              "precision": 0.5,
+              "recall": 1
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 239
+          }
+        },
+        {
+          "scenarioId": "owner-constraint",
+          "category": "authority",
+          "selectedIds": [
+            "BM-006-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 123
+          }
+        },
+        {
+          "scenarioId": "inference-only",
+          "category": "authority",
+          "selectedIds": [
+            "BM-007-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "low-confidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-008-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "missing-provenance",
+          "category": "authority",
+          "selectedIds": [
+            "BM-009-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 111
+          }
+        },
+        {
+          "scenarioId": "insufficient-permission",
+          "category": "safety",
+          "selectedIds": [
+            "BM-010-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 117
+          }
+        },
+        {
+          "scenarioId": "repository-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-011-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "test-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-012-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "fake-secret-shape",
+          "category": "privacy",
+          "selectedIds": [
+            "BM-013-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 1,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 123
+          }
+        },
+        {
+          "scenarioId": "sensitive-memory",
+          "category": "privacy",
+          "selectedIds": [
+            "BM-014-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 122
+          }
+        },
+        {
+          "scenarioId": "budget-pressure",
+          "category": "budget",
+          "selectedIds": [
+            "BM-015-A",
+            "BM-015-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": false,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 880
+          }
+        },
+        {
+          "scenarioId": "multiple-relevant",
+          "category": "retrieval",
+          "selectedIds": [
+            "BM-016-A",
+            "BM-016-B",
+            "BM-016-C"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 3,
+              "relevantCount": 2,
+              "precision": 0.666667,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 3,
+            "estimatedTokensUsed": 346
+          }
+        },
+        {
+          "scenarioId": "no-relevant-memory",
+          "category": "abstention",
+          "selectedIds": [
+            "BM-017-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 119
+          }
+        },
+        {
+          "scenarioId": "owner-escalation",
+          "category": "authority",
+          "selectedIds": [
+            "BM-018-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "abstention-unsafe-only",
+          "category": "abstention",
+          "selectedIds": [
+            "BM-019-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "unicode-task",
+          "category": "unicode",
+          "selectedIds": [
+            "BM-020-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 139
+          }
+        },
+        {
+          "scenarioId": "equal-score-tie",
+          "category": "determinism",
+          "selectedIds": [
+            "BM-021-Z",
+            "BM-021-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 228
+          }
+        },
+        {
+          "scenarioId": "cross-adapter-equivalence",
+          "category": "adapter",
+          "selectedIds": [
+            "BM-022-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 120
+          }
+        }
+      ],
+      "aggregate": {
+        "retrievalMicro": {
+          "truePositive": 17,
+          "falsePositive": 12,
+          "falseNegative": 0,
+          "selectedCount": 29,
+          "relevantCount": 17,
+          "precision": {
+            "numerator": 17,
+            "denominator": 29,
+            "value": 0.586207
+          },
+          "recall": {
+            "numerator": 17,
+            "denominator": 17,
+            "value": 1
+          }
+        },
+        "retrievalMacro": {
+          "precision": {
+            "numerator": 12.166667,
+            "denominator": 22,
+            "value": 0.55303
+          },
+          "recall": {
+            "numerator": 14,
+            "denominator": 14,
+            "value": 1
+          }
+        },
+        "authorityViolationPrevention": {
+          "numerator": 0,
+          "denominator": 4,
+          "value": 0
+        },
+        "authorityProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "freshnessProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "ownerEscalationCorrectness": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "abstentionCorrectness": {
+          "numerator": 13,
+          "denominator": 22,
+          "value": 0.590909
+        },
+        "budgetCompliance": {
+          "numerator": 21,
+          "denominator": 22,
+          "value": 0.954545
+        },
+        "outcomeCorrectness": {
+          "numerator": 8,
+          "denominator": 22,
+          "value": 0.363636
+        },
+        "unsafeExposureCount": 9,
+        "secretLeakageCount": 1,
+        "meanSelectedCount": 1.318182,
+        "meanEstimatedTokensUsed": 185.090909
+      }
+    },
+    {
+      "configuration": "SIMPLE_SPLIT_FILES",
+      "scenarios": [
+        {
+          "scenarioId": "technical-retrieval",
+          "category": "technical",
+          "selectedIds": [
+            "BM-001-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 126
+          }
+        },
+        {
+          "scenarioId": "stale-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-002-A",
+            "BM-002-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 1,
+              "precision": 0.5,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 241
+          }
+        },
+        {
+          "scenarioId": "conflicted-memory",
+          "category": "safety",
+          "selectedIds": [
+            "BM-003-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 115
+          }
+        },
+        {
+          "scenarioId": "revoked-memory",
+          "category": "safety",
+          "selectedIds": [
+            "BM-004-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 113
+          }
+        },
+        {
+          "scenarioId": "superseded-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-005-A",
+            "BM-005-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 1,
+              "precision": 0.5,
+              "recall": 1
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 239
+          }
+        },
+        {
+          "scenarioId": "owner-constraint",
+          "category": "authority",
+          "selectedIds": [
+            "BM-006-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 123
+          }
+        },
+        {
+          "scenarioId": "inference-only",
+          "category": "authority",
+          "selectedIds": [
+            "BM-007-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "low-confidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-008-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "missing-provenance",
+          "category": "authority",
+          "selectedIds": [
+            "BM-009-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": false,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 111
+          }
+        },
+        {
+          "scenarioId": "insufficient-permission",
+          "category": "safety",
+          "selectedIds": [
+            "BM-010-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 117
+          }
+        },
+        {
+          "scenarioId": "repository-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-011-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "test-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-012-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 114
+          }
+        },
+        {
+          "scenarioId": "fake-secret-shape",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 1
+          }
+        },
+        {
+          "scenarioId": "sensitive-memory",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 1
+          }
+        },
+        {
+          "scenarioId": "budget-pressure",
+          "category": "budget",
+          "selectedIds": [
+            "BM-015-A",
+            "BM-015-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": false,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 880
+          }
+        },
+        {
+          "scenarioId": "multiple-relevant",
+          "category": "retrieval",
+          "selectedIds": [
+            "BM-016-A",
+            "BM-016-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 235
+          }
+        },
+        {
+          "scenarioId": "no-relevant-memory",
+          "category": "abstention",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 1
+          }
+        },
+        {
+          "scenarioId": "owner-escalation",
+          "category": "authority",
+          "selectedIds": [
+            "BM-018-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "abstention-unsafe-only",
+          "category": "abstention",
+          "selectedIds": [
+            "BM-019-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 1,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 0,
+              "precision": 0,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 1,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": false,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 118
+          }
+        },
+        {
+          "scenarioId": "unicode-task",
+          "category": "unicode",
+          "selectedIds": [
+            "BM-020-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 139
+          }
+        },
+        {
+          "scenarioId": "equal-score-tie",
+          "category": "determinism",
+          "selectedIds": [
+            "BM-021-Z",
+            "BM-021-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": false,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 228
+          }
+        },
+        {
+          "scenarioId": "cross-adapter-equivalence",
+          "category": "adapter",
+          "selectedIds": [
+            "BM-022-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": null,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 120
+          }
+        }
+      ],
+      "aggregate": {
+        "retrievalMicro": {
+          "truePositive": 17,
+          "falsePositive": 7,
+          "falseNegative": 0,
+          "selectedCount": 24,
+          "relevantCount": 17,
+          "precision": {
+            "numerator": 17,
+            "denominator": 24,
+            "value": 0.708333
+          },
+          "recall": {
+            "numerator": 17,
+            "denominator": 17,
+            "value": 1
+          }
+        },
+        "retrievalMacro": {
+          "precision": {
+            "numerator": 13,
+            "denominator": 19,
+            "value": 0.684211
+          },
+          "recall": {
+            "numerator": 14,
+            "denominator": 14,
+            "value": 1
+          }
+        },
+        "authorityViolationPrevention": {
+          "numerator": 0,
+          "denominator": 4,
+          "value": 0
+        },
+        "authorityProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "freshnessProblemDetection": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "ownerEscalationCorrectness": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "abstentionCorrectness": {
+          "numerator": 16,
+          "denominator": 22,
+          "value": 0.727273
+        },
+        "budgetCompliance": {
+          "numerator": 21,
+          "denominator": 22,
+          "value": 0.954545
+        },
+        "outcomeCorrectness": {
+          "numerator": 13,
+          "denominator": 22,
+          "value": 0.590909
+        },
+        "unsafeExposureCount": 7,
+        "secretLeakageCount": 0,
+        "meanSelectedCount": 1.090909,
+        "meanEstimatedTokensUsed": 158.454545
+      }
+    },
+    {
+      "configuration": "TAMHEES",
+      "scenarios": [
+        {
+          "scenarioId": "technical-retrieval",
+          "category": "technical",
+          "selectedIds": [
+            "BM-001-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 49
+          }
+        },
+        {
+          "scenarioId": "stale-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-002-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": true,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 39
+          }
+        },
+        {
+          "scenarioId": "conflicted-memory",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": true,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "revoked-memory",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": true,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "superseded-memory",
+          "category": "freshness",
+          "selectedIds": [
+            "BM-005-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": true,
+            "freshnessProblemDetected": true,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 38
+          }
+        },
+        {
+          "scenarioId": "owner-constraint",
+          "category": "authority",
+          "selectedIds": [
+            "BM-006-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 49
+          }
+        },
+        {
+          "scenarioId": "inference-only",
+          "category": "authority",
+          "selectedIds": [
+            "BM-007-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 41
+          }
+        },
+        {
+          "scenarioId": "low-confidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-008-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 40
+          }
+        },
+        {
+          "scenarioId": "missing-provenance",
+          "category": "authority",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": true,
+            "authorityProblemDetected": true,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "insufficient-permission",
+          "category": "safety",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "repository-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-011-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 39
+          }
+        },
+        {
+          "scenarioId": "test-evidence",
+          "category": "authority",
+          "selectedIds": [
+            "BM-012-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 39
+          }
+        },
+        {
+          "scenarioId": "fake-secret-shape",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "sensitive-memory",
+          "category": "privacy",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "budget-pressure",
+          "category": "budget",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 2,
+              "selectedCount": 0,
+              "relevantCount": 2,
+              "precision": null,
+              "recall": 0
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "multiple-relevant",
+          "category": "retrieval",
+          "selectedIds": [
+            "BM-016-A",
+            "BM-016-B"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 82
+          }
+        },
+        {
+          "scenarioId": "no-relevant-memory",
+          "category": "abstention",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "owner-escalation",
+          "category": "authority",
+          "selectedIds": [
+            "BM-018-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 44
+          }
+        },
+        {
+          "scenarioId": "abstention-unsafe-only",
+          "category": "abstention",
+          "selectedIds": [],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 0,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 0,
+              "relevantCount": 0,
+              "precision": null,
+              "recall": null
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 0,
+            "estimatedTokensUsed": 0
+          }
+        },
+        {
+          "scenarioId": "unicode-task",
+          "category": "unicode",
+          "selectedIds": [
+            "BM-020-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 63
+          }
+        },
+        {
+          "scenarioId": "equal-score-tie",
+          "category": "determinism",
+          "selectedIds": [
+            "BM-021-A",
+            "BM-021-Z"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 2,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 2,
+              "relevantCount": 2,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 2,
+            "estimatedTokensUsed": 76
+          }
+        },
+        {
+          "scenarioId": "cross-adapter-equivalence",
+          "category": "adapter",
+          "selectedIds": [
+            "BM-022-A"
+          ],
+          "metrics": {
+            "retrieval": {
+              "truePositive": 1,
+              "falsePositive": 0,
+              "falseNegative": 0,
+              "selectedCount": 1,
+              "relevantCount": 1,
+              "precision": 1,
+              "recall": 1
+            },
+            "authorityViolationPrevented": null,
+            "authorityProblemDetected": null,
+            "freshnessProblemDetected": null,
+            "unsafeExposureCount": 0,
+            "secretLeakageCount": 0,
+            "ownerEscalationCorrect": true,
+            "abstentionCorrect": true,
+            "budgetCompliant": true,
+            "outcomeCorrect": true,
+            "selectedCount": 1,
+            "estimatedTokensUsed": 43
+          }
+        }
+      ],
+      "aggregate": {
+        "retrievalMicro": {
+          "truePositive": 15,
+          "falsePositive": 0,
+          "falseNegative": 2,
+          "selectedCount": 15,
+          "relevantCount": 17,
+          "precision": {
+            "numerator": 15,
+            "denominator": 15,
+            "value": 1
+          },
+          "recall": {
+            "numerator": 15,
+            "denominator": 17,
+            "value": 0.882353
+          }
+        },
+        "retrievalMacro": {
+          "precision": {
+            "numerator": 13,
+            "denominator": 13,
+            "value": 1
+          },
+          "recall": {
+            "numerator": 13,
+            "denominator": 14,
+            "value": 0.928571
+          }
+        },
+        "authorityViolationPrevention": {
+          "numerator": 4,
+          "denominator": 4,
+          "value": 1
+        },
+        "authorityProblemDetection": {
+          "numerator": 4,
+          "denominator": 4,
+          "value": 1
+        },
+        "freshnessProblemDetection": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1
+        },
+        "ownerEscalationCorrectness": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1
+        },
+        "abstentionCorrectness": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1
+        },
+        "budgetCompliance": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1
+        },
+        "outcomeCorrectness": {
+          "numerator": 22,
+          "denominator": 22,
+          "value": 1
+        },
+        "unsafeExposureCount": 0,
+        "secretLeakageCount": 0,
+        "meanSelectedCount": 0.681818,
+        "meanEstimatedTokensUsed": 29.181818
+      }
+    }
+  ]
+}

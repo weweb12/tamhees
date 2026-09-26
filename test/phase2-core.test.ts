@@ -42,6 +42,7 @@ function memory(
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id,
+    scope: { kind: 'PROJECT' },
     kind: 'DECISION',
     statement: `Memory statement for ${id}`,
     source: { type: 'AGENT_INFERENCE', reference: 'agent task summary', agent: 'test-agent' },

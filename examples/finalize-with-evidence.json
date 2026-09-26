@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "lc-replace-with-begin-id",
+  "proposer": {
+    "type": "AGENT",
+    "id": "agent"
+  },
+  "proposedEvidence": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "DM-EVIDENCE-PARSER",
+      "type": "REPOSITORY_STATE",
+      "source": "src/parser.ts",
+      "content": "Example only: replace with a truthful observation of the inspected parser.",
+      "relationship": "SUPPORTS",
+      "memoryIds": [
+        "DM-MEM-PARSER"
+      ],
+      "collectedAt": "2026-09-20T10:00:00.000Z",
+      "collectedBy": "agent"
+    }
+  ],
+  "proposedUpdates": [
+    {
+      "schemaVersion": "1.0.0",
+      "action": "CREATE",
+      "proposedRecord": {
+        "schemaVersion": "1.0.0",
+        "id": "DM-MEM-PARSER",
+        "scope": {
+          "kind": "RESTRICTED",
+          "environment": "production"
+        },
+        "kind": "CONVENTION",
+        "statement": "Parser uses strict JSON validation.",
+        "source": {
+          "type": "REPOSITORY_STATE",
+          "reference": "src/parser.ts"
+        },
+        "verificationStatus": "REPO_VERIFIED",
+        "confidence": "HIGH",
+        "freshness": {
+          "lastVerified": "2026-09-20T10:00:00.000Z"
+        },
+        "sensitivity": "INTERNAL",
+        "actionPermission": "MAY_ACT",
+        "relationships": {
+          "supportedBy": [
+            "DM-EVIDENCE-PARSER"
+          ]
+        },
+        "tags": [
+          "parser"
+        ],
+        "createdAt": "2026-09-20T10:00:00.000Z",
+        "updatedAt": "2026-09-20T10:00:00.000Z"
+      },
+      "evidence": [
+        "DM-EVIDENCE-PARSER"
+      ],
+      "proposedBy": "agent",
+      "authorityLevel": "REPO_VERIFIED",
+      "requiresOwnerApproval": false,
+      "reason": "Record inspected parser behavior.",
+      "timestamp": "2026-09-20T10:00:00.000Z"
+    }
+  ]
+}

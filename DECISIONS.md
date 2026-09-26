@@ -1127,3 +1127,20 @@ The owner approved the final pre-release product identity and directed a compreh
 - Existing users receive an explicit inspectable migration rather than silent dual stores or automatic merge behavior.
 - Historical ledgers are not rewritten to pretend the earlier identity never existed.
 - Naming approval is a product decision, not trademark clearance, uniqueness research, or publication approval.
+
+## DM-DEC-036 — Applicability and controlled evidence bundles
+
+- Date: 2026-09-20
+- Status: IMPLEMENTED CANDIDATE under the owner's explicit engineering request;
+  independent review pending, not release approval.
+- Scope: required canonical PROJECT or conjunctive RESTRICTED environment/component/
+  path scope; missing schema-1.0 scope defaults on read; UPDATE omission preserves
+  target scope. Scope filters before ranking and never supplies authority.
+- Lifecycle: optional proposedEvidence, complete preflight through existing mutation
+  checks, evidence-before-memory journal ordering, no new runtime dependencies.
+- Supersedes DM-DEC-031's independent application for invalid mixed proposals:
+  preflight-invalid bundles now apply nothing. Holds remain reviewable without
+  retaining proposed evidence. Runtime failure still requires manual recovery.
+- MCP retains four tools; CLI tolerates exactly one initial BOM.
+- Package/engine/schema versions are retained; older binaries cannot read new
+  scoped records. Local caller trust and single-writer limitations remain explicit.

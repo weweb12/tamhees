@@ -27,6 +27,7 @@ function memory(id: string, overrides: Partial<MemoryRecord> = {}): MemoryRecord
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id,
+    scope: { kind: 'PROJECT' },
     kind: 'DECISION',
     statement: 'Retrieval guidance for local project memory.',
     source: { type: 'REPOSITORY_STATE', reference: 'docs/ARCHITECTURE.md' },

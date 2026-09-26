@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { validTaskScope } from './core/scope.js';
 
 /**
  * Tamhees — tamhees CLI
@@ -151,6 +152,7 @@ Usage: ${CLI_NAME} context --task "<description>" [options]
 
 Options:
   --task <text>       Task description (required)
+  --scope-input <file> Task applicability JSON (environment/component/path)
   --format <type>     Output format: json or markdown (default: json)
   --max-tokens <n>    Hard estimated-token budget (default: ${DEFAULT_CONTEXT_MAX_TOKENS}; range: ${MIN_CONTEXT_MAX_TOKENS}-${MAX_CONTEXT_MAX_TOKENS})
 
@@ -313,7 +315,7 @@ async function handleContext(): Promise<void> {
     process.exit(0);
   }
 
-  const { options } = parseArgs(['--task', '--format', '--max-tokens'], 0);
+  const { options } = parseArgs(['--task', '--format', '--scope-input', '--max-tokens'], 0);
 
   const task = options['--task'];
   if (!task) {
@@ -349,7 +351,7 @@ async function handleContext(): Promise<void> {
     process.exit(1);
   }
 
-  const pack = compileContext(task, records, systemClock, evidenceResult.evidence, { maxTokens });
+  const pack = compileContext(task, records, systemClock, evidenceResult.evidence, { maxTokens, scope: await readTaskScope(options['--scope-input']) });
   const validation = validateContextPack(pack);
   if (!validation.valid) {
     console.error('Generated context pack failed internal validation. Raw context content was not echoed.');
@@ -532,7 +534,7 @@ async function readJsonInput(inputPath: string): Promise<unknown> {
   if (info.size > MAX_JSON_INPUT_BYTES) {
     throw new Error(`Input exceeds the ${MAX_JSON_INPUT_BYTES}-byte safety limit.`);
   }
-  return JSON.parse(await readFile(path, 'utf-8')) as unknown;
+  return JSON.parse((await readFile(path, 'utf-8')).replace(/^\uFEFF/, '')) as unknown;
 }
 
 // ─── Entry point ────────────────────────────────────────────
@@ -541,15 +543,15 @@ async function readJsonInput(inputPath: string): Promise<unknown> {
 async function handleLifecycle(): Promise<void> {
   const subcommand = args[1];
   if (args.includes('--help')) {
-    console.log(`${CLI_NAME} lifecycle\n\nUsage:\n  ${CLI_NAME} lifecycle begin --task "<description>" [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} lifecycle finalize --input <finalization.json> [--format json|markdown]\n\nTask text and generated context are returned ephemerally and are not persisted.`);
+    console.log(`${CLI_NAME} lifecycle\n\nUsage:\n  ${CLI_NAME} lifecycle begin --task "<description>" [--scope-input <task-scope.json>] [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} lifecycle finalize --input <finalization.json> [--format json|markdown]\n\nTask text and generated context are returned ephemerally and are not persisted.`);
     process.exit(0);
   }
   if (subcommand === 'begin') {
-    const { options } = parseArgs(['--task','--max-tokens','--format'],0,2);
+    const { options } = parseArgs(['--task','--scope-input','--max-tokens','--format'],0,2);
     const task=options['--task']; if(!task) return usageError(`Usage: ${CLI_NAME} lifecycle begin --task "<description>"`);
     const format=options['--format']??'json'; if(format!=='json'&&format!=='markdown') return usageError('Lifecycle format must be json or markdown.');
     const maxTokens=options['--max-tokens']===undefined?DEFAULT_CONTEXT_MAX_TOKENS:parseContextMaxTokens(options['--max-tokens']);
-    const result=await beginLifecycle(process.cwd(),task,systemClock,randomLifecycleId,{maxTokens});
+    const result=await beginLifecycle(process.cwd(),task,systemClock,randomLifecycleId,{maxTokens, scope: await readTaskScope(options['--scope-input'])});
     console.log(format==='markdown'?formatLifecycleBeginAsMarkdown(result):JSON.stringify(result,null,2)); process.exit(result.success?0:1);
   }
   if (subcommand === 'finalize') {
@@ -593,7 +595,7 @@ function joinPath(...parts:string[]):string{return resolve(process.cwd(),...part
 async function handleAdapter(): Promise<void> {
   const subcommand = args[1];
   if (args.includes('--help')) {
-    console.log(`${CLI_NAME} adapter\n\nUsage:\n  ${CLI_NAME} adapter list\n  ${CLI_NAME} adapter status --agent <${ADAPTER_NAMES.join('|')}>\n  ${CLI_NAME} adapter install --agent <name> [--dry-run]\n  ${CLI_NAME} adapter remove --agent <name> [--dry-run]\n  ${CLI_NAME} adapter begin --agent <name> --task "<description>" [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} adapter finalize --agent <name> --input <finalization.json> [--format json|markdown]\n\nManaged installs are project-local, atomic, idempotent, and preserve bytes outside the marked block.`);
+    console.log(`${CLI_NAME} adapter\n\nUsage:\n  ${CLI_NAME} adapter list\n  ${CLI_NAME} adapter status --agent <${ADAPTER_NAMES.join('|')}>\n  ${CLI_NAME} adapter install --agent <name> [--dry-run]\n  ${CLI_NAME} adapter remove --agent <name> [--dry-run]\n  ${CLI_NAME} adapter begin --agent <name> --task "<description>" [--scope-input <task-scope.json>] [--max-tokens <n>] [--format json|markdown]\n  ${CLI_NAME} adapter finalize --agent <name> --input <finalization.json> [--format json|markdown]\n\nManaged installs are project-local, atomic, idempotent, and preserve bytes outside the marked block.`);
     process.exit(0);
   }
   if (subcommand === 'list') {
@@ -602,7 +604,7 @@ async function handleAdapter(): Promise<void> {
     process.exit(0);
   }
   if (!['status', 'install', 'remove', 'begin', 'finalize'].includes(subcommand ?? '')) return usageError(`Unknown adapter operation: ${subcommand ?? '<missing>'}. Run ${CLI_NAME} adapter --help.`);
-  const allowed = subcommand === 'begin' ? ['--agent','--task','--max-tokens','--format']
+  const allowed = subcommand === 'begin' ? ['--agent','--task','--scope-input','--max-tokens','--format']
     : subcommand === 'finalize' ? ['--agent','--input','--format']
       : subcommand === 'status' ? ['--agent'] : ['--agent','--dry-run'];
   const { options } = parseArgs(allowed, 0, 2, ['--dry-run']);
@@ -617,7 +619,7 @@ async function handleAdapter(): Promise<void> {
   if (subcommand === 'begin') {
     const task = options['--task']; if (!task) return usageError('Adapter begin requires --task.');
     const maxTokens = options['--max-tokens'] === undefined ? DEFAULT_CONTEXT_MAX_TOKENS : parseContextMaxTokens(options['--max-tokens']);
-    const result = await adapter.begin(process.cwd(), task, { maxTokens });
+    const result = await adapter.begin(process.cwd(), task, { maxTokens, scope: await readTaskScope(options['--scope-input']) });
     console.log(format === 'markdown' ? formatLifecycleBeginAsMarkdown(result) : JSON.stringify(result, null, 2));
     process.exit(result.success ? 0 : 1);
   }
@@ -663,3 +665,9 @@ main().catch((err: unknown) => {
   console.error(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
 });
+
+async function readTaskScope(path: string | undefined): Promise<import('./core/types.js').TaskScope> {
+  const scope: unknown = path === undefined ? {} : await readJsonInput(path);
+  if (!validTaskScope(scope)) throw new Error('Invalid task scope.');
+  return scope;
+}

@@ -1,8 +1,8 @@
 # Tamhees — Implementation Roadmap
 
-> **Status**: Phases 1–9 are implemented, independently verified, and checkpointed locally as Version 1.0.0-rc.1. Public release remains gated.
+> **Status**: Phases 1–9 were checkpointed as Version 1.0.0-rc.1. The accepted engineering pass is now frozen locally as Version 1.0.0-rc.2; public release remains gated.
 
-> **Current Position**: The locally automatable Phase 9 outputs and private portable workflow are verified. Node 22 execution, second-laptop and real assistive-technology/device review, judge comprehension, licensing, publication, and submission remain explicit owner or external gates.
+> **Current Position**: Final Windows Node 22.23.2 x64 and RC2 PowerShell dry-run gates passed. Native-Windows portable creation, second-laptop and real assistive-technology/device review, judge comprehension, licensing, publication and submission remain separate work.
 
 > **Accelerated delivery**: The original acceptance criteria remain mandatory, but remaining work is grouped into larger milestones: Phases 3–4, Phases 5–7, and Phases 8–9. This reduces handoff overhead without removing quality gates.
 
@@ -445,3 +445,18 @@ All acceptance criteria pass. Owner reviews and approves for submission.
 ## Optional: Human/model-assisted evaluation
 
 Not required for the core benchmark. May be documented separately as a supplementary evaluation method. Does not replace deterministic fixture-based measurements.
+
+## Authorized pre-submission engine pass — 2026-09-20
+
+Implemented applicability scope, same-cycle evidence/memory preflight and recovery,
+MCP scope/finalization support, and leading-BOM JSON input. No version bump,
+publication, submission assets, ambient automation, or architecture replacement.
+Independent Windows QA of this engineering basis passed on 2026-09-20.
+Final RC2 Windows Node 22.23.2 x64 verification passed on 2026-09-26: 294/294
+complete, 44/44 focused, 24/24 release/migration, byte-identical benchmark and
+PowerShell dry-run; `NODE22_RC2_CHECK_PASSED`. Product source was unchanged.
+See `RELEASE_NOTES_V1_RC2.md`. Raw QA evidence is retained privately.
+
+RC2 engine freeze permits core changes only for a confirmed defect, failed release
+verification or an explicit new post-challenge decision. The next task is the
+native-Windows portable build from the frozen commit/tag, not feature development.

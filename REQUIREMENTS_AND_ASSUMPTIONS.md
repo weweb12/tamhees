@@ -1218,3 +1218,13 @@ If a requirement changes:
 - Assumptions fully verified: 0
 
 Phase 8.2 automated tests provide implementation evidence only. They do not elevate any requirement to `VERIFIED` without independent owner review.
+
+## Pre-submission engineering requirements — 2026-09-20
+
+Owner-requested scope applicability, evidence/memory bundle validation, four-tool
+MCP coverage, legacy read compatibility and single-leading-BOM support are
+implemented in this candidate. Tests are in `test/submission-engineering.test.ts`.
+The supplied challenge description is task context, not independently verified
+current website content. No publication or submission requirement was acted on.
+Invalid preflight must cause no canonical write; interrupted commit requires
+manual journal recovery and does not promise filesystem-wide atomicity.

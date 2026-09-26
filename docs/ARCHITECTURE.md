@@ -1,6 +1,6 @@
 # Tamhees — Architecture
 
-> **Status**: Version 1.0.0-rc.1 local architecture is implemented and release-hardened; independent Phase 9 owner verification and external release gates remain.
+> **Status**: Version 1.0.0-rc.2 retains the independently Windows-QA-approved architecture; final independent Windows Node 22.23.2 x64 verification and RC2 PowerShell dry-run passed. The core engine is frozen locally.
 
 ## Overview
 
@@ -323,8 +323,26 @@ OPEN -> FINALIZING -> COMPLETED
                    -> FAILED (controlled recovery only)
 ```
 
-Finalization first scans the whole request for secret-like content, validates its strict schema, loads all controlled artifacts, and determines every disposition. Eligible proposals are then applied independently in deterministic input order through `applyUpdateCandidate`. This is deliberately not described as a filesystem-wide atomic batch. A `FINALIZING` journal is durable before mutation and updated after every attempt. Interrupted `FINALIZING` or `FAILED` state blocks automatic replay and supplies recovery guidance. Completed identical input returns the saved result without new writes; different replay fails `ALREADY_FINALIZED`.
+Finalization first scans the whole request for secret-like content, validates its strict schema, loads all controlled artifacts, and determines every disposition. After all candidates pass bundle preflight, eligible proposals are applied in deterministic input order through `applyUpdateCandidate`. This is deliberately not described as a filesystem-wide atomic batch. A `FINALIZING` journal is durable before mutation and updated after every attempt. Interrupted `FINALIZING` or `FAILED` state blocks automatic replay and supplies recovery guidance. Completed identical input returns the saved result without new writes; different replay fails `ALREADY_FINALIZED`.
 
-Authority is non-escalating. Stored supporting evidence must match any automatic verified status. Repository and test evidence cannot authorize owner-policy terms; engine-generated context, summaries, lifecycle results, audit output, or engine summaries never qualify as independent evidence. Insufficiently authorized scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload proposals are `HELD_FOR_OWNER` and cannot change canonical state. A future adapter or approval UI must call the same core boundary.
+Authority is non-escalating. Stored or validated same-bundle supporting evidence must match any automatic verified status. Repository and test evidence cannot authorize owner-policy terms; engine-generated context, summaries, lifecycle results, audit output, or engine summaries never qualify as independent evidence. Insufficiently authorized scope, architecture, budget, cost, privacy, publication, payment, external-service, telemetry, remote, or upload proposals are `HELD_FOR_OWNER` and cannot change canonical state. A future adapter or approval UI must call the same core boundary.
 
 `src/core/migration.ts` implements the controlled lifecycle-milestone migration required by `DM-REQ-LIFE-002` and the prior architecture plan. It recognizes only numbered claim sections and documented fields, maps every legacy source vocabulary explicitly, validates all resulting canonical records before writing, preserves original Markdown, and uses a source fingerprint plus safe marker for one-time idempotency. It does not add a parser dependency or elevate authority.
+## Pre-submission extension
+
+`scope.ts` owns strict applicability validation and matching. Canonical records
+have scope; legacy reads normalize missing scope without rewriting input files.
+Context filters scope before lexical ranking. CLI, adapters and MCP supply the
+same optional task scope and contain no duplicate policy.
+
+Lifecycle now preflights the whole evidence/memory bundle, including read-only
+`previewUpdateCandidate` through the same implementation used by
+`applyUpdateCandidate`. No public preview can enable a write. The evidence union
+exists in memory during validation; evidence is committed only after the recovery
+journal, before memories. Journal evidence IDs permit manual interruption review.
+No filesystem transaction or cross-process lock is claimed. See the protocol
+extension for precise failure, owner-hold, migration and privacy semantics.
+
+The external agent still observes repository reality and proposes evidence.
+Tamhees does not watch files, independently execute tests, authenticate callers,
+or intercept actions. This pass adds no dependency, daemon, service or network use.

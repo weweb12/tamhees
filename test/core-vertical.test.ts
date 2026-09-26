@@ -39,6 +39,7 @@ function makeValidRecord(overrides?: Partial<MemoryRecord>): MemoryRecord {
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     id: 'DM-MEM-TEST-001',
+    scope: { kind: 'PROJECT' },
     kind: 'OBSERVATION',
     statement: 'Test memory record for unit testing.',
     source: {
