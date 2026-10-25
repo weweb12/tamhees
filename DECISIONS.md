@@ -1448,3 +1448,18 @@ The owner approved the final pre-release product identity and directed a compreh
   memory about the owner's working hours. Each memory row has a Forget button.
 - The route is stateless, validates IDs against the fixture, and adds no file access.
   The hosted demo answers it in the browser, byte-identical to the local server.
+
+## DM-DEC-052 — Short judge-facing front page
+
+- Date: 2026-10-25
+- Status: APPROVED by the owner ("very simple for judges to understand Tamhees and not get
+  overwhelmed"; chosen: new front page, one guided story, keep the light blue style).
+- Decision: `src/dashboard/public/start.html|css|js` is served at `/` locally and as
+  `index.html` on the hosted demo. It has five sections: hero, the problem in three cards,
+  a three-step demo, three "how it works" points, and links. Every step is answered by the
+  engine through the existing `POST /api/inspector-state` route over the Inspector fixture;
+  no new engine surface. The complete dashboard (`index.html`) is unchanged and is served
+  at `/details` (`details.html` hosted, with a "Back to the 3-step overview" link added at
+  build time).
+- `test/judge-page.test.ts` keeps it short (three steps, at most six sections), accessible
+  and free of unsafe DOM APIs, inline styles, inline scripts and external resources.

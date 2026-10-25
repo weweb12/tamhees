@@ -5,6 +5,10 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- New short front page for judges (DM-DEC-052): one sentence, the problem in three cards,
+  one guided three-step demo (Tamhees notices an outdated memory, "forget that" erases one,
+  a confident guess still asks the owner), three points and two links. The complete
+  dashboard is unchanged and one click away at `/details`.
 - The web demo's Inspector has a **Forget** button on every memory, including a new memory
   about the owner (DM-DEC-051). It runs the same tombstone code as `tamhees forget`: the text
   disappears from the page and the response, and the memory is withheld from the agent.
