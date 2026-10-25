@@ -4,6 +4,16 @@
 
 Tamhees checks what an AI remembers before that memory is allowed to guide an action. The name comes from the Arabic word تمحيص, used here to mean careful examination or scrutiny.
 
+> **DOO Builders League judges:** start with **[SUBMISSION.md](SUBMISSION.md)**.
+> **Live demo:** __LIVE_DEMO_URL__ (the real engine runs in your browser, with no server and nothing sent anywhere)
+>
+> ```bash
+> npm ci && npm run verify     # typecheck, build, full test suite (Node.js 22+, any OS)
+> npm run failure-test         # contradiction, staleness, AI guess, privacy revocation
+> ```
+>
+> [Architecture snapshot](docs/ARCHITECTURE_SNAPSHOT.md) · [Two-year thesis](docs/THESIS.md) · [90-second script](docs/LOOM_90S.md)
+
 ## What is this?
 
 Tamhees is a local developer tool for auditing AI coding-agent memory. It treats remembered project information as evidence-backed claims rather than unquestioned truth.
@@ -39,7 +49,7 @@ Existing memory and instruction systems provide continuity, but continuity alone
 
 > **Version 1.0.0-rc.2 — frozen local release source. Final independent Windows Node 22.23.2 x64 verification and RC2 PowerShell packaging dry-run passed. Local release tag: `v1.0.0-rc.2`.**
 
-Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. No remote, upload, deployment, publication, external service, telemetry, or runtime dependency exists. The candidate is not a final public release: native-Windows portable build, real assistive-technology and physical-device review, judge-comprehension review, license/publication decisions, second-laptop portable review, and challenge submission remain owner or external gates.
+Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. The product has no external service, telemetry, or runtime dependency. For the DOO challenge submission, a static hosted demo (GitHub Pages) that runs the same engine modules inside the visitor's browser is prepared; publication awaits owner approval (`DECISIONS.md`, DM-DEC-037). The candidate is not a final public release: real assistive-technology and physical-device review, judge-comprehension review and a public license decision remain owner or external gates.
 
 ![Tamhees desktop dashboard](docs/assets/tamhees-dashboard-desktop.png)
 
