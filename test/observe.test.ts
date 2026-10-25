@@ -237,3 +237,66 @@ describe('observe: reading the repository safely', () => {
     assert.equal(result.report === null || result.report.memoriesChecked === 0, true);
   });
 });
+
+describe('observe: monorepos and workspace folders', () => {
+  let root: string;
+  beforeEach(async () => {
+    root = await mkdtemp(join(tmpdir(), 'tamhees-observe-ws-'));
+  });
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it('reads backend/ and frontend/ manifests, including Python extras', async () => {
+    await write(root, 'package.json', JSON.stringify({ name: 'shop', workspaces: ['frontend'] }));
+    await write(root, 'bun.lock', '');
+    await write(root, 'frontend/package.json', JSON.stringify({ dependencies: { react: '19' }, devDependencies: { vite: '7' } }));
+    await write(root, 'backend/pyproject.toml', '[project]\ndependencies = [\n  "fastapi[standard]>=0.1,<1",\n  "sqlmodel>=0.0.1",\n  "psycopg[binary]>=3",\n]\n\n[dependency-groups]\ndev = ["pytest<10"]\n');
+    const present = presentTechnologies(await collectRepositoryFacts(root));
+    for (const id of ['react', 'vite', 'fastapi', 'sqlmodel', 'sqlalchemy', 'postgres', 'pytest', 'bun']) assert.ok(present.has(id), id);
+    assert.match(present.get('fastapi')![0]!, /^backend\/pyproject\.toml: fastapi$/);
+    const report = observeRecords([memory('DM-MEM-000001', 'The backend ORM is the Django ORM.')], await collectRepositoryFacts(root), new Map(), NOW);
+    assert.equal(report.observations[0]?.relationship, 'CONTRADICTS');
+  });
+
+  it('ignores node_modules, templates, examples and fixtures', async () => {
+    await write(root, 'package.json', JSON.stringify({ dependencies: { react: '19' } }));
+    await write(root, 'node_modules/vue/package.json', JSON.stringify({ name: 'vue' }));
+    await write(root, 'packages/create-app/template-vue/package.json', JSON.stringify({ dependencies: { vue: '3' } }));
+    await write(root, 'examples/svelte-app/package.json', JSON.stringify({ dependencies: { svelte: '5' } }));
+    await write(root, 'test/fixtures/angular/package.json', JSON.stringify({ dependencies: { '@angular/core': '19' } }));
+    const present = presentTechnologies(await collectRepositoryFacts(root));
+    assert.ok(present.has('react'));
+    for (const id of ['vue', 'svelte', 'angular']) assert.equal(present.has(id), false, id);
+  });
+
+  it("confirms a library's own repository through its package name", async () => {
+    await write(root, 'package.json', JSON.stringify({ name: 'express', devDependencies: { mocha: '10' } }));
+    const report = observeRecords([memory('DM-MEM-000001', 'The HTTP layer is this package.', { tags: ['express'] })], await collectRepositoryFacts(root), new Map(), NOW);
+    assert.equal(report.observations[0]?.relationship, 'SUPPORTS');
+    assert.match(report.observations[0]!.explanation, /name express/);
+  });
+
+  it('checks a path-scoped memory against that folder only', async () => {
+    await write(root, 'package.json', JSON.stringify({ name: 'mono' }));
+    await write(root, 'pnpm-lock.yaml', '');
+    await write(root, 'apps/web/package.json', JSON.stringify({ dependencies: { vue: '3' }, scripts: { dev: 'vite' } }));
+    await write(root, 'apps/admin/package.json', JSON.stringify({ dependencies: { react: '19' }, scripts: { start: 'x' } }));
+    const facts = await collectRepositoryFacts(root);
+    const scoped = (statement: string) => memory('DM-MEM-000001', statement, { scope: { kind: 'RESTRICTED', path: 'apps/web' } });
+    const react = observeRecords([scoped('This app is built with React.')], facts, new Map(), NOW);
+    assert.equal(react.observations[0]?.relationship, 'CONTRADICTS', 'React exists elsewhere, but not in apps/web');
+    const script = observeRecords([scoped('Run pnpm start to launch it.')], facts, new Map(), NOW);
+    assert.equal(script.observations.find((item) => item.kind === 'script')?.relationship, 'CONTRADICTS');
+    const repoWide = observeRecords([memory('DM-MEM-000002', 'The admin is built with React.')], facts, new Map(), NOW);
+    assert.equal(repoWide.observations[0]?.relationship, 'SUPPORTS');
+  });
+
+  it('recognizes Docker, Turborepo, Redis and VitePress', async () => {
+    await write(root, 'package.json', JSON.stringify({ devDependencies: { turbo: '2', vitepress: '1' }, dependencies: { ioredis: '5' } }));
+    await write(root, 'Dockerfile', 'FROM node:22');
+    const present = presentTechnologies(await collectRepositoryFacts(root));
+    for (const id of ['turborepo', 'vitepress', 'redis', 'docker']) assert.ok(present.has(id), id);
+  });
+});
+
