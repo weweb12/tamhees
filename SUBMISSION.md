@@ -59,8 +59,8 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
   caution permission could break retrieval), which is now fixed with a regression test.
 - **Future thesis:** [docs/THESIS.md](docs/THESIS.md).
 
-**Bonus signals.** *Memory inspector:* `tamhees memory list`, `tamhees memory show <id>`
-and `tamhees audit` answer "what do you remember, and how sure are you?" *Privacy
+**Bonus signals.** *Memory inspector:* `tamhees inspect` answers "what do you remember,
+and how sure are you?" in plain words, and `tamhees forget <id>` acts on "forget that". *Privacy
 controls:* demonstrated, not claimed. See the *Sensitive value appeared* demo scenario
 and steps 4–5 of the failure test.
 
