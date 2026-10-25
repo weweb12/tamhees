@@ -5,6 +5,13 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- Added `tamhees doctor [--fix]` (DM-DEC-050). One unreadable file, such as a git merge
+  conflict, used to stop every command with no way forward. The doctor explains each
+  problem in plain words and `--fix` repairs what can be undone: damaged files go to
+  `.tamhees/quarantine/` (never deleted), valid audit events are kept, the index is rebuilt.
+  It also reports interrupted tasks (which changes were saved, which to check), stale write
+  locks, and memories holding a secret-like value stored before its pattern was recognized.
+  Store errors now end with *Run "tamhees doctor" for details and a safe fix.*
 - Installing the command from a fresh clone now works or explains itself (DM-DEC-049). Before,
   `npm install -g .` reported success but created no `tamhees` command; `npm ci` now builds
   automatically, and installing without it prints the two commands to run. README gains an

@@ -296,17 +296,17 @@ export async function loadAllRecords(
       const validation = validateMemoryRecord(data);
       if (!validation.valid) {
         const issueMessages = validation.issues.map((i) => `  ${i.field}: ${i.message}`).join('\n');
-        errors.push(`Invalid record in ${file}:\n${issueMessages}`);
+        errors.push(`Invalid record in ${file}:\n${issueMessages}\nRun "tamhees doctor" for details and a safe fix.`);
       } else {
         const record = data as MemoryRecord;
         if (file !== `${record.id}.json`) {
-          errors.push(`Record filename mismatch: ${file} contains ID ${record.id}. The file was preserved.`);
+          errors.push(`Record filename mismatch: ${file} contains ID ${record.id}. The file was preserved. Run "tamhees doctor" for details and a safe fix.`);
         } else {
           records.push(record);
         }
       }
     } catch {
-      errors.push(`Failed to read ${file}. The raw file content was not echoed.`);
+      errors.push(`Failed to read ${file}. The raw file content was not echoed. Run "tamhees doctor" for details and a safe fix.`);
     }
   }
 
@@ -471,7 +471,7 @@ async function buildValidatedIndex(recordsDir: string, projectRoot: string): Pro
 
       const record = data as MemoryRecord;
       if (file !== `${record.id}.json`) {
-        errors.push(`Record filename mismatch: ${file} contains ID ${record.id}. The file was preserved.`);
+        errors.push(`Record filename mismatch: ${file} contains ID ${record.id}. The file was preserved. Run "tamhees doctor" for details and a safe fix.`);
         continue;
       }
       entries.push({
