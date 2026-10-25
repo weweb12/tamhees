@@ -307,6 +307,10 @@ export interface InspectionReport {
   readonly memories: readonly InspectedMemory[];
 }
 
+function day(iso: string | undefined): string {
+  return iso !== undefined && Number.isFinite(Date.parse(iso)) ? iso.slice(0, 10) : 'an earlier date';
+}
+
 function freshnessState(record: MemoryRecord, now: string): InspectedMemory['freshness'] {
   const nowMs = Date.parse(now);
   const lastMs = Date.parse(record.freshness.lastVerified);
@@ -381,9 +385,9 @@ export function inspectRecords(
       if (forgotten) {
         explanation = 'Forgotten on request: the text was erased and only this privacy-safe tombstone remains.';
       } else if (freshness.state === 'EXPIRED' && finding?.ruleId !== 'DM-RULE-FRESH-001') {
-        explanation += ` It also expired at ${freshness.expiresAfter ?? 'an earlier date'}.`;
+        explanation += ` It also expired on ${day(freshness.expiresAfter)}.`;
       } else if (freshness.state === 'REVIEW_DUE' && finding?.ruleId !== 'DM-RULE-FRESH-002') {
-        explanation += ` Its review date (${freshness.reviewAfter ?? 'unknown'}) has passed.`;
+        explanation += ` Its review date (${day(freshness.reviewAfter)}) has passed.`;
       }
       return {
         id: safe.id,
