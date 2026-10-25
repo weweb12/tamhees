@@ -1208,3 +1208,33 @@ The owner approved the final pre-release product identity and directed a compreh
     compiler's eligibility gates; the rule-combination suite asserts they agree for
     all 18,000 combinations.
 - Not changed: schema, audit rules and precedence, MCP tool set, benchmark.
+
+## DM-DEC-040 — Repository observation: Tamhees notices contradictions itself
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Problem: the engine only learned that a memory was wrong when a calling agent
+  supplied CONTRADICTS evidence (RC2 known limitation: "Evidence truth depends on
+  external observation, not independent engine inspection").
+- Decision: add `tamhees observe [--record]` (`src/core/observe.ts`).
+  - Technology claims: a fixed catalog of about 50 technologies in groups (database,
+    ORM, package manager, test framework, UI and app framework, bundler, styling,
+    HTTP server, language) with signals from dependencies, Python requirements,
+    lockfiles, known config files, the Prisma provider and compose images.
+    Implications are explicit (Supabase implies Postgres; Next.js implies React).
+  - A claim is CONTRADICTED only when the claimed technology is absent and a
+    competitor in the same group is present. Absence alone is "unverifiable".
+  - Script claims (`npm run x`, `pnpm x`, `yarn x`, `bun run x`) are checked against
+    package.json scripts. Package-manager built-ins are ignored.
+  - Path claims (relative paths with an extension) are checked for existence only.
+  - Statements with negation or change language, or naming several technologies of
+    one group, are skipped rather than interpreted. SENSITIVE/SECRET, revoked,
+    forgotten and RESTRICTED-scope memories are skipped.
+  - Reads only an allowlist of files, with path-safety and link refusal and a 1 MiB cap.
+    Never reads `.env` files or source code. Preview by default; `--record` stores
+    content-derived, idempotent REPOSITORY_STATE evidence through `storeEvidenceRecord`.
+- Consequences: contradicted memories become BLOCK_ACTION through the existing
+  DM-RULE-CONFLICT-001 and are withheld from context; repo-verified memories with
+  supporting observations can reach TRUST. Earlier contradicting evidence remains until
+  the owner resolves the memory (update or revoke), by design.
+- Not changed: audit rules, schema, MCP tool set, benchmark.
