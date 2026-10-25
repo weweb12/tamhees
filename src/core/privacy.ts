@@ -23,6 +23,14 @@ const SECRET_PATTERNS: readonly SecretPattern[] = [
     id: 'ASSIGNED_SECRET',
     expression: /\b(?:password|passwd|api[_-]?key|access[_-]?token|secret)\s*[:=]\s*["']?[^\s"',;]{8,}/i,
   },
+  // Added after a real-world review (DM-DEC-046): common credential shapes that the
+  // original patterns let through.
+  { id: 'JSON_WEB_TOKEN', expression: /\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/ },
+  { id: 'BEARER_TOKEN', expression: /\bBearer\s+[A-Za-z0-9._~+/=-]{20,}/i },
+  { id: 'URL_CREDENTIALS', expression: /\b[a-z][a-z0-9+.-]{1,20}:\/\/[^\s/:@]{1,64}:[^\s/@]{3,}@/i },
+  { id: 'SLACK_TOKEN', expression: /\bxox[abposr]-[A-Za-z0-9-]{10,}|hooks\.slack\.com\/services\/T[A-Z0-9]+\/B[A-Z0-9]+\/[A-Za-z0-9]{8,}/ },
+  { id: 'STRIPE_KEY', expression: /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}\b/ },
+  { id: 'GOOGLE_API_KEY', expression: /\bAIza[0-9A-Za-z_-]{35}\b/ },
 ];
 
 export interface SecretScanResult {
