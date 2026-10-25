@@ -19,6 +19,11 @@ currently unpublished and no public software license has been granted.
   records) must yield a valid context pack and never serve or trust an unsafe record.
   Run against the original rc.2 context compiler, it reports 498 broken packs (DM-DEC-038).
 - CI deploys the hosted demo only when the repository is public.
+- Added everyday commands `remember`, `inspect`, `forget` and `revoke` (DM-DEC-039).
+  They build candidates for the existing mutation boundary, so every authority,
+  privacy, archive and audit rule still applies. `inspect` is a read-only memory
+  inspector that also reports expiry or review dates hidden behind a
+  higher-precedence audit rule.
 
 ## 1.0.0-rc.2 - 2026-09-21
 
