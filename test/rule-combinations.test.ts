@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { auditRecord } from '../src/core/audit.js';
 import { compileContext } from '../src/core/context.js';
+import { isServable } from '../src/core/quick.js';
 import {
   ACTION_PERMISSIONS,
   CURRENT_SCHEMA_VERSION,
@@ -212,6 +213,14 @@ describe('Rule combinations: safety invariants hold for every combination', () =
       if (record.sensitivity === 'SENSITIVE') {
         assert.notEqual(served.statement, RAW, `${label}: sensitive statement served raw`);
       }
+    }
+  });
+
+  it('inspect agrees with retrieval about whether each record may be served', () => {
+    for (const { label, record, evidence } of all) {
+      const pack = compileContext(TASK, [record], clock, evidence);
+      const served = pack.selected.some((item) => item.memoryId === record.id);
+      assert.equal(isServable(record, evidence, NOW), served, label);
     }
   });
 
