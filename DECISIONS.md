@@ -1339,3 +1339,15 @@ The owner approved the final pre-release product identity and directed a compreh
     so the browser demo ships 11 engine modules.
 - Result (same store): `remember` 1.7 s → 0.33 s, context 0.69 s → 0.35 s, inspect
   0.70 s → 0.27 s. Node startup alone is about 0.07 s.
+
+## DM-DEC-046 — Secret detection for common credential shapes
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence: of 10 realistic secrets, a Bearer JWT, a database URL with an embedded
+  password and a Slack webhook were stored. Of 20 ordinary engineering statements, none
+  was refused.
+- Decision: add patterns JSON_WEB_TOKEN, BEARER_TOKEN, URL_CREDENTIALS (user:password@),
+  SLACK_TOKEN (xox* tokens, webhook URLs), STRIPE_KEY (bare sk_/rk_ live/test keys) and
+  GOOGLE_API_KEY. Re-measured: 0/10 secrets stored, 0/30 ordinary or near-miss statements
+  refused (`test/secret-patterns.test.ts`). Detection remains pattern-based, not universal.
