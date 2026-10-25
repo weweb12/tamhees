@@ -231,7 +231,7 @@ The local MCP adapter provides a stdio-based Model Context Protocol interface.
 
 - stdio transport only — no HTTP, no remote connections.
 - Enforces the same authority rules as the CLI.
-- The MCP SDK was reviewed and rejected for Version 0.7.0; the isolated adapter uses Node.js built-ins and protocol revision `2025-11-25`.
+- The MCP SDK was reviewed and rejected for Version 0.7.0; the isolated adapter uses Node.js built-ins and protocol revision `2025-11-25` (also negotiates `2025-06-18`, `2025-03-26` and `2024-11-05`, answering unknown revisions with the latest, per the MCP lifecycle rules).
 - Duplicate request IDs are tracked in a bounded rolling window of 4,096 requests; an evicted ID may be reused. Strict initialization and tool schemas, bounded line framing, sequential processing, and privacy-safe errors define the implemented subset.
 - MCP specification changes are a tracked risk; this implementation does not claim the full optional MCP feature surface.
 - The exact active tool names are `tamhees_initialize_project`, `tamhees_begin_task`, `tamhees_finalize_task`, and `tamhees_status`; the pre-release old namespace is not aliased.
