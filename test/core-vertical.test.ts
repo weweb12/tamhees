@@ -22,7 +22,8 @@ import { CURRENT_SCHEMA_VERSION, fixedClock, type MemoryRecord } from '../src/co
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from '../src/core/atomic-write.js';
 import { initTamhees, loadAllRecords, loadIndex } from '../src/core/store.js';
 import { compileContext } from '../src/core/context.js';
-import { auditRecord, runAudit, writeAuditEvents } from '../src/core/audit.js';
+import { auditRecord, runAudit } from '../src/core/audit.js';
+import { writeAuditEvents } from '../src/core/audit-log.js';
 import { PRODUCT_NAME, CLI_NAME, STORAGE_DIR, ENGINE_VERSION } from '../src/core/identity.js';
 
 const execFileAsync = promisify(execFile);

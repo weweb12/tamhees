@@ -24,7 +24,7 @@ import {
 } from './types.js';
 import { STORAGE_DIR, PRODUCT_NAME, CLI_NAME } from './identity.js';
 import { validateMemoryRecord, validateConfig, validateState, validateMemoryIndex } from './validation.js';
-import { atomicWriteJson, verifyStorageTreeSafety, verifyPathSafety } from './atomic-write.js';
+import { atomicWriteJson, readControlledFiles, verifyStorageTreeSafety, verifyPathSafety } from './atomic-write.js';
 import { withWriteLock } from './lock.js';
 
 // ─── Directory structure ────────────────────────────────────
@@ -277,18 +277,21 @@ export async function loadAllRecords(
     return { records, errors: [`Cannot read records directory. Run ${CLI_NAME} init first.`] };
   }
 
-  for (const file of files.filter((f) => f.endsWith('.json')).sort()) {
-    const filePath = join(recordsDir, file);
-
-    const fileSafety = await verifyPathSafety(filePath, absProjectDir);
-    if (!fileSafety.safe) {
-      errors.push(`Path safety check failed for ${file}: ${fileSafety.reason}`);
+  const recordsSafety = await verifyPathSafety(recordsDir, absProjectDir);
+  if (!recordsSafety.safe) {
+    return { records, errors: [`Path safety check failed: ${recordsSafety.reason}`] };
+  }
+  const reads = await readControlledFiles(recordsDir, files.filter((f) => f.endsWith('.json')).sort());
+  for (const read of reads) {
+    const file = read.name;
+    if (read.unsafeReason !== undefined) {
+      errors.push(`Path safety check failed for ${file}: ${read.unsafeReason}`);
       continue;
     }
 
     try {
-      const content = await readFile(filePath, 'utf-8');
-      const raw: unknown = JSON.parse(content);
+      if (read.content === undefined) throw new Error('unreadable');
+      const raw: unknown = JSON.parse(read.content);
       const data: unknown = raw && typeof raw === 'object' && 'statement' in raw ? normalizeLegacyMemory(raw) : raw;
       const validation = validateMemoryRecord(data);
       if (!validation.valid) {
@@ -337,16 +340,24 @@ export async function loadIndex(projectDir: string): Promise<MemoryIndex | null>
 }
 
 /** Rebuild the derived memory index after a successful canonical write. */
+/**
+ * Rebuild index.json. By default every record file is re-read and validated. A caller
+ * that holds the write lock and already has the complete, validated record set (a
+ * mutation that just loaded the store and wrote one record) may pass `knownRecords`
+ * to skip the second full read.
+ */
 export async function rebuildMemoryIndex(
   projectDir: string,
   clock: Clock,
+  knownRecords?: readonly MemoryRecord[],
 ): Promise<{ success: boolean; index: MemoryIndex | null; errors: readonly string[] }> {
-  return withWriteLock(projectDir, () => rebuildMemoryIndexUnlocked(projectDir, clock));
+  return withWriteLock(projectDir, () => rebuildMemoryIndexUnlocked(projectDir, clock, knownRecords));
 }
 
 async function rebuildMemoryIndexUnlocked(
   projectDir: string,
   clock: Clock,
+  knownRecords?: readonly MemoryRecord[],
 ): Promise<{ success: boolean; index: MemoryIndex | null; errors: readonly string[] }> {
   const absProjectDir = resolve(projectDir);
   const storagePath = join(absProjectDir, STORAGE_DIR);
@@ -356,7 +367,9 @@ async function rebuildMemoryIndexUnlocked(
   }
 
   const recordsDir = join(storagePath, 'memories', 'records');
-  const built = await buildValidatedIndex(recordsDir, absProjectDir);
+  const built = knownRecords !== undefined
+    ? indexFromRecords(knownRecords)
+    : await buildValidatedIndex(recordsDir, absProjectDir);
   if (built.errors.length > 0) {
     return { success: false, index: null, errors: built.errors };
   }
@@ -391,6 +404,34 @@ interface IndexBuildResult {
  * Validates every record. Rejects malformed records and duplicate IDs.
  * Does NOT write anything — returns entries or errors.
  */
+function indexFromRecords(records: readonly MemoryRecord[]): IndexBuildResult {
+  const entries: MemoryIndexEntry[] = records.map((record) => ({
+    id: record.id,
+    kind: record.kind,
+    tags: [...record.tags],
+    verificationStatus: record.verificationStatus,
+    updatedAt: record.updatedAt,
+  }));
+  entries.sort((a, b) => a.id.localeCompare(b.id));
+  const errors: string[] = [];
+  const ids = new Set<string>();
+  for (const entry of entries) {
+    if (ids.has(entry.id)) errors.push(`Duplicate memory ID detected: ${entry.id}. Cannot build a consistent index.`);
+    ids.add(entry.id);
+  }
+  return { entries, errors };
+}
+
+/** Memory IDs present in the store, from file names only (no record is read). */
+export async function listMemoryIds(projectDir: string): Promise<string[]> {
+  const recordsDir = join(resolve(projectDir), STORAGE_DIR, 'memories', 'records');
+  try {
+    return (await readdir(recordsDir)).filter((file) => file.endsWith('.json')).map((file) => file.slice(0, -5));
+  } catch {
+    return [];
+  }
+}
+
 async function buildValidatedIndex(recordsDir: string, projectRoot: string): Promise<IndexBuildResult> {
   const entries: MemoryIndexEntry[] = [];
   const errors: string[] = [];
@@ -404,18 +445,21 @@ async function buildValidatedIndex(recordsDir: string, projectRoot: string): Pro
 
   const jsonFiles = files.filter((f) => f.endsWith('.json')).sort();
 
-  for (const file of jsonFiles) {
-    const filePath = join(recordsDir, file);
-
-    const fileSafety = await verifyPathSafety(filePath, projectRoot);
-    if (!fileSafety.safe) {
-      errors.push(`Path safety check failed for ${file} during index build: ${fileSafety.reason}`);
+  const dirSafety = await verifyPathSafety(recordsDir, projectRoot);
+  if (!dirSafety.safe) {
+    return { entries, errors: [`Path safety check failed during index build: ${dirSafety.reason}`] };
+  }
+  const reads = await readControlledFiles(recordsDir, jsonFiles);
+  for (const read of reads) {
+    const file = read.name;
+    if (read.unsafeReason !== undefined) {
+      errors.push(`Path safety check failed for ${file} during index build: ${read.unsafeReason}`);
       continue;
     }
 
     try {
-      const content = await readFile(filePath, 'utf-8');
-      const raw: unknown = JSON.parse(content);
+      if (read.content === undefined) throw new Error('unreadable');
+      const raw: unknown = JSON.parse(read.content);
       const data: unknown = raw && typeof raw === 'object' && 'statement' in raw ? normalizeLegacyMemory(raw) : raw;
       const validation = validateMemoryRecord(data);
 

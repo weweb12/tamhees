@@ -6,10 +6,6 @@
  * Rules are packaged in source and cannot be weakened by project data.
  */
 
-import { randomBytes } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { appendJsonlBatch, verifyPathSafety } from './atomic-write.js';
 import { CLI_NAME, ENGINE_AUDITOR, STORAGE_DIR } from './identity.js';
 import {
   CURRENT_SCHEMA_VERSION,
@@ -22,7 +18,6 @@ import {
   type EvidenceRecord,
   type MemoryRecord,
 } from './types.js';
-import { validateAuditEvent } from './validation.js';
 
 export interface AuditRuleDefinition {
   readonly id: string;
@@ -230,85 +225,6 @@ export function runAudit(
   };
 }
 
-export async function writeAuditEvents(
-  projectDir: string,
-  result: AuditRunResult,
-  records: readonly MemoryRecord[],
-  clock: Clock,
-  evidence: readonly EvidenceRecord[] = [],
-): Promise<void> {
-  const sorted = [...records].sort((a, b) => compareOrdinal(a.id, b.id));
-  const events: AuditEvent[] = sorted.map((record) => {
-    const itemEvidence = evidence
-      .filter((item) => item.memoryIds.includes(record.id))
-      .sort((a, b) => compareOrdinal(a.id, b.id));
-    const findingForRecord = result.findings.find((item) => item.recordId === record.id);
-    const outcome = findingForRecord?.outcome ?? 'TRUST';
-    return {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      eventId: generateEventId(),
-      timestamp: clock(),
-      memoryId: record.id,
-      outcome,
-      triggeredRules: [findingForRecord?.ruleId ?? 'DM-RULE-TRUST-001'],
-      evidenceExamined: findingForRecord?.evidenceExamined ?? itemEvidence.map((item) => item.id),
-      explanation: findingForRecord?.summary ?? 'Current evidence supports limited trust within the recorded permission.',
-      permissionConsequence: findingForRecord?.permissionConsequence ?? 'The record may be used only within its recorded action permission.',
-      recommendedAction: findingForRecord?.recommendedNextStep ?? 'Proceed within the recorded permission and recheck when freshness requires it.',
-      auditor: ENGINE_AUDITOR,
-      engineVersion: ENGINE_VERSION,
-    };
-  });
-  await appendValidatedAuditEvents(projectDir, events);
-}
-
-/**
- * Append audit events. Callers must hold the project write lock (withWriteLock):
- * mutations, lifecycle, migration and the CLI audit command all do. The lock is not
- * taken here so this module's pure audit rules stay usable without filesystem locks.
- */
-export async function appendValidatedAuditEvents(
-  projectDir: string,
-  events: readonly AuditEvent[],
-): Promise<void> {
-  const absProjectDir = resolve(projectDir);
-  const historyPath = join(absProjectDir, STORAGE_DIR, 'audits', 'history.jsonl');
-  const safety = await verifyPathSafety(historyPath, absProjectDir);
-  if (!safety.safe) {
-    throw new Error(`Path safety check failed: ${safety.reason}`);
-  }
-
-  try {
-    const existing = await readFile(historyPath, 'utf-8');
-    const lines = existing.split('\n');
-    for (let index = 0; index < lines.length; index += 1) {
-      const line = lines[index]?.trim();
-      if (!line) continue;
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(line);
-      } catch {
-        throw new Error(`Malformed existing audit history at line ${index + 1}. The file was preserved.`);
-      }
-      if (!validateAuditEvent(parsed).valid) {
-        throw new Error(`Invalid existing audit event at line ${index + 1}. The file was preserved.`);
-      }
-    }
-  } catch (err: unknown) {
-    if (!(err instanceof Error && 'code' in err && (err as NodeJS.ErrnoException).code === 'ENOENT')) {
-      throw err;
-    }
-  }
-
-  for (const event of events) {
-    const validation = validateAuditEvent(event);
-    if (!validation.valid) {
-      throw new Error(`Internal error: invalid audit event batch (${validation.issues.map((item) => item.field).join(', ')}).`);
-    }
-  }
-  await appendJsonlBatch(historyPath, events);
-}
-
 export function formatAuditResult(result: AuditRunResult): string {
   const lines = [
     `${CLI_NAME} audit report`,
@@ -401,6 +317,3 @@ function compareOrdinal(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function generateEventId(): string {
-  return `evt-${randomBytes(8).toString('hex')}`;
-}

@@ -59,7 +59,8 @@ There is exactly one canonical representation of each memory record: its JSON fi
 ├── evidence/
 │   └── <evidence-id>.json     # Supporting evidence records
 ├── audits/
-│   └── history.jsonl     # Append-only audit event log
+│   ├── history.jsonl     # Active append-only audit segment
+│   └── history-<id>.jsonl  # Sealed earlier segments (DM-DEC-045)
 ├── episodes/             # Session episode records
 ├── archive/
 │   └── memories/<memory-id>/  # Immutable pre-update/revoke snapshots

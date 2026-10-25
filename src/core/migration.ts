@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto';
 import { lstat, readFile, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { appendValidatedAuditEvents } from './audit.js';
+import { appendValidatedAuditEvents, readAuditHistory } from './audit-log.js';
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
 import { ENGINE_AUDITOR, ENGINE_VERSION, STORAGE_DIR } from './identity.js';
 import { scanMemoryRecord, scanSecretLikeText } from './privacy.js';
@@ -342,7 +342,7 @@ export function validateBootstrapMigrationMarker(value:unknown):value is Marker{
 
 async function countAuditEvent(root:string,eventId:string):Promise<number>{
   try{
-    const raw=await readFile(join(root,STORAGE_DIR,'audits','history.jsonl'),'utf8');
+    const raw=await readAuditHistory(root);
     let count=0;
     for(const line of raw.split(/\r?\n/).filter(Boolean)){
       const value:unknown=JSON.parse(line);
