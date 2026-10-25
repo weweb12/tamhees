@@ -1390,3 +1390,23 @@ The owner approved the final pre-release product identity and directed a compreh
     Memcached, Redux, Zustand, MobX, Pinia, Jotai, SQLModel (implies SQLAlchemy).
 - Result on the same trial: stale claims caught 10 of 11 (was 5), true claims confirmed 25
   (was 15), false alarms 0, false claims confirmed 0.
+
+## DM-DEC-049 — Installable command and clearer agent instructions
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Problem 1: in a fresh clone, `npm install -g .` reported success but no `tamhees` command
+  appeared, because `dist/` is not committed and nothing built it. The adapter instructions
+  told agents to run `tamhees` without saying how to get it.
+- Decision 1: add `prepare` = `node scripts/check-build-tools.mjs && npm run build`. `npm ci`
+  now builds automatically; `npm install -g .` without the build tools fails with a plain
+  two-command explanation instead of silently installing nothing. The `bin` entry stays
+  `dist/src/cli.js` (owner test unchanged). README documents install, update and uninstall.
+- Problem 2: rc.2 instruction blocks only named the lifecycle commands; they did not explain
+  what RECHECK or ASK_OWNER mean for the agent, or mention `inspect`, `remember` and `observe`.
+  MCP users had no client configuration.
+- Decision 2: new block wording, plus client config snippets in the MCP block. Exact rc.2
+  blocks (both CREATED and EXISTING origins) are recognized as outdated and replaced in place
+  by `adapter install`, preserving bytes outside the block. Any other content is still CORRUPT
+  and never rewritten. Fixtures under `test/fixtures/rc2-adapters/` were produced by the real
+  rc.2 installer and are protected from line-ending conversion by `.gitattributes`.

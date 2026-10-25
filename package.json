@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc && node dist/src/dashboard/copy-assets.js",
+    "prepare": "node scripts/check-build-tools.mjs && npm run build",
     "typecheck": "tsc --noEmit",
     "test": "node --test dist/test/**/*.test.js",
     "verify": "npm run typecheck && npm run build && npm run test",
