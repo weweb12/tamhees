@@ -26,8 +26,6 @@ import { createHash } from 'node:crypto';
 import { lstat, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { verifyPathSafety } from './atomic-write.js';
-import { loadAllEvidence, storeEvidenceRecord } from './evidence.js';
-import { loadAllRecords } from './store.js';
 import { normalizeLegacyMemory } from './scope.js';
 import {
   CURRENT_SCHEMA_VERSION,
@@ -174,7 +172,7 @@ async function readSafeText(root: string, relativePath: string): Promise<string 
   }
 }
 
-async function existsSafely(root: string, relativePath: string): Promise<boolean> {
+export async function existsSafely(root: string, relativePath: string): Promise<boolean> {
   const target = join(root, relativePath);
   const safety = await verifyPathSafety(target, root);
   if (!safety.safe) return false;
@@ -540,44 +538,6 @@ export interface ObserveResult {
   readonly recorded: readonly string[];
   readonly alreadyRecorded: readonly string[];
   readonly errors: readonly string[];
-}
-
-export async function observeProject(projectDir: string, clock: Clock, record: boolean): Promise<ObserveResult> {
-  const root = resolve(projectDir);
-  const loaded = await loadAllRecords(root);
-  if (loaded.errors.length > 0) return { success: false, report: null, recorded: [], alreadyRecorded: [], errors: loaded.errors };
-  const existing = await loadAllEvidence(root);
-  if (existing.errors.length > 0) return { success: false, report: null, recorded: [], alreadyRecorded: [], errors: existing.errors };
-
-  const facts = await collectRepositoryFacts(root);
-  const pathChecks = new Map<string, boolean>();
-  for (const raw of loaded.records) {
-    for (const path of mentionedPaths(raw.statement)) {
-      if (!pathChecks.has(path)) {
-        const target = join(root, path);
-        const safety = await verifyPathSafety(target, root);
-        if (safety.safe) pathChecks.set(path, await existsSafely(root, path));
-      }
-    }
-  }
-
-  const now = clock();
-  const report = observeRecords(loaded.records, facts, pathChecks, now);
-  const known = new Set(existing.evidence.map((item) => item.id));
-  const recorded: string[] = [];
-  const alreadyRecorded: string[] = [];
-  const errors: string[] = [];
-  for (const item of report.observations) {
-    if (known.has(item.evidenceId)) {
-      alreadyRecorded.push(item.evidenceId);
-      continue;
-    }
-    if (!record) continue;
-    const stored = await storeEvidenceRecord(root, observationToEvidence(item, now));
-    if (stored.success) recorded.push(item.evidenceId);
-    else errors.push(...stored.errors.map((issue) => `${item.evidenceId}: [${issue.code}] ${issue.message}`));
-  }
-  return { success: errors.length === 0, report, recorded, alreadyRecorded, errors };
 }
 
 export function formatObservationText(result: ObserveResult, recordMode: boolean): string {

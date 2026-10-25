@@ -70,7 +70,7 @@ There is exactly one canonical representation of each memory record: its JSON fi
 
 1. **One record per file**: Each memory has exactly one canonical JSON file.
 2. **Atomic writes**: All writes use temporary-file-plus-rename to prevent corruption.
-3. **Logical append-only audit history**: New JSONL batches are validated in memory and committed by one atomic file replacement. Multi-process locking is not yet implemented.
+3. **Logical append-only audit history**: New JSONL batches are validated in memory and committed by one atomic file replacement. All writes are serialized by the project write lock (`src/core/lock.ts`, DM-DEC-043): an in-process queue plus an exclusive `runtime/write.lock` file with dead-holder recovery and a bounded wait.
 4. **Deterministic ordering**: Serialized output uses sorted keys for Git-friendly diffs.
 5. **Schema versioning**: Every stored artifact includes a `schemaVersion` field.
 6. **No database**: Version 1 uses filesystem storage only.

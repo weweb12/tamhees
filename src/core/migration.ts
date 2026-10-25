@@ -21,6 +21,7 @@ import {
   type VerificationStatus,
 } from './types.js';
 import { isIso8601, isSafeArtifactId, validateMemoryRecord } from './validation.js';
+import { withWriteLock } from './lock.js';
 
 const MAX_BOOTSTRAP_BYTES = 1_048_576;
 const MIGRATION_AUDIT_ID = 'evt-bootstrap-migration';
@@ -95,6 +96,15 @@ export async function loadBootstrapMigrationSource(projectDir:string,inputPath:s
 }
 
 export async function migrateBootstrapClaims(
+  projectDir:string,
+  markdown:string,
+  clock:Clock,
+  hooks:MigrationOperationHooks={},
+):Promise<BootstrapMigrationResult>{
+  return withWriteLock(projectDir,()=>migrateBootstrapClaimsUnlocked(projectDir,markdown,clock,hooks));
+}
+
+async function migrateBootstrapClaimsUnlocked(
   projectDir:string,
   markdown:string,
   clock:Clock,

@@ -262,6 +262,11 @@ export async function writeAuditEvents(
   await appendValidatedAuditEvents(projectDir, events);
 }
 
+/**
+ * Append audit events. Callers must hold the project write lock (withWriteLock):
+ * mutations, lifecycle, migration and the CLI audit command all do. The lock is not
+ * taken here so this module's pure audit rules stay usable without filesystem locks.
+ */
 export async function appendValidatedAuditEvents(
   projectDir: string,
   events: readonly AuditEvent[],

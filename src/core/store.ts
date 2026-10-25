@@ -25,6 +25,7 @@ import {
 import { STORAGE_DIR, PRODUCT_NAME, CLI_NAME } from './identity.js';
 import { validateMemoryRecord, validateConfig, validateState, validateMemoryIndex } from './validation.js';
 import { atomicWriteJson, verifyStorageTreeSafety, verifyPathSafety } from './atomic-write.js';
+import { withWriteLock } from './lock.js';
 
 // ─── Directory structure ────────────────────────────────────
 
@@ -68,6 +69,24 @@ export interface InitResult {
  * - Derives projectName from directory basename.
  */
 export async function initTamhees(
+  projectDir: string,
+  clock: Clock,
+): Promise<InitResult> {
+  // Directories are created idempotently first so the lock file has a home; the
+  // file-creating part of init then runs under the write lock.
+  const absProject = resolve(projectDir);
+  const preSafety = await verifyStorageTreeSafety(join(absProject, STORAGE_DIR), absProject);
+  if (preSafety.safe) {
+    try {
+      await mkdir(join(absProject, STORAGE_DIR, 'runtime'), { recursive: true });
+    } catch {
+      // Reported by the unlocked initializer below.
+    }
+  }
+  return withWriteLock(projectDir, () => initTamheesUnlocked(projectDir, clock));
+}
+
+async function initTamheesUnlocked(
   projectDir: string,
   clock: Clock,
 ): Promise<InitResult> {
@@ -319,6 +338,13 @@ export async function loadIndex(projectDir: string): Promise<MemoryIndex | null>
 
 /** Rebuild the derived memory index after a successful canonical write. */
 export async function rebuildMemoryIndex(
+  projectDir: string,
+  clock: Clock,
+): Promise<{ success: boolean; index: MemoryIndex | null; errors: readonly string[] }> {
+  return withWriteLock(projectDir, () => rebuildMemoryIndexUnlocked(projectDir, clock));
+}
+
+async function rebuildMemoryIndexUnlocked(
   projectDir: string,
   clock: Clock,
 ): Promise<{ success: boolean; index: MemoryIndex | null; errors: readonly string[] }> {

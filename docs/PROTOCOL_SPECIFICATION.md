@@ -678,10 +678,10 @@ same-lifecycle automatic replay. Completed identical content (including evidence
 is idempotent; different content fails ALREADY_FINALIZED.
 
 There is **no filesystem-wide atomicity**, automatic rollback of the entire
-bundle, multi-process locking, or new recovery command. An in-process guard
-rejects concurrent finalizations for the same resolved project. Direct mutation,
-other processes, aliases and manual file edits still require external single-writer
-coordination. A failure result is not proof that storage is unchanged; follow its
+bundle, or new recovery command. An in-process guard rejects concurrent
+finalizations for the same resolved project, and since DM-DEC-043 every write path
+(including finalization in other processes) is serialized by the project write lock.
+Manual file edits and aliased paths to the same store still bypass the lock. A failure result is not proof that storage is unchanged; follow its
 RECOVERY_REQUIRED guidance and journal. Existing per-file rollback semantics remain.
 
 ### MCP and BOM
