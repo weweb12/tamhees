@@ -124,7 +124,32 @@ npm ci
 npm run build
 ```
 
-The package exposes only the `tamhees` executable. After placing this local package bin on `PATH`, these identity and initialization commands are exact and copyable:
+### Install the command
+
+Tamhees is not published to npm. Install it from this folder once, and the `tamhees` command works in any project on the machine (macOS, Linux and Windows; Node.js 22 or newer):
+
+```bash
+npm ci              # installs the build tools and builds Tamhees
+npm install -g .    # puts the `tamhees` command on your PATH
+tamhees --version   # check it works
+```
+
+- If `npm install -g .` stops with "Tamhees is not built yet", run `npm ci` first. On Windows, run both commands in the same terminal, then open a new one so `tamhees` is found.
+- To update after pulling new changes, run `npm ci` again; the global command points at this folder, so there is nothing else to reinstall.
+- To uninstall: `npm uninstall -g tamhees`.
+
+Then, in the project you want Tamhees to look after:
+
+```bash
+tamhees init
+tamhees adapter install --agent claude   # or codex, antigravity, generic, mcp
+tamhees remember "The project uses Postgres" --as repo --source package.json
+tamhees inspect
+```
+
+`tamhees adapter install` adds a short, clearly marked block to the agent's instruction file (`CLAUDE.md`, `AGENTS.md`, ...) that tells the agent how to use Tamhees. Running it again on a block installed by rc.2 upgrades it in place; your own text in the file is never changed. For MCP clients, `TAMHEES_MCP.md` contains ready-to-paste configuration for Claude Code, Cursor and VS Code.
+
+The package exposes only the `tamhees` executable. After installing it as above, these identity and initialization commands are exact and copyable:
 
 ```powershell
 tamhees --help

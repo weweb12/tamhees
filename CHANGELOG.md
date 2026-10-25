@@ -5,6 +5,14 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- Installing the command from a fresh clone now works or explains itself (DM-DEC-049). Before,
+  `npm install -g .` reported success but created no `tamhees` command; `npm ci` now builds
+  automatically, and installing without it prints the two commands to run. README gains an
+  "Install the command" section.
+- Agent instruction blocks (`CLAUDE.md`, `AGENTS.md`, ...) now tell the agent how to read
+  RECHECK and ASK_OWNER, and how to use `inspect`, `remember` and `observe`; the MCP block
+  includes ready-to-paste config for Claude Code, Cursor and VS Code. Unmodified rc.2 blocks
+  are upgraded in place by `adapter install`; modified blocks are still refused.
 - `tamhees observe` reads monorepo workspace folders (`backend/`, `frontend/`, `packages/*`),
   parses Python dependencies with extras, recognizes Docker, Turborepo, Redis and more, and
   checks path-scoped memories against their own folder (DM-DEC-048).
