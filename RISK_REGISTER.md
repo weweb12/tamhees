@@ -1040,3 +1040,14 @@ Stop using either store, preserve both directory trees byte-for-byte, report the
   secret detection, policy keywords and generated-artifact markers are not exhaustive.
 - REDACT does not recursively remove historical archives or independent evidence.
 - No existing risk is declared CLOSED based on implementing-agent tests.
+
+## Update 2026-10-25 — DM-RISK-022 (concurrent writers)
+
+- Measured: 20 simultaneous `tamhees remember` processes on rc.2 produced 12–14 failures
+  (duplicate IDs), lost audit events, and in one run a write that reported success was
+  silently overwritten by another process (check-then-rename "no overwrite").
+- Mitigation (DM-DEC-043): project write lock over every write path, and `link()`-based
+  atomic create-if-absent. 20 and 40 simultaneous processes now all succeed with unique
+  IDs and complete audit history (`test/write-lock.test.ts`).
+- DM-RISK-022 is reduced to manual edits, aliased paths to one store, and filesystems
+  without hard-link support (fallback is check-then-rename, still under the lock).

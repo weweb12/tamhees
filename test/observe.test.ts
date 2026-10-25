@@ -14,11 +14,11 @@ import {
   mentionedScripts,
   mentionedTechnologies,
   observationToEvidence,
-  observeProject,
   observeRecords,
   presentTechnologies,
   type RepositoryFacts,
 } from '../src/core/observe.js';
+import { observeProject } from '../src/core/observe-project.js';
 import { buildRememberCandidate } from '../src/core/quick.js';
 import { loadAllRecords } from '../src/core/store.js';
 import { fixedClock, type MemoryRecord } from '../src/core/types.js';

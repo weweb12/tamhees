@@ -8,6 +8,7 @@ import { scanEvidenceRecord } from './privacy.js';
 import type { EvidenceRecord, ValidationIssue } from './types.js';
 import { validateEvidenceRecord } from './validation.js';
 import { loadAllRecords } from './store.js';
+import { withWriteLock } from './lock.js';
 
 export interface EvidenceWriteResult {
   readonly success: boolean;
@@ -16,6 +17,13 @@ export interface EvidenceWriteResult {
 }
 
 export async function storeEvidenceRecord(
+  projectDir: string,
+  candidate: unknown,
+): Promise<EvidenceWriteResult> {
+  return withWriteLock(projectDir, () => storeEvidenceRecordUnlocked(projectDir, candidate));
+}
+
+async function storeEvidenceRecordUnlocked(
   projectDir: string,
   candidate: unknown,
 ): Promise<EvidenceWriteResult> {

@@ -8,7 +8,7 @@
  * destination, then rename replaces the target atomically.
  */
 
-import { writeFile, rename, unlink, stat, lstat, readFile } from 'node:fs/promises';
+import { writeFile, rename, unlink, stat, lstat, readFile, link } from 'node:fs/promises';
 import { join, dirname, resolve, relative, isAbsolute } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { ATOMIC_TEMP_PREFIX } from './identity.js';
@@ -21,6 +21,42 @@ function tempPath(targetPath: string): string {
   const dir = dirname(targetPath);
   const suffix = randomBytes(8).toString('hex');
   return join(dir, `${ATOMIC_TEMP_PREFIX}${suffix}.tmp`);
+}
+
+
+function refuseOverwrite(absPath: string): Error {
+  return new Error(`Refusing to overwrite existing file: ${absPath}. Use allowOverwrite: true to replace.`);
+}
+
+/**
+ * Move a fully written temp file into place.
+ *
+ * Overwrite allowed: rename (atomic replacement).
+ * Overwrite refused: link() creates the target only if it does not exist (atomic
+ * O_EXCL semantics), so two writers can never both "create" the same file. Where hard
+ * links are unsupported (some network or FAT volumes) it falls back to check-then-rename.
+ */
+async function commitTemp(tmp: string, absPath: string, allowOverwrite: boolean): Promise<void> {
+  if (allowOverwrite) {
+    await rename(tmp, absPath);
+    return;
+  }
+  try {
+    await link(tmp, absPath);
+  } catch (error: unknown) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'EEXIST') throw refuseOverwrite(absPath);
+    if (code !== 'EPERM' && code !== 'ENOTSUP' && code !== 'EOPNOTSUPP' && code !== 'EXDEV' && code !== 'ENOSYS') throw error;
+    try {
+      await stat(absPath);
+      throw refuseOverwrite(absPath);
+    } catch (statError: unknown) {
+      if ((statError as NodeJS.ErrnoException).code !== 'ENOENT') throw statError;
+    }
+    await rename(tmp, absPath);
+    return;
+  }
+  await unlink(tmp);
 }
 
 /**
@@ -61,7 +97,7 @@ export async function atomicWriteJson(
   const tmp = tempPath(absPath);
   try {
     await writeFile(tmp, json, { encoding: 'utf-8', flush: true });
-    await rename(tmp, absPath);
+    await commitTemp(tmp, absPath, options.allowOverwrite);
   } catch (err: unknown) {
     // Best-effort cleanup of temporary file
     try {
@@ -95,7 +131,7 @@ export async function atomicWriteText(
   const tmp = tempPath(absPath);
   try {
     await writeFile(tmp, content, { encoding: 'utf-8', flush: true });
-    await rename(tmp, absPath);
+    await commitTemp(tmp, absPath, options.allowOverwrite);
   } catch (err: unknown) {
     try {
       await unlink(tmp);

@@ -35,6 +35,7 @@ import {
   validateLifecycleMetadata,
   validateUpdateCandidate,
 } from './validation.js';
+import { withWriteLock } from './lock.js';
 
 export type LifecycleIdGenerator = () => string;
 
@@ -73,6 +74,17 @@ export function randomLifecycleId(): string {
 }
 
 export async function beginLifecycle(
+  projectDir: string,
+  taskDescription: string,
+  clock: Clock,
+  idGenerator: LifecycleIdGenerator,
+  options: LifecycleBeginOptions = {},
+  hooks: LifecycleOperationHooks = {},
+): Promise<LifecycleBeginResult> {
+  return withWriteLock(projectDir, () => beginLifecycleUnlocked(projectDir, taskDescription, clock, idGenerator, options, hooks));
+}
+
+async function beginLifecycleUnlocked(
   projectDir: string,
   taskDescription: string,
   clock: Clock,
@@ -177,12 +189,16 @@ export async function beginLifecycle(
 }
 
 const activeFinalizations = new Set<string>();
-/** Serialize finalizations within this process. Cross-process writers still require coordination. */
+/**
+ * A second finalization started in this process while one is active is refused at
+ * once (same-process guard). Writers in other processes queue on the project write
+ * lock (DM-DEC-043) instead of racing.
+ */
 export async function finalizeLifecycle(projectDir: string, input: unknown, clock: Clock, hooks: LifecycleOperationHooks = {}): Promise<LifecycleFinalizeResult> {
   const key = resolve(projectDir);
   if (activeFinalizations.has(key)) return finalizeFailure(null, issue('', 'CONCURRENT_FINALIZATION', 'Another finalization is active in this process. Retry after it completes.'));
   activeFinalizations.add(key);
-  try { return await finalizeLifecycleInternal(projectDir, input, clock, hooks); }
+  try { return await withWriteLock(projectDir, () => finalizeLifecycleInternal(projectDir, input, clock, hooks)); }
   finally { activeFinalizations.delete(key); }
 }
 async function finalizeLifecycleInternal(

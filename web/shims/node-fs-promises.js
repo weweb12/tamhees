@@ -5,8 +5,10 @@ function unavailable() {
   return Promise.reject(new Error('Hosted demo: file storage is not available in the browser.'));
 }
 
+export const link = unavailable;
 export const lstat = unavailable;
 export const mkdir = unavailable;
+export const open = unavailable;
 export const readFile = unavailable;
 export const readdir = unavailable;
 export const rename = unavailable;
