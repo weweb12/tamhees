@@ -5,6 +5,9 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- `tamhees observe` reads monorepo workspace folders (`backend/`, `frontend/`, `packages/*`),
+  parses Python dependencies with extras, recognizes Docker, Turborepo, Redis and more, and
+  checks path-scoped memories against their own folder (DM-DEC-048).
 - Retrieval ignores generic task words such as "add", "fix", "new" and "file", and links
   everyday product words to their area (DM-DEC-047). Precision on a realistic set: 67% → 88%.
 - Secret detection now also refuses JWT/Bearer tokens, credentials inside URLs, Slack
