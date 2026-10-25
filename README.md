@@ -58,6 +58,10 @@ Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycl
 Implemented commands:
 
 - `tamhees init [directory]`: Initialize safe `.tamhees/` storage.
+- `tamhees remember "<statement>" [--as inferred|observed|repo|test|unknown] [--source <ref>] [--tags a,b] [--expires-in <days>] [--dry-run]`: Remember a claim with provenance, authority and freshness defaults, with no JSON needed.
+- `tamhees inspect [memory-id] [--format text|json]`: "What do you remember, and how sure are you?" Shows source, status, confidence, freshness, scope, evidence, the plain-language audit outcome and whether agents may see it. Read-only.
+- `tamhees forget <memory-id> [--reason "..."]`: Controlled REDACT. The text is erased everywhere and a privacy-safe tombstone remains.
+- `tamhees revoke <memory-id> [--reason "..."]`: Controlled REVOKE. The memory can no longer guide action; its prior state is archived.
 - `tamhees memory list|show|apply`: Inspect or apply controlled memory operations.
 - `tamhees evidence list|add`: Inspect or add validated evidence.
 - `tamhees context --task "..." [--max-tokens <n>] [--format json|markdown]`: Compile ephemeral ranked context under a hard budget.

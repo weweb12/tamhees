@@ -47,6 +47,8 @@ import { ADAPTER_NAMES } from './adapters/types.js';
 import { runMcpStdio } from './mcp/stdio.js';
 import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark/benchmark.js';
 import { atomicWriteText, verifyPathSafety } from './core/atomic-write.js';
+import { REMEMBER_BASES, forgetMemory, formatInspectionText, inspectMemories, rememberMemory, revokeMemory, type RememberBasis } from './core/quick.js';
+import { ACTION_PERMISSIONS, CONFIDENCE_VALUES, MEMORY_KINDS, type ActionPermission, type Confidence, type MemoryKind } from './core/types.js';
 
 // ─── Argument parsing ───────────────────────────────────────
 
@@ -109,6 +111,10 @@ Usage: ${CLI_NAME} <command> [options]
 
 Commands:
   init                Initialize ${STORAGE_DIR}/ in a project directory
+  remember            Remember a claim with its source and freshness (no JSON needed)
+  inspect             Show what is remembered and how sure ${PRODUCT_NAME} is
+  forget              Forget a memory: erase its text, keep a safe tombstone
+  revoke              Revoke a memory so it can no longer guide action
   memory              List, show, or apply controlled memory updates
   evidence            List or add evidence records
   context             Compile task-specific memory context
@@ -207,6 +213,72 @@ Usage:
 Evidence is stored locally under ${STORAGE_DIR}/evidence/ after schema,
 reference, path, and secret-like-content validation.`;
 
+const REMEMBER_HELP = `${CLI_NAME} remember — Remember a claim with provenance and freshness
+
+Usage: ${CLI_NAME} remember "<statement>" [options]
+
+How the fact is known (sets source, authority, default permission and review date):
+  --as inferred       An AI guess (default). Must be confirmed before it guides change.
+  --as observed       Seen directly by the agent. Act with caution. Review in 90 days.
+  --as repo           Verified in the repository. May act. Review in 180 days.
+  --as test           Verified by a test result. May act. Review in 180 days.
+  --as unknown        No verifiable source yet. Must be confirmed.
+  Owner decisions are not created here: they need owner evidence (see memory apply).
+
+Options:
+  --source <ref>       Where it came from, e.g. package.json or a test name
+  --tags <a,b,...>     Retrieval tags
+  --kind <KIND>        ${MEMORY_KINDS.join(', ')}
+  --confidence <level> high, medium (default) or low
+  --permission <PERM>  ${ACTION_PERMISSIONS.filter((p) => p !== 'FORGET_OR_REDACT').join(', ')}
+  --public             Mark as PUBLIC (default INTERNAL)
+  --review-in <days>   Review date in days (0 = no review date)
+  --expires-in <days>  Hard expiry in days; expired memories are withheld from agents
+  --environment <name> Only applies in this environment
+  --component <name>   Only applies to this component
+  --path <dir>         Only applies under this project path
+  --recheck <how>      How to re-verify it
+  --id <memory-id>     Explicit ID (default: next DM-MEM-######)
+  --by <agent-id>      Who is proposing it (default: ${'tamhees-cli'})
+  --dry-run            Validate and show the record without storing it
+  --format <type>      text (default) or json
+
+Secret-like content is refused and nothing is stored.
+
+Exit codes:
+  0  Stored (or valid, with --dry-run)
+  1  Rejected by validation, authority or privacy rules
+  2  Invalid usage`;
+
+const INSPECT_HELP = `${CLI_NAME} inspect — What do you remember, and how sure are you?
+
+Usage:
+  ${CLI_NAME} inspect [memory-id] [--format text|json]
+
+For every memory (or one), shows the redacted statement, source, authority status,
+confidence, freshness (current, review due, conditional or expired), scope,
+permission, linked evidence, the current audit outcome in plain words, the next step,
+and whether it would be withheld from agent context.
+
+Inspection is read-only: unlike ${CLI_NAME} audit, it appends no audit events.`;
+
+const FORGET_HELP = `${CLI_NAME} forget — Forget a memory
+
+Usage: ${CLI_NAME} forget <memory-id> [--reason "<why>"] [--as-owner] [--by <agent-id>]
+
+Runs the controlled REDACT operation: the statement and source are replaced in the
+record, raw text is not copied to the archive or audit log, and a privacy-safe
+tombstone keeps the audit trail. The memory is never served to agents again.
+Owner-confirmed memories require --as-owner.`;
+
+const REVOKE_HELP = `${CLI_NAME} revoke — Revoke a memory
+
+Usage: ${CLI_NAME} revoke <memory-id> [--reason "<why>"] [--as-owner] [--by <agent-id>]
+
+Marks the memory REVOKED with MUST_NOT_ACT. Its prior state is archived for history,
+but it can no longer authorize action or appear in agent context. Use forget instead
+when the text itself must not be kept. Owner-confirmed memories require --as-owner.`;
+
 // ─── Main dispatch ──────────────────────────────────────────
 
 async function main(): Promise<void> {
@@ -215,7 +287,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (!command || (args.includes('--help') && !['init', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
+  if (!command || (args.includes('--help') && !['init', 'remember', 'inspect', 'forget', 'revoke', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
     console.log(MAIN_HELP);
     process.exit(0);
   }
@@ -223,6 +295,16 @@ async function main(): Promise<void> {
   switch (command) {
     case 'init':
       await handleInit();
+      break;
+    case 'remember':
+      await handleRemember();
+      break;
+    case 'inspect':
+      await handleInspect();
+      break;
+    case 'forget':
+    case 'revoke':
+      await handleRemoval(command);
       break;
     case 'context':
       await handleContext();
@@ -476,6 +558,138 @@ async function handleMemory(): Promise<void> {
     process.exit(0);
   }
   usageError(`Unknown memory operation: ${subcommand ?? '<missing>'}. Run ${CLI_NAME} memory --help.`);
+}
+
+// ─── Everyday memory operations ────────────────────────────
+
+function parseDays(option: string, value: string | undefined, min: number): number | undefined {
+  if (value === undefined) return undefined;
+  if (!/^\d{1,5}$/.test(value) || Number(value) < min) {
+    return usageError(`${option} must be a whole number of days${min > 0 ? ` of at least ${min}` : ''}.`);
+  }
+  return Number(value);
+}
+
+function parseFormat(value: string | undefined): 'text' | 'json' {
+  if (value === undefined || value === 'text') return 'text';
+  if (value === 'json') return 'json';
+  return usageError('--format must be text or json.');
+}
+
+async function handleRemember(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(REMEMBER_HELP);
+    process.exit(0);
+  }
+  const { options, positional } = parseArgs(
+    ['--as', '--source', '--tags', '--kind', '--confidence', '--permission', '--public', '--review-in',
+      '--expires-in', '--environment', '--component', '--path', '--recheck', '--id', '--by', '--dry-run', '--format'],
+    1, 1, ['--public', '--dry-run'],
+  );
+  const statement = positional[0];
+  if (!statement || statement.trim() === '') return usageError(`Usage: ${CLI_NAME} remember "<statement>" [options]`);
+  const basis = options['--as'] ?? 'inferred';
+  if (!(REMEMBER_BASES as readonly string[]).includes(basis)) {
+    return usageError(`--as must be one of: ${REMEMBER_BASES.join(', ')}.`);
+  }
+  const kind = options['--kind']?.toUpperCase();
+  if (kind !== undefined && !(MEMORY_KINDS as readonly string[]).includes(kind)) {
+    return usageError(`--kind must be one of: ${MEMORY_KINDS.join(', ')}.`);
+  }
+  const confidence = options['--confidence']?.toUpperCase();
+  if (confidence !== undefined && !(CONFIDENCE_VALUES as readonly string[]).includes(confidence)) {
+    return usageError('--confidence must be high, medium or low.');
+  }
+  const permission = options['--permission']?.toUpperCase();
+  if (permission !== undefined && (!(ACTION_PERMISSIONS as readonly string[]).includes(permission) || permission === 'FORGET_OR_REDACT')) {
+    return usageError(`--permission must be one of: ${ACTION_PERMISSIONS.filter((p) => p !== 'FORGET_OR_REDACT').join(', ')}.`);
+  }
+  const format = parseFormat(options['--format']);
+  const scope = {
+    ...(options['--environment'] !== undefined ? { environment: options['--environment'] } : {}),
+    ...(options['--component'] !== undefined ? { component: options['--component'] } : {}),
+    ...(options['--path'] !== undefined ? { path: options['--path'] } : {}),
+  };
+  const result = await rememberMemory(process.cwd(), {
+    statement,
+    basis: basis as RememberBasis,
+    sourceReference: options['--source'],
+    kind: kind as MemoryKind | undefined,
+    tags: options['--tags']?.split(','),
+    confidence: confidence as Confidence | undefined,
+    permission: permission as ActionPermission | undefined,
+    sensitivity: options['--public'] !== undefined ? 'PUBLIC' : 'INTERNAL',
+    reviewInDays: parseDays('--review-in', options['--review-in'], 0),
+    expiresInDays: parseDays('--expires-in', options['--expires-in'], 1),
+    scope: Object.keys(scope).length > 0 ? scope : undefined,
+    recheckMethod: options['--recheck'],
+    id: options['--id'],
+    proposer: options['--by'],
+  }, systemClock, options['--dry-run'] !== undefined);
+  if (!result.success) {
+    for (const item of result.errors) console.error(`Error [${item.code}] ${item.field || 'candidate'}: ${item.message}`);
+    process.exit(1);
+  }
+  const record = result.record ?? result.candidate?.proposedRecord ?? null;
+  if (format === 'json') {
+    console.log(JSON.stringify({ dryRun: options['--dry-run'] !== undefined, record: record ? memoryForOutput(record) : null }, null, 2));
+    process.exit(0);
+  }
+  if (record) {
+    const safe = memoryForOutput(record);
+    console.log(`${options['--dry-run'] !== undefined ? 'Valid (not stored)' : 'Remembered'} ${safe.id}: ${safe.statement}`);
+    console.log(`  ${safe.verificationStatus} · confidence ${safe.confidence} · permission ${safe.actionPermission}`
+      + `${safe.freshness.reviewAfter ? ` · review by ${safe.freshness.reviewAfter.slice(0, 10)}` : ''}`
+      + `${safe.freshness.expiresAfter ? ` · expires ${safe.freshness.expiresAfter.slice(0, 10)}` : ''}`);
+  }
+  process.exit(0);
+}
+
+async function handleInspect(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(INSPECT_HELP);
+    process.exit(0);
+  }
+  const { options, positional } = parseArgs(['--format'], 1, 1);
+  const format = parseFormat(options['--format']);
+  const inspected = await inspectMemories(process.cwd(), systemClock);
+  if (!inspected.success) return exitWithErrors(inspected.errors);
+  let report = inspected.report;
+  const memoryId = positional[0];
+  if (memoryId !== undefined) {
+    const memories = report.memories.filter((memory) => memory.id === memoryId);
+    if (memories.length === 0) {
+      console.error(`Memory not found: ${memoryId}`);
+      process.exit(1);
+    }
+    const byOutcome = { TRUST: 0, RECHECK: 0, ASK_OWNER: 0, BLOCK_ACTION: 0, FORGET_OR_REDACT: 0 };
+    byOutcome[memories[0]!.outcome] = 1;
+    report = { ...report, total: 1, byOutcome, memories };
+  }
+  console.log(format === 'json' ? JSON.stringify(report, null, 2) : formatInspectionText(report));
+  process.exit(0);
+}
+
+async function handleRemoval(kind: 'forget' | 'revoke'): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(kind === 'forget' ? FORGET_HELP : REVOKE_HELP);
+    process.exit(0);
+  }
+  const { options, positional } = parseArgs(['--reason', '--as-owner', '--by'], 1, 1, ['--as-owner']);
+  const memoryId = positional[0];
+  if (!memoryId) return usageError(`Usage: ${CLI_NAME} ${kind} <memory-id> [--reason "<why>"] [--as-owner]`);
+  const removal = { reason: options['--reason'], asOwner: options['--as-owner'] !== undefined, proposer: options['--by'] };
+  const result = kind === 'forget'
+    ? await forgetMemory(process.cwd(), memoryId, removal, systemClock)
+    : await revokeMemory(process.cwd(), memoryId, removal, systemClock);
+  if (!result.success) {
+    for (const item of result.errors) console.error(`Error [${item.code}] ${item.field || 'candidate'}: ${item.message}`);
+    process.exit(1);
+  }
+  console.log(kind === 'forget'
+    ? `Forgot ${memoryId}: its text was erased and it will not be shown to agents again. A privacy-safe tombstone keeps the audit trail.`
+    : `Revoked ${memoryId}: it can no longer guide action. Its earlier state is archived for history.`);
+  process.exit(0);
 }
 
 // ─── Evidence operations ───────────────────────────────────

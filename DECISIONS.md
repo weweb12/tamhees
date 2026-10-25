@@ -1186,3 +1186,25 @@ The owner approved the final pre-release product identity and directed a compreh
 - Regression coverage: `test/regression-expired-permission.test.ts`.
 - Also: the Windows-only PowerShell dry-run test is reported as skipped on non-Windows
   hosts so a clean clone passes on macOS/Linux; it still runs on Windows.
+
+## DM-DEC-039 — Everyday memory commands and read-only inspector
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction to improve usability on the private
+  development copy.
+- Problem: creating or removing a memory required hand-writing a full update-candidate
+  JSON file, and there was no human-readable answer to "what do you remember, and how
+  sure are you?"
+- Decision: add `remember`, `inspect`, `forget` and `revoke` (`src/core/quick.ts`).
+  - `remember` builds a CREATE candidate from a statement plus a basis
+    (`inferred` by default, or `observed`, `repo`, `test`, `unknown`) that sets an
+    aligned source type, authority, default permission and review window. Owner
+    confirmation is deliberately not offered; it still requires owner evidence.
+  - `forget` is REDACT; `revoke` is REVOKE. Owner-confirmed targets need `--as-owner`,
+    which is a declared (not authenticated) owner claim, as documented elsewhere.
+  - All writes go through `applyUpdateCandidate`; `--dry-run` uses
+    `previewUpdateCandidate` and writes nothing.
+  - `inspect` is read-only (no audit events). Its `servable` flag mirrors the context
+    compiler's eligibility gates; the rule-combination suite asserts they agree for
+    all 18,000 combinations.
+- Not changed: schema, audit rules and precedence, MCP tool set, benchmark.
