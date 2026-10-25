@@ -1351,3 +1351,17 @@ The owner approved the final pre-release product identity and directed a compreh
   SLACK_TOKEN (xox* tokens, webhook URLs), STRIPE_KEY (bare sk_/rk_ live/test keys) and
   GOOGLE_API_KEY. Re-measured: 0/10 secrets stored, 0/30 ordinary or near-miss statements
   refused (`test/secret-patterns.test.ts`). Detection remains pattern-based, not universal.
+
+## DM-DEC-047 — Retrieval ignores generic task words
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence: on 18 realistic memories and 8 everyday tasks, 6 of 18 selected memories were
+  unrelated, matched only through words such as "add", "fix", "new" and "file".
+- Decision: extend the common-term list with generic task verbs and filler; add everyday
+  concept links (checkout, refund, invoice, subscription → payment; form, button,
+  component, modal, layout, design → ui; signup, password, logout → authentication;
+  pagination, graphql → api) and synonyms (payments = payment, paginate = pagination,
+  register = signup).
+- Result: precision 12/18 → 14/16 on the same set, with better recall for payment tasks.
+  Benchmark byte-identical. The remaining noise is genuine word overlap ("page").

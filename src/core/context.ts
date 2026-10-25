@@ -47,6 +47,16 @@ const DAY_MS = 86_400_000;
 const COMMON_TASK_TERMS = new Set([
   'and', 'are', 'but', 'for', 'from', 'has', 'have', 'into', 'not', 'project',
   'that', 'the', 'their', 'then', 'this', 'use', 'using', 'was', 'were', 'with',
+  // Generic task verbs and filler (DM-DEC-047). They appear in almost every task
+  // description and in many memories, so matching on them only adds noise.
+  'add', 'adds', 'adding', 'added', 'fix', 'fixes', 'fixing', 'fixed',
+  'update', 'updates', 'updating', 'updated', 'change', 'changes', 'changing', 'changed',
+  'make', 'makes', 'making', 'create', 'creates', 'creating', 'implement', 'implementing',
+  'new', 'file', 'files', 'code', 'bug', 'bugs', 'issue', 'issues', 'task', 'tasks',
+  'work', 'working', 'some', 'all', 'any', 'how', 'what', 'when', 'where', 'why',
+  'should', 'can', 'will', 'need', 'needs', 'our', 'its', 'also', 'just', 'more',
+  'about', 'after', 'before', 'other', 'each', 'every', 'same', 'like', 'way',
+  'get', 'set', 'let', 'try', 'please', 'help', 'thing', 'things', 'stuff',
 ]);
 
 export interface ContextCompileOptions {
@@ -370,6 +380,9 @@ const SYNONYMS: Readonly<Record<string, string>> = {
   docs: 'documentation', doc: 'documentation',
   deps: 'dependency', dep: 'dependency',
   migrate: 'migration', migrating: 'migration',
+  paginate: 'pagination', paginated: 'pagination', paging: 'pagination',
+  payments: 'payment', refunds: 'refund',
+  'sign-up': 'signup', register: 'signup', registration: 'signup',
   building: 'build', builds: 'build',
   frontend: 'ui', 'front-end': 'ui',
   backend: 'server', 'back-end': 'server',
@@ -386,7 +399,11 @@ const BROADER: Readonly<Record<string, readonly string[]>> = {
   webpack: ['build'], vite: ['build'], rollup: ['build'], esbuild: ['build'],
   docker: ['deployment'], kubernetes: ['deployment'], vercel: ['deployment'], netlify: ['deployment'],
   oauth: ['authentication'], jwt: ['authentication'], session: ['authentication'], sessions: ['authentication'],
-  stripe: ['payment'], paypal: ['payment'], payments: ['payment'], billing: ['payment'],
+  stripe: ['payment'], paypal: ['payment'], billing: ['payment'],
+  checkout: ['payment'], refund: ['payment'], invoice: ['payment'], subscription: ['payment'],
+  form: ['ui'], button: ['ui'], component: ['ui'], modal: ['ui'], layout: ['ui'], design: ['ui'],
+  signup: ['authentication'], password: ['authentication'], logout: ['authentication'],
+  pagination: ['api'], graphql: ['api'],
 };
 
 function singular(term: string): string {
