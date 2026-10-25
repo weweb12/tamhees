@@ -3,7 +3,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { mkdir, readFile, stat, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { appendValidatedAuditEvents } from './audit.js';
+import { appendValidatedAuditEvents } from './audit-log.js';
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
 import { compileContext, formatContextAsMarkdown, type ContextCompileOptions } from './context.js';
 import { loadAllEvidence } from './evidence.js';

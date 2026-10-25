@@ -267,6 +267,55 @@ export async function verifyStorageTreeSafety(
   return { safe: true };
 }
 
+export interface ControlledFileRead {
+  readonly name: string;
+  /** File content when it was read safely. */
+  readonly content?: string;
+  /** Present when the file is a symbolic link or cannot be inspected. */
+  readonly unsafeReason?: string;
+  /** Present when the file was safe but could not be read. */
+  readonly readFailed?: true;
+}
+
+const READ_CONCURRENCY = 32;
+
+/**
+ * Read many files from one controlled directory quickly and safely.
+ *
+ * The directory itself must already have passed verifyStorageTreeSafety (every
+ * component checked for links). Each file then needs only one lstat of its own: a
+ * symbolic link is refused with the same message verifyPathSafety produces. Files are
+ * read concurrently (bounded) and results keep the order of `names`.
+ */
+export async function readControlledFiles(dir: string, names: readonly string[]): Promise<ControlledFileRead[]> {
+  const results: ControlledFileRead[] = new Array(names.length);
+  let next = 0;
+  async function worker(): Promise<void> {
+    while (next < names.length) {
+      const index = next++;
+      const name = names[index]!;
+      const path = join(dir, name);
+      try {
+        const stats = await lstat(path);
+        if (stats.isSymbolicLink()) {
+          results[index] = { name, unsafeReason: `Symbolic link detected at ${path}. Refusing for safety.` };
+          continue;
+        }
+      } catch (err: unknown) {
+        results[index] = { name, unsafeReason: `Cannot stat path: ${path}. ${err instanceof Error ? err.message : String(err)}` };
+        continue;
+      }
+      try {
+        results[index] = { name, content: await readFile(path, 'utf-8') };
+      } catch {
+        results[index] = { name, readFailed: true };
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(READ_CONCURRENCY, names.length) }, () => worker()));
+  return results;
+}
+
 /**
  * JSON replacer that sorts object keys deterministically.
  * Produces Git-friendly diffs with consistent key ordering.
