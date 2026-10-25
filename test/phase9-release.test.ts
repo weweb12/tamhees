@@ -142,7 +142,11 @@ describe('Phase 9 local distribution safety', () => {
     assert.match(script, /dashboard\\public\\dashboard\.css/);
   });
 
-  it('performs a pure dry run outside the repository', async () => {
+  // The packaging script targets the Windows portable build and needs Windows PowerShell.
+  // On macOS/Linux this check is reported as skipped instead of failing a clean clone.
+  it('performs a pure dry run outside the repository', {
+    skip: process.platform === 'win32' ? false : 'Windows PowerShell packaging check (Windows only)',
+  }, async () => {
     const output = resolve(root, '..', 'tamhees-release-dry-run-test');
     const { stdout } = await execFileAsync('powershell.exe', [
       '-NoProfile',
