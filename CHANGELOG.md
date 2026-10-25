@@ -5,6 +5,8 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- Secret detection now also refuses JWT/Bearer tokens, credentials inside URLs, Slack
+  tokens and webhooks, bare Stripe keys and Google API keys (DM-DEC-046).
 - Faster at scale (DM-DEC-045): on 1,500 memories a write drops from 1.7 s to 0.33 s.
   Files are read in parallel with one safety check each, the store is loaded once per
   write, and the audit log rolls into sealed 4 MiB segments so appends stay cheap.
