@@ -5,6 +5,11 @@
 > Website role: Explain and demonstrate the real local product through a polished local interactive experience.
 > Current candidate: Version 1.0.0-rc.2, based on the accepted engineering implementation. Final Windows Node 22.23.2 runtime and RC2 dry-run checks passed; native-Windows portable creation remains pending and publication has not started.
 
+> **Update (DM-DEC-052):** the site now opens on a short judge overview (`start.html`,
+> served at `/`): one sentence, the problem in three cards, one guided three-step demo
+> (notice, forget, ask), three "how it works" points and two links. The complete page
+> described below is unchanged and served at `/details` (`details.html` on the hosted demo).
+
 ## 1. Website purpose
 
 The website is the challenge demonstration and product explanation layer for Tamhees.

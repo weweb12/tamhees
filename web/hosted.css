@@ -6,3 +6,13 @@
   font: 500 0.85rem/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   text-align: center;
 }
+.hosted-back {
+  display: block;
+  padding: 0.5rem 1rem;
+  background: #DDEAF4;
+  color: #123A63;
+  font: 700 0.9rem/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-align: center;
+  text-decoration: none;
+}
+.hosted-back:hover { text-decoration: underline; }
