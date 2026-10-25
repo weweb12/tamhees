@@ -5,6 +5,9 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- Fixed: concurrent writers (DM-DEC-043). Simultaneous writes collided on IDs, lost audit
+  events and could silently overwrite a memory that had reported success. All writes now
+  go through a project write lock, and create-if-absent is atomic.
 - Fixed: an expired memory whose permission rule precedes the expiry rule could reach
   context ranking, making context validation reject the whole pack. Expiry is now
   enforced independently before ranking (DM-DEC-038). Benchmark artifacts unchanged.

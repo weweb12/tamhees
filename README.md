@@ -282,5 +282,5 @@ separately as private evidence, outside the product repository.
   journal-guided manual recovery; this is not a multi-file transaction.
 - PowerShell JSON files with one initial UTF-8 BOM are accepted.
 
-Coordinate one writer per project. Existing local caller trust, owner-policy
+Writes to one project are serialized by a project write lock (`.tamhees/runtime/write.lock`, DM-DEC-043), so several agents or processes can write safely at the same time. Manual edits to `.tamhees/` files bypass the lock. Existing local caller trust, owner-policy
 holds, secret-pattern limits, and non-ambient adapter invocation still apply.

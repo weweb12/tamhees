@@ -89,8 +89,8 @@ closed. The hosted demo needs no server, so it has no secrets and sends nothing 
 
 **Out of scope / honest limits.** Lexical (not semantic) retrieval, widened only by fixed
 synonym and concept tables. Pattern-based
-secret detection. Owner identity is declared, not cryptographically authenticated. No
-multi-process locking. `tamhees observe` checks technology, script and path claims
+secret detection. Owner identity is declared, not cryptographically authenticated. Concurrent writers
+are serialized by a project write lock; manual file edits bypass it. `tamhees observe` checks technology, script and path claims
 against the repository itself, but other kinds of claims still rely on evidence
 supplied by the calling agent. The audit report names the first rule in precedence order,
 so an expired claim with a caution permission is reported as `RECHECK` (caution) rather

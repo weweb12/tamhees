@@ -47,7 +47,9 @@ import { ADAPTER_NAMES } from './adapters/types.js';
 import { runMcpStdio } from './mcp/stdio.js';
 import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark/benchmark.js';
 import { atomicWriteText, verifyPathSafety } from './core/atomic-write.js';
-import { formatObservationText, observeProject } from './core/observe.js';
+import { formatObservationText } from './core/observe.js';
+import { observeProject } from './core/observe-project.js';
+import { withWriteLock } from './core/lock.js';
 import { REMEMBER_BASES, forgetMemory, formatInspectionText, inspectMemories, rememberMemory, revokeMemory, type RememberBasis } from './core/quick.js';
 import { ACTION_PERMISSIONS, CONFIDENCE_VALUES, MEMORY_KINDS, type ActionPermission, type Confidence, type MemoryKind } from './core/types.js';
 
@@ -532,7 +534,7 @@ async function handleAudit(): Promise<void> {
 
   // Write audit events to JSONL
   try {
-    await writeAuditEvents(projectDir, result, records, systemClock, evidenceResult.evidence);
+    await withWriteLock(projectDir, () => writeAuditEvents(projectDir, result, records, systemClock, evidenceResult.evidence));
   } catch (err: unknown) {
     console.error(`Error writing audit events: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);

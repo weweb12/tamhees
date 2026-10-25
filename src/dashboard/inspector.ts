@@ -7,7 +7,7 @@
  */
 
 import { observeRecords, observationToEvidence, type Observation, type RepositoryFacts, type SkippedClaim } from '../core/observe.js';
-import { inspectRecords, type InspectionReport } from '../core/quick.js';
+import { inspectRecords, type InspectionReport } from '../core/inspect.js';
 import { CURRENT_SCHEMA_VERSION, type MemoryRecord } from '../core/types.js';
 
 export const INSPECTOR_DEMO_NOW = '2026-10-25T09:00:00.000Z';

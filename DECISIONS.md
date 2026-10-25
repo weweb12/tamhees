@@ -1273,3 +1273,29 @@ The owner approved the final pre-release product identity and directed a compreh
   The 22-scenario benchmark is byte-identical (its fixtures do not exercise synonyms),
   so the improvement is evidenced by `test/concept-matching.test.ts`, not by the
   benchmark. The 18,000-combination safety suite still passes.
+
+## DM-DEC-043 — Project write lock and atomic create-if-absent
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence: with 20 simultaneous writers on rc.2, most writes failed, audit events were
+  lost, and one reported-successful memory was overwritten (data loss).
+- Decision:
+  - `src/core/lock.ts`: `withWriteLock(projectDir, op)`, re-entrant within one async
+    operation (AsyncLocalStorage), queued in-process, and exclusive across processes via
+    `.tamhees/runtime/write.lock` (O_EXCL) holding pid, host and a token. A dead holder on
+    the same host, or a lock older than 10 minutes from another host, is recovered.
+    Waiting is bounded (30 s by default, `TAMHEES_LOCK_TIMEOUT_MS`), with a clear error.
+  - Locked: memory mutations, evidence writes, index rebuild, init, lifecycle begin and
+    finalize, bootstrap migration, `remember`/`revoke` (ID and authority decided inside
+    the lock), `observe --record`, and the CLI audit command.
+  - The same-process finalization guard still refuses a second concurrent finalization
+    immediately, as specified in rc.2.
+  - `atomicWriteJson/Text` with `allowOverwrite: false` now commit with `link()`, which
+    fails atomically if the target exists. Filesystems without hard links fall back to
+    check-then-rename.
+  - Pure inspection moved to `src/core/inspect.ts` and the observe-with-store path to
+    `src/core/observe-project.ts`, so modules shipped to the browser demo carry no lock or
+    write code. The static build now verifies that every Node built-in name the engine
+    imports is exported by its browser stand-in.
+- Reads take no lock; every write is temp-file-plus-rename, so readers see whole files.
