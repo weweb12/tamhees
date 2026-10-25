@@ -47,6 +47,7 @@ import { ADAPTER_NAMES } from './adapters/types.js';
 import { runMcpStdio } from './mcp/stdio.js';
 import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark/benchmark.js';
 import { atomicWriteText, verifyPathSafety } from './core/atomic-write.js';
+import { formatObservationText, observeProject } from './core/observe.js';
 import { REMEMBER_BASES, forgetMemory, formatInspectionText, inspectMemories, rememberMemory, revokeMemory, type RememberBasis } from './core/quick.js';
 import { ACTION_PERMISSIONS, CONFIDENCE_VALUES, MEMORY_KINDS, type ActionPermission, type Confidence, type MemoryKind } from './core/types.js';
 
@@ -115,6 +116,7 @@ Commands:
   inspect             Show what is remembered and how sure ${PRODUCT_NAME} is
   forget              Forget a memory: erase its text, keep a safe tombstone
   revoke              Revoke a memory so it can no longer guide action
+  observe             Check memories against the repository and find the ones that might be wrong
   memory              List, show, or apply controlled memory updates
   evidence            List or add evidence records
   context             Compile task-specific memory context
@@ -279,6 +281,35 @@ Marks the memory REVOKED with MUST_NOT_ACT. Its prior state is archived for hist
 but it can no longer authorize action or appear in agent context. Use forget instead
 when the text itself must not be kept. Owner-confirmed memories require --as-owner.`;
 
+const OBSERVE_HELP = `${CLI_NAME} observe — Find memories the repository says might be wrong
+
+Usage: ${CLI_NAME} observe [--record] [--format text|json]
+
+Checks three kinds of claims in memory statements against the project itself:
+  technology  "The project uses SQLite" vs dependencies, lockfiles and known config files
+  script      "Run npm run build:legacy" vs package.json scripts
+  path        "The handler is in src/pay.ts" vs whether that file exists
+
+Without --record this is a preview and writes nothing. With --record, each finding is
+stored as REPOSITORY_STATE evidence (SUPPORTS or CONTRADICTS) through the normal
+validated evidence store. Contradicted memories are then blocked by the audit and
+withheld from agent context. Re-running records nothing new unless the repository
+changed.
+
+Conservative by design:
+  - Reads only a fixed list of manifest, lockfile and config files; never .env files,
+    keys or source code. Path claims check existence only. Symlinks are not followed.
+  - A technology is contradicted only when it is absent AND a competitor in the same
+    group (database, test framework, package manager, ...) is present.
+  - Statements with negation or change language, or naming several technologies of
+    one group, are skipped rather than guessed. Sensitive, revoked, forgotten and
+    restricted-scope memories are skipped.
+
+Exit codes:
+  0  Completed (findings may include contradictions)
+  1  Store could not be loaded or evidence could not be recorded
+  2  Invalid usage`;
+
 // ─── Main dispatch ──────────────────────────────────────────
 
 async function main(): Promise<void> {
@@ -287,7 +318,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (!command || (args.includes('--help') && !['init', 'remember', 'inspect', 'forget', 'revoke', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
+  if (!command || (args.includes('--help') && !['init', 'remember', 'inspect', 'forget', 'revoke', 'observe', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
     console.log(MAIN_HELP);
     process.exit(0);
   }
@@ -305,6 +336,9 @@ async function main(): Promise<void> {
     case 'forget':
     case 'revoke':
       await handleRemoval(command);
+      break;
+    case 'observe':
+      await handleObserve();
       break;
     case 'context':
       await handleContext();
@@ -690,6 +724,22 @@ async function handleRemoval(kind: 'forget' | 'revoke'): Promise<void> {
     ? `Forgot ${memoryId}: its text was erased and it will not be shown to agents again. A privacy-safe tombstone keeps the audit trail.`
     : `Revoked ${memoryId}: it can no longer guide action. Its earlier state is archived for history.`);
   process.exit(0);
+}
+
+async function handleObserve(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(OBSERVE_HELP);
+    process.exit(0);
+  }
+  const { options } = parseArgs(['--record', '--format'], 0, 1, ['--record']);
+  const format = parseFormat(options['--format']);
+  const record = options['--record'] !== undefined;
+  const result = await observeProject(process.cwd(), systemClock, record);
+  if (result.report === null) return exitWithErrors(result.errors);
+  console.log(format === 'json'
+    ? JSON.stringify({ record, ...result }, null, 2)
+    : formatObservationText(result, record));
+  process.exit(result.success ? 0 : 1);
 }
 
 // ─── Evidence operations ───────────────────────────────────

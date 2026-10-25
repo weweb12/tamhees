@@ -11,6 +11,7 @@
 //   3. "I might be wrong"    - a confident AI guess is not treated as owner approval
 //   4. Privacy revocation    - the user withdraws a personal memory; it must be forgotten
 //   5. Unsafe write          - a secret-like value is refused before it is ever stored
+//   6. Self-detection        - nobody reports the change; `tamhees observe` notices it
 //
 // Every step asserts the expected outcome, so this script doubles as an end-to-end test
 // (it exits non-zero if any behavior changes). Nothing leaves the machine.
@@ -284,6 +285,27 @@ try {
     (refused.stderr || refused.stdout).trim().split('\n')[0]);
   check('Nothing about it was persisted', !(await storageText()).includes('FAKE0000'));
   summary.push(['Secret-like value', 'REFUSED AT WRITE', 'never stored']);
+
+  // ───────────────────────────────────────────────────────────────────────────
+  heading('6. Self-detection — nobody reports the change; Tamhees notices it');
+  await writeFile(join(project, 'package.json'), `${JSON.stringify({
+    name: 'demo', scripts: { test: 'vitest run' }, devDependencies: { vitest: '^2.0.0' },
+  }, null, 2)}\n`);
+  say('The repository now runs its tests with Vitest. No agent supplies any evidence.');
+  const told = await tamhees('remember', 'Unit tests run with Jest', '--as', 'repo', '--source', 'package.json', '--tags', 'testing');
+  check('Old memory stored: "Unit tests run with Jest"', told.code === 0, told.stderr.trim());
+  const jestId = /Remembered (DM-MEM-\d{6})/.exec(told.stdout)?.[1];
+  const observed = await tamhees('observe', '--record', '--format', 'json');
+  const result = JSON.parse(observed.stdout || '{}');
+  const contradiction = result.report?.observations?.find((item) => item.memoryId === jestId && item.relationship === 'CONTRADICTS');
+  check('tamhees observe finds the contradiction by itself', contradiction !== undefined, contradiction?.explanation);
+  ({ events } = await audit());
+  finding = latestFinding(events, jestId);
+  check('Audit now blocks the stale memory', finding?.outcome === 'BLOCK_ACTION',
+    `${finding?.outcome} via ${finding?.triggeredRules?.join(", ")}`);
+  pack = await context('run the unit tests');
+  check('Agent no longer receives it', selected(pack, jestId) === undefined, `excluded as "${excludedReason(pack, jestId)}"`);
+  summary.push(['Self-detected change', finding?.outcome, 'found without any reported evidence']);
 
   heading('Summary');
   for (const [name, outcome, effect] of summary) {
