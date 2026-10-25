@@ -149,7 +149,7 @@ const elements = {
   inspectorAnnouncement: document.querySelector('#inspector-announcement'),
 };
 
-const inspector = { initial: null, busy: false };
+const inspector = { initial: null, current: null, forgotten: [], busy: false };
 
 void initialize();
 
@@ -228,14 +228,22 @@ function initializeMotion() {
   for (const section of document.querySelectorAll('.reveal-section')) revealObserver.observe(section);
 
   const navLinks = [...document.querySelectorAll('.site-header nav a')];
+  // Track which sections cross a thin band near the top of the viewport. Tall sections
+  // (the inspector, the live audit) never reach a ratio threshold of their own height,
+  // so any intersection counts and the first such section in page order wins.
+  const inBand = new Set();
   const sectionObserver = new IntersectionObserver((entries) => {
-    const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    for (const entry of entries) {
+      if (entry.isIntersecting) inBand.add(entry.target);
+      else inBand.delete(entry.target);
+    }
+    const visible = [...document.querySelectorAll('main section[id]')].find((section) => inBand.has(section));
     if (!visible) return;
     for (const link of navLinks) {
-      if (link.getAttribute('href') === `#${visible.target.id}`) link.setAttribute('aria-current', 'location');
+      if (link.getAttribute('href') === `#${visible.id}`) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
     }
-  }, { threshold: [0.15, 0.4], rootMargin: '-20% 0px -65% 0px' });
+  }, { threshold: 0, rootMargin: '-20% 0px -65% 0px' });
   for (const section of document.querySelectorAll('main section[id]')) sectionObserver.observe(section);
 
   document.addEventListener('visibilitychange', () => {
@@ -759,7 +767,7 @@ function outcomeSymbol(outcome) {
 const INSPECTOR_PLAIN = {
   TRUST: 'I can rely on this.',
   RECHECK: 'I might be wrong. Verify before acting.',
-  ASK_OWNER: 'This is a guess. Ask the owner first.',
+  ASK_OWNER: 'Not confirmed. Ask the owner first.',
   BLOCK_ACTION: 'Do not act on this.',
   FORGET_OR_REDACT: 'This must not be kept or shown.',
 };
@@ -792,17 +800,23 @@ function renderInspectorRepository(repository) {
   }));
 }
 
+async function requestInspectorState(next) {
+  return getJson('/api/inspector-state', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(next),
+  });
+}
+
 async function observeInspector() {
   if (inspector.busy || inspector.initial === null) return;
   inspector.busy = true;
   elements.inspectorObserve.disabled = true;
   try {
-    const result = await getJson('/api/observe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
-    renderInspector(result.report, inspector.initial.report, result);
+    const before = inspector.current ? inspector.current.report : inspector.initial.report;
+    const result = await requestInspectorState({ observed: true, forgotten: inspector.forgotten });
+    inspector.current = result;
+    renderInspector(result.report, before, result);
     const contradicted = new Set(result.observations.filter((item) => item.relationship === 'CONTRADICTS').map((item) => item.memoryId)).size;
     const confirmed = new Set(result.observations.filter((item) => item.relationship === 'SUPPORTS').map((item) => item.memoryId)).size;
     const summary = `Tamhees read the project's manifest files and found ${contradicted} memories the repository now contradicts and ${confirmed} it confirms. `
@@ -819,8 +833,33 @@ async function observeInspector() {
   }
 }
 
+async function forgetInspectorMemory(memoryId) {
+  if (inspector.busy || inspector.initial === null || inspector.forgotten.includes(memoryId)) return;
+  inspector.busy = true;
+  try {
+    const before = inspector.current ? inspector.current.report : inspector.initial.report;
+    const forgotten = [...inspector.forgotten, memoryId];
+    const result = await requestInspectorState({ observed: inspector.current ? inspector.current.observed : false, forgotten });
+    inspector.forgotten = result.forgotten;
+    inspector.current = result;
+    renderInspector(result.report, before, result.observed ? result : null);
+    const summary = `Forgot ${memoryId}: its text was erased and replaced by a privacy-safe tombstone. The agent can no longer see it, and nothing about it is left except that it existed.`;
+    elements.inspectorSummary.textContent = summary;
+    elements.inspectorAnnouncement.textContent = summary;
+    elements.inspectorReset.disabled = false;
+    const row = elements.inspectorList.querySelector(`[data-memory-id="${memoryId}"]`);
+    if (row) row.focus();
+  } catch {
+    elements.inspectorSummary.textContent = 'The memory could not be forgotten. Reset and retry.';
+  } finally {
+    inspector.busy = false;
+  }
+}
+
 function resetInspector() {
   if (inspector.initial === null) return;
+  inspector.current = null;
+  inspector.forgotten = [];
   renderInspector(inspector.initial.report, null, null);
   elements.inspectorSummary.textContent = 'Before checking: the memories as the agent last saw them.';
   elements.inspectorAnnouncement.textContent = 'Inspector reset.';
@@ -836,21 +875,35 @@ function renderInspector(report, before, observation) {
     const item = el('li', 'inspector-item');
     item.dataset.outcome = memory.outcome;
     item.dataset.changed = String(changed);
+    item.dataset.memoryId = memory.id;
+    item.tabIndex = -1;
     const head = el('div', 'inspector-head');
     head.append(textEl('span', 'outcome-code', `${outcomeSymbol(memory.outcome)} ${memory.outcome}`));
     if (changed) head.append(textEl('span', 'inspector-chip', `was ${previous.outcome}`));
+    if (memory.forgotten) head.append(textEl('span', 'inspector-chip', 'Forgotten'));
     if (!memory.servable) head.append(textEl('span', 'inspector-chip inspector-chip-withheld', 'Withheld from the agent'));
+    if (!memory.forgotten) {
+      const forget = textEl('button', 'inspector-forget', 'Forget');
+      forget.type = 'button';
+      forget.setAttribute('aria-label', `Forget ${memory.id}: ${memory.statement}`);
+      forget.addEventListener('click', () => void forgetInspectorMemory(memory.id));
+      head.append(forget);
+    }
     const freshness = memory.freshness.state === 'CURRENT'
       ? `verified ${memory.freshness.ageDays} days ago`
       : `${memory.freshness.state.toLowerCase().replace('_', ' ')}, verified ${memory.freshness.ageDays} days ago`;
     const findings = observation ? observation.observations.filter((entry) => entry.memoryId === memory.id) : [];
     // When the repository check explains the change, show that plain reason instead of evidence IDs.
-    const plain = findings.length > 0 ? INSPECTOR_PLAIN[memory.outcome] : `${INSPECTOR_PLAIN[memory.outcome]} ${memory.explanation}`;
+    const plain = memory.forgotten
+      ? memory.explanation
+      : findings.length > 0 ? INSPECTOR_PLAIN[memory.outcome] : `${INSPECTOR_PLAIN[memory.outcome]} ${memory.explanation}`;
     item.append(
       head,
       textEl('p', 'inspector-statement', memory.statement),
       textEl('p', 'inspector-plain', plain),
-      textEl('p', 'inspector-meta', `${memory.source.type} · ${memory.verificationStatus} · confidence ${memory.confidence} · ${freshness} · ${memory.actionPermission}`),
+      textEl('p', 'inspector-meta', memory.forgotten
+        ? `${memory.id} · only the ID and timestamps remain`
+        : `${memory.source.type} · ${memory.verificationStatus} · confidence ${memory.confidence} · ${freshness} · ${memory.actionPermission}`),
     );
     if (observation) {
       for (const finding of findings) {
@@ -858,7 +911,7 @@ function renderInspector(report, before, observation) {
         line.dataset.relationship = finding.relationship;
         item.append(line);
       }
-      for (const skipped of observation.skipped.filter((entry) => entry.memoryId === memory.id)) {
+      for (const skipped of observation.skipped.filter((entry) => entry.memoryId === memory.id && !memory.forgotten)) {
         item.append(textEl('p', 'inspector-finding', `Skipped: ${skipped.reason}.`));
       }
     }

@@ -14,10 +14,10 @@ import {
   listDashboardScenarios,
   runDashboardScenario,
 } from './engine/dashboard/scenarios.js';
-import { getInspectorView, runInspectorObservation } from './engine/dashboard/inspector.js';
+import { getInspectorView, inspectorState, parseInspectorStateRequest, runInspectorObservation } from './engine/dashboard/inspector.js';
 
 const nativeFetch = window.fetch.bind(window);
-const API_ROUTE = /\/api\/(scenarios|audit|benchmark|inspector|observe)$/;
+const API_ROUTE = /\/api\/(scenarios|audit|benchmark|inspector|inspector-state|observe)$/;
 
 function json(status, body) {
   // Same byte shape as sendJson() in src/dashboard/server.ts (trailing newline included).
@@ -69,6 +69,21 @@ async function handle(route, init) {
   if (route === 'inspector') {
     if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
     return json(200, getInspectorView());
+  }
+
+  if (route === 'inspector-state') {
+    if (method !== 'POST') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
+    let body;
+    try {
+      body = JSON.parse(typeof init?.body === 'string' ? init.body : '');
+    } catch {
+      body = null;
+    }
+    const state = parseInspectorStateRequest(body);
+    if (state === null) {
+      return problem(400, 'INVALID_REQUEST', 'The inspector state takes {"observed": boolean, "forgotten": [fixture memory IDs]}.');
+    }
+    return json(200, inspectorState(state));
   }
 
   if (route === 'observe') {

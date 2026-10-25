@@ -8,6 +8,7 @@
 
 import { observeRecords, observationToEvidence, type Observation, type RepositoryFacts, type SkippedClaim } from '../core/observe.js';
 import { inspectRecords, type InspectionReport } from '../core/inspect.js';
+import { redactedTombstone } from '../core/redaction.js';
 import { CURRENT_SCHEMA_VERSION, type MemoryRecord } from '../core/types.js';
 
 export const INSPECTOR_DEMO_NOW = '2026-10-25T09:00:00.000Z';
@@ -88,7 +89,15 @@ export const INSPECTOR_RECORDS: readonly MemoryRecord[] = [
     source: { type: 'CONVERSATION_RECORD', reference: 'planning chat' }, verificationStatus: 'UNKNOWN',
     confidence: 'MEDIUM', actionPermission: 'ASK_BEFORE_CHANGE',
   }),
+  memory('DM-MEM-SHOP-009', {
+    kind: 'PREFERENCE', statement: 'The owner works from home on Sundays and prefers messages after 10:00.', tags: ['owner', 'schedule'],
+    source: { type: 'AGENT_OBSERVATION', reference: 'chat with the owner', agent: 'coding-agent' },
+    verificationStatus: 'OBSERVED', confidence: 'MEDIUM', actionPermission: 'ACT_WITH_CAUTION',
+    freshness: { lastVerified: ago(6), reviewAfter: ahead(84) },
+  }),
 ];
+
+export const INSPECTOR_RECORD_IDS: readonly string[] = INSPECTOR_RECORDS.map((record) => record.id);
 
 export interface InspectorView {
   readonly schemaVersion: '1.0.0';
@@ -123,5 +132,53 @@ export function runInspectorObservation(): InspectorObservation {
     unverifiable: observed.unverifiable,
     skipped: observed.skipped,
     report: inspectRecords(INSPECTOR_RECORDS, evidence, INSPECTOR_DEMO_NOW),
+  };
+}
+
+export interface InspectorStateRequest {
+  readonly observed: boolean;
+  readonly forgotten: readonly string[];
+}
+
+export interface InspectorState extends InspectorObservation {
+  readonly observed: boolean;
+  readonly forgotten: readonly string[];
+}
+
+/** Validates a dashboard state request; returns null when it is not acceptable. */
+export function parseInspectorStateRequest(value: unknown): InspectorStateRequest | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const input = value as Record<string, unknown>;
+  if (Object.keys(input).some((key) => key !== 'observed' && key !== 'forgotten')) return null;
+  if (typeof input['observed'] !== 'boolean' || !Array.isArray(input['forgotten'])) return null;
+  const forgotten = input['forgotten'];
+  if (forgotten.length > INSPECTOR_RECORD_IDS.length
+    || forgotten.some((id) => typeof id !== 'string' || !INSPECTOR_RECORD_IDS.includes(id))
+    || new Set(forgotten).size !== forgotten.length) return null;
+  return { observed: input['observed'], forgotten: forgotten as string[] };
+}
+
+/**
+ * The inspector after the visitor's actions: optionally observed against the fixture
+ * repository, and with some memories forgotten through the same tombstone transformation
+ * that `tamhees forget` applies. Stateless and deterministic.
+ */
+export function inspectorState(request: InspectorStateRequest): InspectorState {
+  const forgotten = new Set(request.forgotten);
+  const records = INSPECTOR_RECORDS.map((record) => (forgotten.has(record.id)
+    ? redactedTombstone(record, 'dashboard-owner', 'The owner asked to forget this.', INSPECTOR_DEMO_NOW)
+    : record));
+  const observed = request.observed
+    ? observeRecords(records, FACTS, PATHS, INSPECTOR_DEMO_NOW)
+    : { observations: [], unverifiable: [], skipped: [] };
+  const evidence = observed.observations.map((item) => observationToEvidence(item, INSPECTOR_DEMO_NOW));
+  return {
+    schemaVersion: '1.0.0',
+    observed: request.observed,
+    forgotten: INSPECTOR_RECORD_IDS.filter((id) => forgotten.has(id)),
+    observations: observed.observations,
+    unverifiable: observed.unverifiable,
+    skipped: observed.skipped,
+    report: inspectRecords(records, evidence, INSPECTOR_DEMO_NOW),
   };
 }

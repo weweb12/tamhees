@@ -73,8 +73,9 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 **Bonus signals.** *Memory inspector:* the demo's **Inspector** section, and `tamhees inspect`
 in the CLI, answer "what do you remember, and how sure are you?" in plain words.
 `tamhees forget <id>` acts on "forget that". *Privacy
-controls:* demonstrated, not claimed. See the *Sensitive value appeared* demo scenario
-and steps 4–5 of the failure test.
+controls:* demonstrated, not claimed. In the demo's Inspector, press **Forget** on the
+owner's memory: the text is erased everywhere and only a tombstone remains. Also the
+*Sensitive value appeared* scenario and steps 4–5 of the failure test.
 
 ## Notes for judges
 

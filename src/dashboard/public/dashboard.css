@@ -578,3 +578,6 @@ tr[data-configuration="TAMHEES"] { background: var(--blue-pale); }
   .inspector-layout { grid-template-columns: 1fr; }
   .inspector-repo { position: static; }
 }
+.inspector-forget { margin-left: auto; padding: .3rem .7rem; border: 1px solid var(--border); border-radius: 999px; color: var(--blue-deep); background: white; cursor: pointer; font-size: .75rem; font-weight: 800; }
+.inspector-forget:hover { border-color: var(--danger); color: var(--danger); }
+.inspector-item:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
