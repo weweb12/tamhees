@@ -1,11 +1,12 @@
 # Tamhees: DOO Builders League submission
 
 **Challenge:** Memory That Knows It Might Be Wrong
-**Live demo:** __LIVE_DEMO_URL__ (opens instantly; the real engine runs in your browser)
-**Repository:** __REPO_URL__
+**Live demo:** https://terar1kfn.github.io/tamhees/ (opens instantly; the real engine runs in your browser)
+**Repository:** https://github.com/terar1kfn/tamhees
 
 > Tamhees (تمحيص, "scrutiny") checks what an AI remembers *before* that memory is
-> allowed to guide an action. Every memory is a claim with a source, confidence,
+> allowed to guide an action. It is built for coding agents, where wrong memory turns
+> straight into wrong code. Every memory is a claim with a source, confidence,
 > freshness, scope, privacy level and permission. Contradicted memories are blocked,
 > stale ones are rechecked, guesses go to the owner, and revoked ones are forgotten.
 
@@ -15,6 +16,7 @@
 - **Inspector** → **Let Tamhees check the repository**: a confidently remembered
   "The project uses SQLite" is trusted until Tamhees reads the project, notices
   Supabase, and blocks it. Jest, a missing build script and a deleted file go the same way.
+  Then press **Forget** on the owner's memory: the text is gone and the agent can't see it.
 - **Live audit** → pick an example → **Check whether the AI may act**. Try *AI guessed
   without approval* for the "I might be wrong" moment.
 
@@ -28,6 +30,15 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
 
 ![Memory inspector after Tamhees checked the repository](docs/assets/tamhees-inspector.png)
+
+## "What do you remember about me?"
+
+In a coding agent, "me" is the project owner: their decisions ("we use Supabase"), their
+preferences ("no deploys on Fridays"), and personal details that slip into chats ("works
+from home on Sundays"). Tamhees stores each one as a claim with its source and how sure it
+is, shows them all in plain words (`tamhees inspect`, and the demo's Inspector), never lets
+an AI guess pass as the owner's decision, and on "forget that" erases the text and keeps
+only a tombstone.
 
 ## The brief, point by point
 
@@ -44,7 +55,7 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 | Deliverable | Link |
 |---|---|
 | Working build | This repository + the live demo above |
-| 90-second walkthrough | __VIDEO_URL__ (script: [docs/LOOM_90S.md](docs/LOOM_90S.md)) |
+| 90-second walkthrough | Linked in the submission form (script: [docs/LOOM_90S.md](docs/LOOM_90S.md)) |
 | Architecture snapshot: write, retrieval and forgetting paths | [docs/ARCHITECTURE_SNAPSHOT.md](docs/ARCHITECTURE_SNAPSHOT.md) |
 | Failure test: contradictory facts, stale data, privacy revocation | [`scripts/failure-test.mjs`](scripts/failure-test.mjs), run with `npm run failure-test` (also runs in CI) |
 | Two-year thesis (≤300 words) | [docs/THESIS.md](docs/THESIS.md) |
@@ -100,4 +111,10 @@ so an expired claim with a caution permission is reported as `RECHECK` (caution)
 than "expired". Retrieval still excludes it as expired. See
 [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) and the *Limitations* section of the demo.
 
-**AI tools used.** __AI_TOOLS__
+**AI tools used.** Building Tamhees with AI agents is where the idea came from, and AI
+was used throughout. **ChatGPT** for planning, design reviews and writing the step-by-step
+prompts for the coding agent. **Antigravity** (Google's agent IDE) as the development agent
+that implemented and verified the engine up to 1.0.0-rc.2. **Claude** for the post-rc.2
+reliability pass (real-repository trials, concurrency, recovery, the exhaustive rule
+suite), the hosted demo and these submission documents. Every change went through tests;
+design decisions and their reasons are recorded in [DECISIONS.md](DECISIONS.md).

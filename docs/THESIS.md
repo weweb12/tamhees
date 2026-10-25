@@ -1,31 +1,31 @@
 # Two-year thesis: agent memory done right
 
-Tamhees started with one Markdown file. It made my coding agents better, until it grew
-too large to trust. Old decisions, AI guesses and a pasted credential all sat side by
-side, equally authoritative. The file gave continuity. It never gave verification.
+Tamhees started with one Markdown file, my "GPTBrain". It was amazing. My coding agent
+remembered my project between sessions and made fewer mistakes. Then it grew. On
+every task the agent had to read the whole file again, and I could see where that ends:
+usage limits, slower answers, and the important line buried on page twenty. Old
+decisions, guesses and things that were no longer true sat next to the real facts, all
+looking equally certain.
 
-Within two years, I expect memory to stop being a feature and become infrastructure.
-Every agent will remember. The difference will be whether it remembers *responsibly*.
-Three shifts follow.
+The next two years make this problem much bigger. Agents will not be able to hold
+one very large, complex project in their head. Now imagine two projects, or ten, each
+changing every week. Reading everything every time will not work, and trusting everything
+will be worse.
 
-**1. Memories become claims, not notes.** A useful memory will carry where it came
-from, who confirmed it, when it was last checked, what it applies to, and what it is
-allowed to authorize. "The owner prefers purple" written by an agent and "use Supabase"
-confirmed by the owner are different kinds of things and must be stored that way.
+So memory done right, for me, means three things:
 
-**2. Doubt moves before action, not after the incident.** Retrieval will become a
-checkpoint. Before memory guides a change, it gets compared with current evidence. A
-contradiction blocks the action. An expired fact asks for a recheck. A confident guess
-asks the owner. Saying "I might be wrong" is a safety feature, not a weakness.
+1. **Read less, check more.** The agent gets a small pack of what matters for this task,
+   inside a hard budget, not the whole brain.
+2. **Every memory knows how sure it is.** Where it came from, when it was last true, what
+   it applies to, and whether it is allowed to change anything. A guess is labelled as a
+   guess, and an AI can never promote its own guess to an owner decision.
+3. **Memory notices when it is wrong.** When the project changes, old memory is checked
+   against it and blocked, rechecked or forgotten before the agent acts. When the owner
+   says "forget that", it is really gone.
 
-**3. Forgetting becomes a first-class operation.** People will expect to ask "what do
-you remember about me?" and "forget that", and to see it actually happen: raw text
-erased, an auditable tombstone left behind. Agents that cannot forget will not be
-trusted with anything worth remembering.
+None of this needs a bigger model: just rules that give the same answer every time, and
+an audit trail a person can read.
 
-None of this needs a bigger model: just deterministic rules, provenance and a
-human-readable audit trail. Memory that sits beside any agent, not inside one vendor,
-also lets teams switch tools without losing their safeguards.
-
-The goal is not an agent that remembers everything. It is an agent whose memory you can
-question, correct and overrule. That is the difference between a tool and a colleague.
+Tamhees is my first step. It helps your coding agent stop hallucinating from bad memory
+and avoid the mistakes that old or wrong memory causes. This is just the beginning
+of the line.
