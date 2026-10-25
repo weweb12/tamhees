@@ -139,12 +139,12 @@ export async function loadAllEvidence(
       const parsed: unknown = JSON.parse(read.content);
       const validation = validateEvidenceRecord(parsed);
       if (!validation.valid) {
-        errors.push(`Invalid evidence in ${file}: ${validation.issues.map((issue) => `${issue.field}: ${issue.message}`).join('; ')}`);
+        errors.push(`Invalid evidence in ${file}: ${validation.issues.map((issue) => `${issue.field}: ${issue.message}`).join('; ')}. Run "tamhees doctor" for details and a safe fix.`);
         continue;
       }
       evidence.push(parsed as EvidenceRecord);
     } catch {
-      errors.push(`Failed to read evidence/${file}. The raw file content was not echoed.`);
+      errors.push(`Failed to read evidence/${file}. The raw file content was not echoed. Run "tamhees doctor" for details and a safe fix.`);
     }
   }
 

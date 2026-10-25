@@ -47,6 +47,7 @@ import { ADAPTER_NAMES } from './adapters/types.js';
 import { runMcpStdio } from './mcp/stdio.js';
 import { formatBenchmarkJson, formatBenchmarkMarkdown, runBenchmark } from './benchmark/benchmark.js';
 import { atomicWriteText, verifyPathSafety } from './core/atomic-write.js';
+import { diagnoseStore, formatDoctorFix, formatDoctorReport, repairStore } from './core/doctor.js';
 import { formatObservationText } from './core/observe.js';
 import { observeProject } from './core/observe-project.js';
 import { withWriteLock } from './core/lock.js';
@@ -119,6 +120,7 @@ Commands:
   forget              Forget a memory: erase its text, keep a safe tombstone
   revoke              Revoke a memory so it can no longer guide action
   observe             Check memories against the repository and find the ones that might be wrong
+  doctor              Check the memory store for damage and explain how to fix it (--fix to repair safely)
   memory              List, show, or apply controlled memory updates
   evidence            List or add evidence records
   context             Compile task-specific memory context
@@ -283,6 +285,28 @@ Marks the memory REVOKED with MUST_NOT_ACT. Its prior state is archived for hist
 but it can no longer authorize action or appear in agent context. Use forget instead
 when the text itself must not be kept. Owner-confirmed memories require --as-owner.`;
 
+const DOCTOR_HELP = `${CLI_NAME} doctor — Check the memory store and fix damage safely
+
+Usage: ${CLI_NAME} doctor [--fix] [--format text|json]
+
+Checks every memory, evidence record, the index, the audit log, interrupted tasks and
+the write lock, and explains each problem in plain words with how to fix it. Typical
+causes: a git merge conflict inside ${STORAGE_DIR}/, a hand edit, a truncated file after
+a crash, or memory saved before a secret pattern was recognized.
+
+Without --fix nothing is changed. With --fix:
+  - damaged memory, evidence and task files are moved to ${STORAGE_DIR}/quarantine/<time>/
+    (never deleted), with a MANIFEST.json and a .gitignore so they are not committed;
+  - a damaged audit log keeps every valid event; the original goes to quarantine;
+  - the memory index is rebuilt.
+It never edits, forgets or revokes a memory: those are reported with the command to run.
+Raw file content is never printed.
+
+Exit codes:
+  0  No blocking problem (warnings may remain)
+  1  A blocking problem remains
+  2  Invalid usage`;
+
 const OBSERVE_HELP = `${CLI_NAME} observe — Find memories the repository says might be wrong
 
 Usage: ${CLI_NAME} observe [--record] [--format text|json]
@@ -323,7 +347,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (!command || (args.includes('--help') && !['init', 'remember', 'inspect', 'forget', 'revoke', 'observe', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
+  if (!command || (args.includes('--help') && !['init', 'remember', 'inspect', 'forget', 'revoke', 'observe', 'doctor', 'memory', 'evidence', 'context', 'audit', 'lifecycle', 'migrate', 'adapter', 'mcp', 'benchmark'].includes(command))) {
     console.log(MAIN_HELP);
     process.exit(0);
   }
@@ -344,6 +368,9 @@ async function main(): Promise<void> {
       break;
     case 'observe':
       await handleObserve();
+      break;
+    case 'doctor':
+      await handleDoctor();
       break;
     case 'context':
       await handleContext();
@@ -729,6 +756,23 @@ async function handleRemoval(kind: 'forget' | 'revoke'): Promise<void> {
     ? `Forgot ${memoryId}: its text was erased and it will not be shown to agents again. A privacy-safe tombstone keeps the audit trail.`
     : `Revoked ${memoryId}: it can no longer guide action. Its earlier state is archived for history.`);
   process.exit(0);
+}
+
+async function handleDoctor(): Promise<void> {
+  if (args.includes('--help')) {
+    console.log(DOCTOR_HELP);
+    process.exit(0);
+  }
+  const { options } = parseArgs(['--fix', '--format'], 0, 1, ['--fix']);
+  const format = parseFormat(options['--format']);
+  if (options['--fix'] !== undefined) {
+    const result = await repairStore(process.cwd(), systemClock);
+    console.log(format === 'json' ? JSON.stringify(result, null, 2) : formatDoctorFix(result));
+    process.exit(result.after.healthy ? 0 : 1);
+  }
+  const report = await diagnoseStore(process.cwd(), systemClock);
+  console.log(format === 'json' ? JSON.stringify(report, null, 2) : formatDoctorReport(report));
+  process.exit(report.healthy ? 0 : 1);
 }
 
 async function handleObserve(): Promise<void> {

@@ -64,6 +64,7 @@ Implemented commands:
 - `tamhees inspect [memory-id] [--format text|json]`: "What do you remember, and how sure are you?" Shows source, status, confidence, freshness, scope, evidence, the plain-language audit outcome and whether agents may see it. Read-only.
 - `tamhees forget <memory-id> [--reason "..."]`: Controlled REDACT. The text is erased everywhere and a privacy-safe tombstone remains.
 - `tamhees revoke <memory-id> [--reason "..."]`: Controlled REVOKE. The memory can no longer guide action; its prior state is archived.
+- `tamhees doctor [--fix]`: Checks every memory, evidence record, the index, the audit log, interrupted tasks and the write lock, and explains each problem in plain words with how to fix it. `--fix` moves damaged files to `.tamhees/quarantine/` (never deletes them), keeps every valid audit event, and rebuilds the index.
 - `tamhees observe [--record]`: Checks memory claims against the repository itself (technologies against dependencies, lockfiles and config; `npm run` scripts against `package.json`; file paths against the project) and records SUPPORTS or CONTRADICTS evidence. It reads only an allowlist of manifest files, and contradicts a technology only when a competitor is present.
 - `tamhees memory list|show|apply`: Inspect or apply controlled memory operations.
 - `tamhees evidence list|add`: Inspect or add validated evidence.
@@ -137,6 +138,17 @@ tamhees --version   # check it works
 - If `npm install -g .` stops with "Tamhees is not built yet", run `npm ci` first. On Windows, run both commands in the same terminal, then open a new one so `tamhees` is found.
 - To update after pulling new changes, run `npm ci` again; the global command points at this folder, so there is nothing else to reinstall.
 - To uninstall: `npm uninstall -g tamhees`.
+
+### When something goes wrong
+
+Commands that read memory stop rather than use a file they cannot validate. If you see an error ending in *Run "tamhees doctor" for details and a safe fix*, that is what to do:
+
+```bash
+tamhees doctor        # explains each problem: which file, what is wrong, how to fix it
+tamhees doctor --fix  # moves damaged files to .tamhees/quarantine/<time>/ and rebuilds the index
+```
+
+Common causes are a git merge conflict inside `.tamhees/`, a hand edit, or a file cut short by a crash. Quarantined files are kept with a `MANIFEST.json` and are excluded from git; nothing is deleted. The doctor never edits, forgets or revokes a memory, and never replays an interrupted task: it tells you which of that task's changes were saved and which to check.
 
 Then, in the project you want Tamhees to look after:
 

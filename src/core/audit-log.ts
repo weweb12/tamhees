@@ -111,10 +111,10 @@ export async function appendValidatedAuditEvents(
       try {
         parsed = JSON.parse(line);
       } catch {
-        throw new Error(`Malformed existing audit history at line ${index + 1}. The file was preserved.`);
+        throw new Error(`Malformed existing audit history at line ${index + 1}. The file was preserved. Run "tamhees doctor" for details and a safe fix.`);
       }
       if (!validateAuditEvent(parsed).valid) {
-        throw new Error(`Invalid existing audit event at line ${index + 1}. The file was preserved.`);
+        throw new Error(`Invalid existing audit event at line ${index + 1}. The file was preserved. Run "tamhees doctor" for details and a safe fix.`);
       }
       firstEventId ??= (parsed as AuditEvent).eventId;
     }

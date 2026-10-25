@@ -63,7 +63,9 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 - **Demo quality:** the hosted demo runs the unchanged engine modules in the browser.
   Its answers match the local Node server byte for byte across all 7 scenarios.
 - **Failure thinking:** `npm run failure-test` drives the real CLI through six failure
-  cases and asserts each outcome. An exhaustive suite checks 18,000 combinations of
+  cases and asserts each outcome. When the store itself is damaged (a merge conflict in
+  `.tamhees/`, a crash mid-write), `tamhees doctor` explains it and `--fix` repairs it
+  without deleting anything. An exhaustive suite checks 18,000 combinations of
   authority, permission, privacy, freshness and evidence for safety invariants. It also found a real defect (an expired claim behind a
   caution permission could break retrieval), which is now fixed with a regression test.
 - **Future thesis:** [docs/THESIS.md](docs/THESIS.md).
