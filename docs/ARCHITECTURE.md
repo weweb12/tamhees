@@ -126,7 +126,7 @@ The Phase 3 context compiler is a pure, deterministic boundary that assembles ta
 
 ### Ranking boundaries
 
-- Relevance is deterministic lexical/tag matching only: 20 points per unique normalized matched tag and 10 points per unique normalized matched task word found in an eligible non-sensitive statement.
+- Relevance is deterministic lexical/tag matching only (since DM-DEC-042, terms also match after plural folding, through a fixed synonym table, or through a fixed one-way specific-to-general concept link; siblings never match): 20 points per unique normalized matched tag and 10 points per unique normalized matched task word found in an eligible non-sensitive statement.
 - Authority scores are `OWNER_CONFIRMED=50`, `REPO_VERIFIED=40`, `TEST_VERIFIED=35`, `OBSERVED=25`, `INFERRED=10`, and zero for unsupported terminal statuses.
 - Freshness scores are 20 (0–7 days), 15 (8–30), 10 (31–90), 5 (91–365), or 0 (older), using complete UTC 24-hour intervals from the compiler-generated timestamp supplied by its injected clock; due or conditional review subtracts 10 without going below zero.
 - Safety scores are `TRUST=30`, `ASK_OWNER=10`, and `RECHECK=0`. Blocked, revoked, conflicted, expired, and privacy-prohibited records are excluded before ranking.

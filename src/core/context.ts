@@ -42,7 +42,7 @@ export {
 } from './types.js';
 
 const SELECTION_STRATEGY =
-  'Phase 3 deterministic audit-aware lexical/tag ranking. Eligible records require at least one exact normalized non-common task-term or tag match, then are scored by relevance, authority, freshness, and audit safety; memory ID is the final ordinal tie-breaker; a highest-ranked prefix is selected within the hard estimated-token budget.';
+  'Phase 3 deterministic audit-aware lexical/tag ranking. Eligible records require at least one normalized non-common task-term or tag match (exact, plural-folded, fixed synonym, or fixed specific-to-general concept link), then are scored by relevance, authority, freshness, and audit safety; memory ID is the final ordinal tie-breaker; a highest-ranked prefix is selected within the hard estimated-token budget.';
 const DAY_MS = 86_400_000;
 const COMMON_TASK_TERMS = new Set([
   'and', 'are', 'but', 'for', 'from', 'has', 'have', 'into', 'not', 'project',
@@ -346,8 +346,74 @@ function extractWords(text: string): string[] {
   return [...new Set(words)].sort(compareOrdinal);
 }
 
+// ─── Deterministic term matching ─────────────────────────────
+//
+// Exact matching missed obvious equivalents ("db" vs "database", "migrations" vs
+// "migration", "Postgres" task vs a "database" tag). Matching now compares concepts:
+//   1. light plural folding (migrations → migration, dependencies → dependency);
+//   2. a fixed synonym table mapping variants to one canonical term;
+//   3. one-way specific → general links (postgres → database). A specific term matches
+//      its general category and vice versa, but two siblings never match each other,
+//      so "tune MySQL" does not retrieve a Postgres memory.
+// The tables are fixed in source: no embeddings, model or locale-dependent behavior.
+
+const SYNONYMS: Readonly<Record<string, string>> = {
+  db: 'database', databases: 'database', datastore: 'database', persistence: 'database',
+  postgresql: 'postgres', psql: 'postgres', pg: 'postgres',
+  mongo: 'mongodb', sqlite3: 'sqlite', mariadb: 'mysql', firestore: 'firebase',
+  auth: 'authentication', authn: 'authentication', login: 'authentication', signin: 'authentication',
+  repo: 'repository', config: 'configuration', configs: 'configuration', settings: 'configuration',
+  env: 'environment', envs: 'environment',
+  deploy: 'deployment', deploys: 'deployment', deploying: 'deployment', release: 'deployment', releases: 'deployment',
+  tests: 'test', testing: 'test', spec: 'test', specs: 'test',
+  endpoint: 'api', endpoints: 'api',
+  docs: 'documentation', doc: 'documentation',
+  deps: 'dependency', dep: 'dependency',
+  migrate: 'migration', migrating: 'migration',
+  building: 'build', builds: 'build',
+  frontend: 'ui', 'front-end': 'ui',
+  backend: 'server', 'back-end': 'server',
+  javascript: 'javascript', js: 'javascript', typescript: 'typescript',
+};
+
+const BROADER: Readonly<Record<string, readonly string[]>> = {
+  postgres: ['database'], mysql: ['database'], sqlite: ['database'], mongodb: ['database'],
+  supabase: ['database', 'postgres'], firebase: ['database'], redis: ['cache'], neon: ['database', 'postgres'],
+  prisma: ['database'], drizzle: ['database'], sequelize: ['database'], typeorm: ['database'], sqlalchemy: ['database'],
+  jest: ['test'], vitest: ['test'], mocha: ['test'], pytest: ['test'], playwright: ['test'], cypress: ['test'],
+  react: ['ui'], vue: ['ui'], svelte: ['ui'], angular: ['ui'], tailwind: ['ui'], css: ['ui'],
+  express: ['server'], fastify: ['server'], django: ['server'], flask: ['server'], fastapi: ['server'], nestjs: ['server'],
+  webpack: ['build'], vite: ['build'], rollup: ['build'], esbuild: ['build'],
+  docker: ['deployment'], kubernetes: ['deployment'], vercel: ['deployment'], netlify: ['deployment'],
+  oauth: ['authentication'], jwt: ['authentication'], session: ['authentication'], sessions: ['authentication'],
+  stripe: ['payment'], paypal: ['payment'], payments: ['payment'], billing: ['payment'],
+};
+
+function singular(term: string): string {
+  if (term.length <= 4) return term;
+  if (term.endsWith('ies')) return `${term.slice(0, -3)}y`;
+  if (/(?:ss|sh|ch|x|z)es$/.test(term)) return term.slice(0, -2);
+  if (term.endsWith('s') && !/(?:ss|us|is|os)$/.test(term)) return term.slice(0, -1);
+  return term;
+}
+
+// Terms the tables already know are never plural-folded ("postgres" is not a plural).
+const KNOWN_TERMS = new Set([...Object.values(SYNONYMS), ...Object.keys(BROADER), ...Object.values(BROADER).flat()]);
+
+function canonicalTerm(term: string): string {
+  const direct = SYNONYMS[term];
+  if (direct !== undefined) return direct;
+  if (KNOWN_TERMS.has(term)) return term;
+  const folded = singular(term);
+  return SYNONYMS[folded] ?? folded;
+}
+
 function termsMatch(left: string, right: string): boolean {
-  return left === right;
+  if (left === right) return true;
+  const a = canonicalTerm(left);
+  const b = canonicalTerm(right);
+  if (a === b) return true;
+  return (BROADER[a] ?? []).includes(b) || (BROADER[b] ?? []).includes(a);
 }
 
 function normalizeTerm(value: string): string {
