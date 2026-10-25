@@ -5,6 +5,11 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- The web demo's Inspector has a **Forget** button on every memory, including a new memory
+  about the owner (DM-DEC-051). It runs the same tombstone code as `tamhees forget`: the text
+  disappears from the page and the response, and the memory is withheld from the agent.
+  The REDACT tombstone now lives in one pure function (`src/core/redaction.ts`).
+- The page menu highlights the section you are reading, including tall sections.
 - Added `tamhees doctor [--fix]` (DM-DEC-050). One unreadable file, such as a git merge
   conflict, used to stop every command with no way forward. The doctor explains each
   problem in plain words and `--fix` repairs what can be undone: damaged files go to
