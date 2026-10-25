@@ -13,9 +13,9 @@
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Tamhees home"><span class="brand-mark" aria-hidden="true">?</span><span>Tamhees <small lang="ar" dir="rtl">تمحيص</small></span></a>
     <nav aria-label="Primary navigation">
-      <a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a>
+      <a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#inspector">Inspector</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a>
     </nav>
-    <details class="mobile-nav"><summary>Sections</summary><div><a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a></div></details>
+    <details class="mobile-nav"><summary>Sections</summary><div><a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#cli-demo">CLI demo</a><a href="#live-audit">Live audit</a><a href="#inspector">Inspector</a><a href="#benchmark">Evidence</a><a href="#integrations">Integrations</a><a href="#limits">Limitations</a></div></details>
     <span class="local-pill"><span aria-hidden="true"></span> Local process</span>
   </header>
 
@@ -138,6 +138,20 @@
         <section id="audit-result" class="result-view" tabindex="-1" role="region" aria-label="Audit result" aria-busy="false" hidden><div id="plain-result" class="plain-result"></div><div id="result-context"></div><details class="technical-details" id="technical-details"><summary>Inspect evidence and rule trace</summary><div id="technical-result"></div></details><p class="fixture-note" id="fixture-note"></p></section>
         <p class="sr-only" id="result-announcement" aria-live="polite"></p>
       </div>
+    </section>
+
+    <section class="section inspector-section reveal-section" id="inspector" aria-labelledby="inspector-title">
+      <div class="section-heading"><p class="section-kicker">Memory inspector</p><h2 id="inspector-title">What does the agent remember, and how sure is it?</h2><p>Memory can go wrong without anyone saying so. Here, an agent's memories of a project meet the project as it is today. Tamhees checks the claims against the repository by itself. No agent reports the change.</p></div>
+      <div class="inspector-layout">
+        <aside class="inspector-repo" aria-labelledby="inspector-repo-title"><h3 id="inspector-repo-title">The project today</h3><p class="inspector-repo-name" id="inspector-repo-name">Loading the fixture project…</p><dl class="inspector-facts" id="inspector-repo-facts"></dl><span class="fixture-badge">Safe fixed fixture</span></aside>
+        <div class="inspector-main">
+          <div class="inspector-controls"><button class="button button-primary" id="inspector-observe" type="button">Let Tamhees check the repository</button><button class="button button-quiet" id="inspector-reset" type="button" disabled>Reset</button></div>
+          <p class="inspector-summary" id="inspector-summary">Before checking: the memories as the agent last saw them.</p>
+          <ul class="inspector-list" id="inspector-list" aria-label="Remembered claims and how sure Tamhees is"></ul>
+          <p class="fixture-note" id="inspector-note"></p>
+        </div>
+      </div>
+      <p class="sr-only" id="inspector-announcement" aria-live="polite"></p>
     </section>
 
     <section class="section benchmark-section reveal-section" id="benchmark" aria-labelledby="benchmark-title">

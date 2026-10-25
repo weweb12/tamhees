@@ -17,7 +17,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = resolve(root, process.argv[2] ?? '_site');
 const distSrc = join(root, 'dist', 'src');
-const entry = join(distSrc, 'dashboard', 'scenarios.js');
+const entries = [join(distSrc, 'dashboard', 'scenarios.js'), join(distSrc, 'dashboard', 'inspector.js')];
+const entry = entries[0];
 
 const NODE_SHIMS = {
   'node:crypto': './shims/node-crypto.js',
@@ -39,10 +40,10 @@ if (!(await exists(entry))) {
   process.exit(1);
 }
 
-// 1. Collect the engine module graph reachable from the dashboard scenarios.
+// 1. Collect the engine module graph reachable from the dashboard scenarios and inspector.
 const IMPORT_PATTERN = /(?:^|\n)\s*(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|(?:^|\n)\s*import\s*['"]([^'"]+)['"]/g;
 const modules = new Set();
-const pending = [entry];
+const pending = [...entries];
 while (pending.length > 0) {
   const file = pending.pop();
   if (modules.has(file)) continue;
@@ -92,7 +93,8 @@ const { loadDashboardBenchmark } = await import(
 const benchmark = await loadDashboardBenchmark(root);
 await writeFile(
   join(out, 'data', 'benchmark.json'),
-  `${JSON.stringify({ schemaVersion: '1.0.0', benchmark }, null, 2)}\n`,
+  // Same bytes as the loopback server's sendJson(): compact JSON plus a trailing newline.
+  `${JSON.stringify({ schemaVersion: '1.0.0', benchmark })}\n`,
 );
 
 // 4. Page: same markup as the local dashboard, with relative asset paths and the
