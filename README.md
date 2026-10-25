@@ -169,7 +169,7 @@ No API key, account, hosted model, database, or external runtime network is requ
 
 Token counts use the deterministic local `utf8-bytes-ceil-div-4` estimator (UTF-8 byte length divided by four and rounded up, minimum one). This is a capacity estimate, not an exact vendor tokenizer. Complete memory statements are never truncated; when a ranked contribution does not fit, it and lower-ranked candidates are excluded as `over-budget`. A budget too small for one complete unit returns a valid explained empty pack.
 
-Task-specific eligibility requires at least one positive exact Unicode-NFKC-normalized, case-folded, non-common lexical or tag match. Substring-only and common-word-only matches are irrelevant. Authority, freshness, and safety rank only eligible records; unrelated records never consume budget. This is deterministic lexical retrieval, not semantic retrieval.
+Task-specific eligibility requires at least one positive Unicode-NFKC-normalized, case-folded, non-common lexical or tag match. Terms match exactly, after light plural folding, through a fixed synonym table (`db` = `database`, `auth` = `authentication`), or through a fixed one-way specific-to-general link (`postgres` → `database`, `vitest` → `test`); sibling terms such as `postgres` and `mysql` never match each other. Substring-only and common-word-only matches are irrelevant. Authority, freshness, and safety rank only eligible records; unrelated records never consume budget. This is deterministic lexical retrieval, not semantic retrieval.
 
 ## Controlled update workflow
 
