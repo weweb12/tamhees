@@ -5,6 +5,9 @@ currently unpublished and no public software license has been granted.
 
 ## Unreleased - DOO submission (2026-10-25)
 
+- Faster at scale (DM-DEC-045): on 1,500 memories a write drops from 1.7 s to 0.33 s.
+  Files are read in parallel with one safety check each, the store is loaded once per
+  write, and the audit log rolls into sealed 4 MiB segments so appends stay cheap.
 - Fixed: MCP clients on protocol revisions other than `2025-11-25`, or sending optional
   spec fields such as `_meta` or clientInfo `title`, could not connect (DM-DEC-044).
 - Fixed: concurrent writers (DM-DEC-043). Simultaneous writes collided on IDs, lost audit

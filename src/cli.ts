@@ -31,9 +31,9 @@ import {
 } from './core/context.js';
 import {
   runAudit,
-  writeAuditEvents,
   formatAuditResult,
 } from './core/audit.js';
+import { writeAuditEvents } from './core/audit-log.js';
 import { loadAllEvidence, storeEvidenceRecord } from './core/evidence.js';
 import { applyUpdateCandidate } from './core/mutations.js';
 import { memoryForOutput } from './core/privacy.js';

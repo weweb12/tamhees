@@ -10,7 +10,7 @@
 
 import { loadAllEvidence } from './evidence.js';
 import { applyUpdateCandidate, previewUpdateCandidate } from './mutations.js';
-import { loadAllRecords } from './store.js';
+import { listMemoryIds, loadAllRecords } from './store.js';
 import {
   CURRENT_SCHEMA_VERSION,
   type ActionPermission,
@@ -174,13 +174,10 @@ export async function rememberMemory(
   dryRun = false,
 ): Promise<MutationResult & { readonly candidate: UpdateCandidate | null }> {
   const run = async () => {
-    const loaded = await loadAllRecords(projectDir);
-    if (loaded.errors.length > 0) {
-      return loadFailure('CREATE', loaded.errors);
-    }
     // The next free ID is chosen while holding the write lock, so concurrent
-    // `remember` calls never pick the same ID.
-    const candidate = buildRememberCandidate(options, loaded.records.map((record) => record.id), clock());
+    // `remember` calls never pick the same ID. File names are enough to know the IDs;
+    // the mutation below loads and validates the whole store before writing.
+    const candidate = buildRememberCandidate(options, await listMemoryIds(projectDir), clock());
     if (dryRun) {
       const evidence = await loadAllEvidence(projectDir);
       const preview = await previewUpdateCandidate(projectDir, candidate, clock, evidence.evidence);

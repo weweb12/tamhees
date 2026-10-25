@@ -1313,3 +1313,29 @@ The owner approved the final pre-release product identity and directed a compreh
   with itself, and any other revision with the latest, as the MCP lifecycle requires.
   Accept exactly the optional fields the MCP schema defines. Genuinely unknown fields are
   still rejected, preserving the owner's strict-parameter rule.
+
+## DM-DEC-045 — Scale: parallel controlled reads, fewer full loads, audit-log segments
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence (1,500 memories, 6,000 audit events): one `remember` took 1.7 s, and a
+  profile showed 66% of the time idle on sequential file I/O. Each record file was
+  checked by walking every path component, the store was fully loaded three times per
+  write, and every append re-read, re-validated and rewrote the entire audit log, which
+  grows by one event per memory on every `tamhees audit`.
+- Decision:
+  - `readControlledFiles`: after the controlled directory passes the tree safety check,
+    each file needs one `lstat` (symbolic links refused with the same message) and files
+    are read concurrently (32 at a time), preserving order and error texts.
+  - `remember` takes the next ID from file names. A mutation rebuilds the index from the
+    validated record set it already loaded under the write lock; other callers still
+    re-read from disk.
+  - Audit log segments: `audits/history.jsonl` is the active segment. Before it would
+    exceed 4 MiB it is preserved as `audits/history-<first-event-id>.jsonl` (written
+    create-if-absent, so a crash and retry cannot duplicate or overwrite it) and a fresh
+    active segment starts. Only the active segment is re-validated per append, and
+    `readAuditHistory` returns all segments in order. Nothing is truncated or deleted.
+  - Audit-log writing moved to `src/core/audit-log.ts`. `audit.ts` holds only pure rules,
+    so the browser demo ships 11 engine modules.
+- Result (same store): `remember` 1.7 s → 0.33 s, context 0.69 s → 0.35 s, inspect
+  0.70 s → 0.27 s. Node startup alone is about 0.07 s.
