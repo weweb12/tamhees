@@ -3,6 +3,18 @@
 All notable local Tamhees release candidates are documented here. Tamhees is
 currently unpublished and no public software license has been granted.
 
+## Unreleased - DOO submission (2026-10-25)
+
+- Fixed: an expired memory whose permission rule precedes the expiry rule could reach
+  context ranking, making context validation reject the whole pack. Expiry is now
+  enforced independently before ranking (DM-DEC-038). Benchmark artifacts unchanged.
+- Added `npm run failure-test`: drives the real CLI through contradictory facts, stale
+  data, an AI guess, privacy revocation and a refused secret, asserting each outcome.
+- Added the static hosted demo (`npm run site`) and GitHub Pages workflow (DM-DEC-037).
+- Added judge documents: `SUBMISSION.md`, `docs/ARCHITECTURE_SNAPSHOT.md`,
+  `docs/THESIS.md`, `docs/LOOM_90S.md`.
+- The Windows-only PowerShell packaging test is skipped on macOS/Linux.
+
 ## 1.0.0-rc.2 - 2026-09-21
 
 - Added deterministic PROJECT/RESTRICTED memory scope and task applicability filtering.

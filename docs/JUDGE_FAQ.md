@@ -44,6 +44,12 @@ abstention, budget, and exact outcome.
 No. The product is local-only with zero runtime dependencies. The dashboard
 binds to loopback and uses local assets.
 
+## How does the hosted demo work without a server?
+
+The hosted page is the same dashboard. Its three API requests are answered inside
+your browser by the compiled engine modules, so the audit and context results are
+the real engine's, byte-identical to the local server. Nothing is sent anywhere.
+
 ## Is it security audited or production-certified?
 
 No. It has automated adversarial tests and a local engineering threat model,

@@ -1,0 +1,8 @@
+.hosted-notice {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  background: #10233f;
+  color: #f4f7fb;
+  font: 500 0.85rem/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-align: center;
+}

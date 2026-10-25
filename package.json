@@ -16,6 +16,8 @@
     "dashboard": "npm run build && node dist/src/dashboard/server.js",
     "tamhees": "node dist/src/cli.js",
     "benchmark": "npm run build && node dist/src/benchmark/generate.js",
+    "failure-test": "npm run build && node scripts/failure-test.mjs",
+    "site": "npm run build && node scripts/build-static-site.mjs",
     "release:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-release.ps1"
   },
   "engines": {
