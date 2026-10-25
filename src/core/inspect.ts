@@ -189,7 +189,7 @@ const OUTCOME_LABEL: Readonly<Record<AuditOutcome, string>> = {
 const PLAIN_OUTCOME: Readonly<Record<AuditOutcome, string>> = {
   TRUST: 'I can rely on this.',
   RECHECK: 'I might be wrong. Verify before acting.',
-  ASK_OWNER: 'This is a guess. Ask the owner first.',
+  ASK_OWNER: 'Not confirmed. Ask the owner first.',
   BLOCK_ACTION: 'Do not act on this.',
   FORGET_OR_REDACT: 'This must not be kept or shown.',
 };

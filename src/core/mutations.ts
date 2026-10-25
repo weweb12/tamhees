@@ -1,3 +1,4 @@
+import { redactedTombstone } from './redaction.js';
 import { normalizeLegacyMemory } from './scope.js';
 /** Tamhees — controlled memory create/update/revoke/redact operations. */
 
@@ -145,26 +146,7 @@ async function mutateCandidate(
         updatedAt: now,
       };
     } else {
-      next = {
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-        id: prior.id,
-        kind: prior.kind,
-        scope: { kind: 'PROJECT' },
-        statement: '[REDACTED — controlled privacy removal]',
-        source: { type: 'SYSTEM_OBSERVATION', reference: '[REDACTED]' },
-        verificationStatus: 'REVOKED',
-        confidence: 'LOW',
-        freshness: { lastVerified: now },
-        sensitivity: 'SECRET',
-        actionPermission: 'FORGET_OR_REDACT',
-        relationships: {
-          ...(prior.relationships.supersededBy ? { supersededBy: prior.relationships.supersededBy } : {}),
-        },
-        tags: ['redacted'],
-        notes: `Raw content removed by ${candidate.proposedBy}. Reason: ${candidate.reason}`,
-        createdAt: prior.createdAt,
-        updatedAt: now,
-      };
+      next = redactedTombstone(prior, candidate.proposedBy, candidate.reason, now);
     }
   }
 

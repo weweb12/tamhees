@@ -1432,3 +1432,19 @@ The owner approved the final pre-release product identity and directed a compreh
   the index. It never edits, forgets or revokes a memory and never changes a task journal.
 - Fail-closed behaviour of all other commands is unchanged; their store errors now point
   to the doctor.
+
+## DM-DEC-051 — Live privacy control in the web demo
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Problem: the challenge's bonus signals ask for privacy controls demonstrated, not claimed,
+  and a "what do you remember about me?" inspector. The hosted demo showed secret redaction
+  only as a fixed scenario; forgetting was only visible in the CLI.
+- Decision: the REDACT tombstone construction moves from `mutations.ts` into the pure
+  `redactedTombstone()` in `src/core/redaction.ts` (behaviour unchanged; all mutation tests
+  pass). The dashboard adds `POST /api/inspector-state` taking exactly
+  `{"observed": boolean, "forgotten": [fixture memory IDs]}` and returns the inspection with
+  those memories replaced by real tombstones, optionally observed. The fixture gains one
+  memory about the owner's working hours. Each memory row has a Forget button.
+- The route is stateless, validates IDs against the fixture, and adds no file access.
+  The hosted demo answers it in the browser, byte-identical to the local server.

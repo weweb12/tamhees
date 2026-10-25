@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { getInspectorView, INSPECTOR_RECORDS, runInspectorObservation } from '../src/dashboard/inspector.js';
+import { getInspectorView, INSPECTOR_RECORDS, inspectorState, parseInspectorStateRequest, runInspectorObservation } from '../src/dashboard/inspector.js';
 import { startDashboardServer, type RunningDashboard } from '../src/dashboard/server.js';
 import { validateMemoryRecord } from '../src/core/validation.js';
 
@@ -66,7 +66,44 @@ describe('Dashboard inspector API', () => {
     assert.match(html, /id="inspector"/);
     assert.match(html, /<button class="button button-primary" id="inspector-observe" type="button">Let Tamhees check the repository<\/button>/);
     assert.match(script, /getJson\('\/api\/inspector'\)/);
-    assert.match(script, /getJson\('\/api\/observe'/);
+    assert.match(script, /getJson\('\/api\/inspector-state'/);
+    assert.match(script, /forgetInspectorMemory/);
     assert.doesNotMatch(script, /innerHTML|insertAdjacentHTML/);
+  });
+});
+
+describe('Dashboard inspector: live Forget uses the real tombstone', () => {
+  it('forgetting the owner memory erases its text everywhere in the response and withholds it', () => {
+    const state = inspectorState({ observed: false, forgotten: ['DM-MEM-SHOP-009'] });
+    const memory = state.report.memories.find((item) => item.id === 'DM-MEM-SHOP-009')!;
+    assert.equal(memory.forgotten, true);
+    assert.equal(memory.servable, false);
+    assert.equal(memory.outcome, 'FORGET_OR_REDACT');
+    assert.doesNotMatch(JSON.stringify(state), /works from home|10:00/);
+    assert.deepEqual(state.forgotten, ['DM-MEM-SHOP-009']);
+  });
+
+  it('matches what tamhees forget stores (same tombstone code path)', async () => {
+    const { redactedTombstone } = await import('../src/core/redaction.js');
+    const prior = INSPECTOR_RECORDS.find((record) => record.id === 'DM-MEM-SHOP-001')!;
+    const tombstone = redactedTombstone(prior, 'x', 'y', '2026-10-25T09:00:00.000Z');
+    assert.equal(tombstone.statement.startsWith('[REDACTED'), true);
+    assert.equal(tombstone.actionPermission, 'FORGET_OR_REDACT');
+    assert.equal(tombstone.verificationStatus, 'REVOKED');
+  });
+
+  it('combines with observation: a forgotten memory is never observed again', () => {
+    const state = inspectorState({ observed: true, forgotten: ['DM-MEM-SHOP-001'] });
+    assert.equal(state.observations.some((item) => item.memoryId === 'DM-MEM-SHOP-001'), false);
+    assert.ok(state.observations.some((item) => item.memoryId === 'DM-MEM-SHOP-002' && item.relationship === 'CONTRADICTS'));
+    assert.deepEqual(JSON.stringify(inspectorState({ observed: true, forgotten: [] }).report), JSON.stringify(runInspectorObservation().report));
+  });
+
+  it('rejects anything but known fixture IDs and the two fields', () => {
+    for (const bad of [null, [], {}, { observed: true }, { observed: 'yes', forgotten: [] }, { observed: true, forgotten: ['../etc'] },
+      { observed: true, forgotten: ['DM-MEM-SHOP-001', 'DM-MEM-SHOP-001'] }, { observed: true, forgotten: [], extra: 1 }]) {
+      assert.equal(parseInspectorStateRequest(bad), null, JSON.stringify(bad));
+    }
+    assert.deepEqual(parseInspectorStateRequest({ observed: false, forgotten: ['DM-MEM-SHOP-009'] }), { observed: false, forgotten: ['DM-MEM-SHOP-009'] });
   });
 });
