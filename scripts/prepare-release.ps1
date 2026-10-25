@@ -171,7 +171,10 @@ $requiredProductionFiles = @(
   (Join-Path $distRoot 'dashboard\server.js'),
   (Join-Path $distRoot 'dashboard\public\index.html'),
   (Join-Path $distRoot 'dashboard\public\dashboard.css'),
-  (Join-Path $distRoot 'dashboard\public\dashboard.js')
+  (Join-Path $distRoot 'dashboard\public\dashboard.js'),
+  (Join-Path $distRoot 'dashboard\public\start.html'),
+  (Join-Path $distRoot 'dashboard\public\start.css'),
+  (Join-Path $distRoot 'dashboard\public\start.js')
 )
 if ($compiledFiles.Count -eq 0 -or @($requiredProductionFiles | Where-Object { $compiledFiles.FullName -notcontains $_ }).Count -ne 0) {
   throw 'The minimal compiled dashboard application and static assets are incomplete.'

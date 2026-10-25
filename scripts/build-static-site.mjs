@@ -125,26 +125,37 @@ const csp = [
   "form-action 'none'",
 ].join('; ');
 
-let html = await readFile(join(root, 'src', 'dashboard', 'public', 'index.html'), 'utf8');
-const replacements = [
-  [
-    '<link rel="stylesheet" href="/assets/dashboard.css">',
-    '<meta http-equiv="Content-Security-Policy" content="' + csp + '">\n'
-      + '  <link rel="stylesheet" href="assets/dashboard.css">\n'
-      + '  <link rel="stylesheet" href="assets/hosted.css">',
-  ],
-  [
-    '<script src="/assets/dashboard.js" defer></script>',
-    `<script type="importmap">${importMap}</script>\n`
-      + '  <script type="module" src="hosted-api.js"></script>\n'
-      + '  <script src="assets/dashboard.js" defer></script>',
-  ],
-];
-for (const [from, to] of replacements) {
-  if (!html.includes(from)) throw new Error(`index.html no longer contains: ${from}`);
-  html = html.replace(from, to);
+// Two pages: the short judge-facing overview becomes the site's front page, and the
+// complete dashboard is served as details.html (linked from the overview).
+async function hostedPage(source, target, asset, extra = []) {
+  let html = await readFile(join(root, 'src', 'dashboard', 'public', source), 'utf8');
+  const replacements = [
+    [
+      `<link rel="stylesheet" href="/assets/${asset}.css">`,
+      '<meta http-equiv="Content-Security-Policy" content="' + csp + '">\n'
+        + `  <link rel="stylesheet" href="assets/${asset}.css">\n`
+        + '  <link rel="stylesheet" href="assets/hosted.css">',
+    ],
+    [
+      `<script src="/assets/${asset}.js" defer></script>`,
+      `<script type="importmap">${importMap}</script>\n`
+        + '  <script type="module" src="hosted-api.js"></script>\n'
+        + `  <script src="assets/${asset}.js" defer></script>`,
+    ],
+    ...extra,
+  ];
+  for (const [from, to] of replacements) {
+    if (!html.includes(from)) throw new Error(`${source} no longer contains: ${from}`);
+    html = html.split(from).join(to);
+  }
+  await writeFile(join(out, target), html);
 }
-await writeFile(join(out, 'index.html'), html);
+await cp(join(root, 'src', 'dashboard', 'public', 'start.css'), join(out, 'assets', 'start.css'));
+await cp(join(root, 'src', 'dashboard', 'public', 'start.js'), join(out, 'assets', 'start.js'));
+await hostedPage('start.html', 'index.html', 'start', [['href="details"', 'href="details.html"']]);
+await hostedPage('index.html', 'details.html', 'dashboard', [
+  ['<a class="skip-link" href="#main">', '<a class="hosted-back" href="./">← Back to the 3-step overview</a>\n  <a class="skip-link" href="#main">'],
+]);
 await writeFile(join(out, '.nojekyll'), '');
 
 console.log(`Static demo written to ${relative(root, out) || '.'} (${modules.size} engine modules).`);

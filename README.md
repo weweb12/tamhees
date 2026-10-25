@@ -75,7 +75,7 @@ Implemented commands:
 - `tamhees adapter list|status|install|remove|begin|finalize`: Manage all five local adapters.
 - `tamhees mcp serve`: Run the four-tool JSON-RPC 2.0 stdio server.
 - `tamhees benchmark run`: Run the deterministic benchmark.
-- `npm run dashboard`: Build and start the loopback dashboard.
+- `npm run dashboard`: Build and start the loopback dashboard: a short three-step overview at `/`, and the complete dashboard at `/details`.
 - `npm run verify`: Typecheck, build, and run the full suite.
 ## Design principles
 

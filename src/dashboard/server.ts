@@ -15,11 +15,15 @@ export const DASHBOARD_HOST = '127.0.0.1';
 export const DASHBOARD_DEFAULT_PORT = 8787;
 export const DASHBOARD_MAX_BODY_BYTES = 16_384;
 
-const STATIC_ASSETS = new Map([
-  ['/', { file: 'index.html', contentType: 'text/html; charset=utf-8' }],
+// "/" is the short judge-facing overview; "/details" is the complete dashboard.
+const STATIC_ASSETS = new Map<string, { file: string; contentType: string }>([
+  ['/', { file: 'start.html', contentType: 'text/html; charset=utf-8' }],
+  ['/details', { file: 'index.html', contentType: 'text/html; charset=utf-8' }],
+  ['/assets/start.css', { file: 'start.css', contentType: 'text/css; charset=utf-8' }],
+  ['/assets/start.js', { file: 'start.js', contentType: 'text/javascript; charset=utf-8' }],
   ['/assets/dashboard.css', { file: 'dashboard.css', contentType: 'text/css; charset=utf-8' }],
   ['/assets/dashboard.js', { file: 'dashboard.js', contentType: 'text/javascript; charset=utf-8' }],
-] as const);
+]);
 
 const SECURITY_HEADERS = {
   'Cache-Control': 'no-store',
@@ -121,7 +125,7 @@ async function handleRequest(
     const url = parseRequestTarget(rawTarget);
     rejectCrossOriginRequest(request);
 
-    const staticAsset = STATIC_ASSETS.get(url.pathname as '/' | '/assets/dashboard.css' | '/assets/dashboard.js');
+    const staticAsset = STATIC_ASSETS.get(url.pathname);
     if (staticAsset !== undefined) {
       requireMethod(request, response, ['GET', 'HEAD']);
       const filePath = fileURLToPath(new URL(`./public/${staticAsset.file}`, import.meta.url));
