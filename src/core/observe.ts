@@ -23,7 +23,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { lstat, readFile } from 'node:fs/promises';
+import { lstat, readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { verifyPathSafety } from './atomic-write.js';
 import { normalizeLegacyMemory } from './scope.js';
@@ -120,6 +120,27 @@ export const TECHNOLOGIES: readonly Technology[] = [
   { id: 'django', label: 'Django', group: 'http-server', aliases: ['django'], pyDeps: ['django'], files: ['manage.py'] },
   { id: 'flask', label: 'Flask', group: 'http-server', aliases: ['flask'], pyDeps: ['flask'] },
   { id: 'fastapi', label: 'FastAPI', group: 'http-server', aliases: ['fastapi'], pyDeps: ['fastapi'] },
+  // Python ORM built on SQLAlchemy
+  { id: 'sqlmodel', label: 'SQLModel', group: 'orm', aliases: ['sqlmodel'], pyDeps: ['sqlmodel'], implies: ['sqlalchemy'] },
+  // Containers (single member: supported only)
+  { id: 'docker', label: 'Docker', group: 'container', aliases: ['docker', 'dockerfile', 'docker-compose'], files: ['Dockerfile', 'docker-compose.yml', 'docker-compose.yaml', 'compose.yml', 'compose.yaml', '.dockerignore'] },
+  // Monorepo tools
+  { id: 'turborepo', label: 'Turborepo', group: 'monorepo-tool', aliases: ['turborepo'], tagAliases: ['turbo'], deps: ['turbo'], files: ['turbo.json'] },
+  { id: 'nx', label: 'Nx', group: 'monorepo-tool', aliases: ['nx'], deps: ['nx'], files: ['nx.json'] },
+  { id: 'lerna', label: 'Lerna', group: 'monorepo-tool', aliases: ['lerna'], deps: ['lerna'], files: ['lerna.json'] },
+  // Documentation sites
+  { id: 'vitepress', label: 'VitePress', group: 'docs-site', aliases: ['vitepress'], deps: ['vitepress'] },
+  { id: 'docusaurus', label: 'Docusaurus', group: 'docs-site', aliases: ['docusaurus'], deps: ['@docusaurus/core'] },
+  { id: 'mkdocs', label: 'MkDocs', group: 'docs-site', aliases: ['mkdocs'], pyDeps: ['mkdocs', 'mkdocs-material'], files: ['mkdocs.yml'] },
+  // Caches
+  { id: 'redis', label: 'Redis', group: 'cache', aliases: ['redis'], deps: ['redis', 'ioredis', '@upstash/redis'], pyDeps: ['redis'], images: ['redis'] },
+  { id: 'memcached', label: 'Memcached', group: 'cache', aliases: ['memcached'], deps: ['memcached'], images: ['memcached'] },
+  // Client state management
+  { id: 'redux', label: 'Redux', group: 'state-management', aliases: ['redux'], deps: ['redux', '@reduxjs/toolkit'] },
+  { id: 'zustand', label: 'Zustand', group: 'state-management', aliases: ['zustand'], deps: ['zustand'] },
+  { id: 'mobx', label: 'MobX', group: 'state-management', aliases: ['mobx'], deps: ['mobx'] },
+  { id: 'pinia', label: 'Pinia', group: 'state-management', aliases: ['pinia'], deps: ['pinia'] },
+  { id: 'jotai', label: 'Jotai', group: 'state-management', aliases: ['jotai'], deps: ['jotai'] },
   // Language (single member: can only be supported, never contradicted)
   { id: 'typescript', label: 'TypeScript', group: 'language', aliases: ['typescript'], deps: ['typescript'], files: ['tsconfig.json'] },
 ];
@@ -147,17 +168,35 @@ const RUNNER_BUILTINS = new Set([
 // ─── Repository facts ───────────────────────────────────────────────────────
 
 export interface RepositoryFacts {
-  /** Files that exist from the allowlist. */
+  /** Allowlisted files that exist, as project-relative paths (root and workspace folders). */
   readonly files: ReadonlySet<string>;
-  /** Node dependency name → manifest file. */
+  /** Node dependency name → manifest file (project-relative). */
   readonly dependencies: ReadonlyMap<string, string>;
-  /** Python dependency name (lowercased) → manifest file. */
+  /** Python dependency name (lowercased) → manifest file (project-relative). */
   readonly pyDependencies: ReadonlyMap<string, string>;
+  /** Union of package.json scripts across all manifests, or null when there is none. */
   readonly scripts: ReadonlySet<string> | null;
   readonly packageManager: string | null;
   readonly prismaProvider: string | null;
   readonly composeImages: ReadonlySet<string>;
+  /** Names declared by the project's own package.json files → manifest (a library's own repo). */
+  readonly packageNames?: ReadonlyMap<string, string>;
+  /** Scripts per package.json, for path-scoped checks. */
+  readonly scriptsByManifest?: ReadonlyMap<string, ReadonlySet<string>>;
+  /** Where the Prisma provider came from. */
+  readonly prismaSchemaPath?: string | null;
 }
+
+/** Folders never searched for workspace manifests: generated output, vendored code, fixtures. */
+const SKIPPED_DIRECTORIES = new Set([
+  'node_modules', 'dist', 'build', 'out', 'coverage', 'vendor', 'target', 'venv', 'env',
+  '__pycache__', 'fixtures', '__fixtures__', 'playground', 'playgrounds', 'examples', 'example',
+  'samples', 'templates', 'template', 'test', 'tests', '__tests__', 'e2e', 'tmp', 'temp',
+]);
+const MAX_WORKSPACE_DEPTH = 3;
+const MAX_WORKSPACE_DIRECTORIES = 2_000;
+const MAX_MANIFEST_DIRECTORIES = 200;
+const MANIFEST_FILES = ['package.json', 'pyproject.toml', 'requirements.txt', 'requirements-dev.txt'] as const;
 
 async function readSafeText(root: string, relativePath: string): Promise<string | null> {
   const target = join(root, relativePath);
@@ -191,14 +230,42 @@ function pythonRequirementName(line: string): string | null {
   return match ? match[1]!.toLowerCase().replace(/_/g, '-') : null;
 }
 
+/** Quoted strings inside every `key = [ ... ]` array, honouring quotes (extras use brackets). */
+function tomlStringArrays(text: string): string[] {
+  const values: string[] = [];
+  for (const start of text.matchAll(/^\s*[A-Za-z0-9_.-]+\s*=\s*\[/gm)) {
+    let index = (start.index ?? 0) + start[0].length;
+    let quote: string | null = null;
+    let current = '';
+    for (; index < text.length; index += 1) {
+      const char = text[index]!;
+      if (quote !== null) {
+        if (char === quote) {
+          values.push(current);
+          current = '';
+          quote = null;
+        } else {
+          current += char;
+        }
+      } else if (char === '"' || char === "'") {
+        quote = char;
+      } else if (char === '#') {
+        const lineEnd = text.indexOf('\n', index);
+        index = lineEnd < 0 ? text.length : lineEnd;
+      } else if (char === ']') {
+        break;
+      }
+    }
+  }
+  return values;
+}
+
 function pyprojectDependencies(text: string): string[] {
   const names: string[] = [];
-  // PEP 621: dependencies = ["fastapi>=0.1", ...]
-  for (const block of text.matchAll(/^\s*(?:dependencies|[a-z-]+)\s*=\s*\[([\s\S]*?)\]/gm)) {
-    for (const item of block[1]!.matchAll(/["']([^"']+)["']/g)) {
-      const name = pythonRequirementName(item[1]!);
-      if (name) names.push(name);
-    }
+  // PEP 621 / PEP 735: dependencies = ["fastapi[standard]>=0.1", ...], dev = [...]
+  for (const item of tomlStringArrays(text)) {
+    const name = pythonRequirementName(item);
+    if (name) names.push(name);
   }
   // Poetry: [tool.poetry.dependencies] / [tool.poetry.group.*.dependencies] tables
   for (const table of text.matchAll(/^\[tool\.poetry\.(?:group\.[^.\]]+\.)?(?:dev-)?dependencies\]\s*$([\s\S]*?)(?=^\[|$(?![\s\S]))/gm)) {
@@ -210,71 +277,143 @@ function pyprojectDependencies(text: string): string[] {
   return names;
 }
 
+/** Folders (project-relative, '' for the root) that contain a package or Python manifest. */
+async function findManifestDirectories(root: string): Promise<string[]> {
+  const found: string[] = [''];
+  let visited = 0;
+  async function walk(relative: string, depth: number): Promise<void> {
+    if (depth > MAX_WORKSPACE_DEPTH || visited >= MAX_WORKSPACE_DIRECTORIES || found.length >= MAX_MANIFEST_DIRECTORIES) return;
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = await readdir(relative === '' ? root : join(root, relative), { withFileTypes: true });
+    } catch {
+      return;
+    }
+    visited += 1;
+    if (relative !== '' && entries.some((entry) => entry.isFile() && (MANIFEST_FILES as readonly string[]).includes(entry.name))) {
+      found.push(relative);
+    }
+    const children = entries
+      .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink()
+        && !entry.name.startsWith('.') && !SKIPPED_DIRECTORIES.has(entry.name.toLowerCase())
+        // Starter templates and samples (create-vite/template-react, example-app, ...).
+        && !/^(?:template|example|fixture|sample)s?[-_]/i.test(entry.name))
+      .map((entry) => entry.name)
+      .sort();
+    for (const child of children) await walk(relative === '' ? child : `${relative}/${child}`, depth + 1);
+  }
+  await walk('', 0);
+  return found;
+}
+
+function inDirectory(directory: string, file: string): string {
+  return directory === '' ? file : `${directory}/${file}`;
+}
+
 export async function collectRepositoryFacts(projectDir: string): Promise<RepositoryFacts> {
   const root = resolve(projectDir);
   const files = new Set<string>();
-  for (const file of KNOWN_FILES) {
-    if (await existsSafely(root, file)) files.add(file);
-  }
-
   const dependencies = new Map<string, string>();
-  let scripts: Set<string> | null = null;
+  const pyDependencies = new Map<string, string>();
+  const packageNames = new Map<string, string>();
+  const scriptsByManifest = new Map<string, ReadonlySet<string>>();
   let packageManager: string | null = null;
-  if (files.has('package.json')) {
-    try {
-      const pkg = JSON.parse((await readSafeText(root, 'package.json')) ?? 'null') as Record<string, unknown> | null;
-      if (pkg && typeof pkg === 'object') {
-        for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
-          const block = pkg[field];
-          if (block && typeof block === 'object' && !Array.isArray(block)) {
-            for (const name of Object.keys(block)) dependencies.set(name, 'package.json');
+  let prismaProvider: string | null = null;
+  let prismaSchemaPath: string | null = null;
+
+  for (const directory of await findManifestDirectories(root)) {
+    for (const file of KNOWN_FILES) {
+      const relativePath = inDirectory(directory, file);
+      if (await existsSafely(root, relativePath)) files.add(relativePath);
+    }
+
+    const packagePath = inDirectory(directory, 'package.json');
+    if (files.has(packagePath)) {
+      try {
+        const pkg = JSON.parse((await readSafeText(root, packagePath)) ?? 'null') as Record<string, unknown> | null;
+        if (pkg && typeof pkg === 'object') {
+          for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
+            const block = pkg[field];
+            if (block && typeof block === 'object' && !Array.isArray(block)) {
+              for (const name of Object.keys(block)) if (!dependencies.has(name)) dependencies.set(name, packagePath);
+            }
+          }
+          if (typeof pkg['name'] === 'string' && pkg['name'] !== '') packageNames.set(pkg['name'], packagePath);
+          scriptsByManifest.set(packagePath, new Set(
+            pkg['scripts'] && typeof pkg['scripts'] === 'object' && !Array.isArray(pkg['scripts'])
+              ? Object.keys(pkg['scripts'] as object)
+              : [],
+          ));
+          if (directory === '' && typeof pkg['packageManager'] === 'string') {
+            packageManager = /^([a-z]+)@?/.exec(pkg['packageManager'])?.[1] ?? null;
           }
         }
-        scripts = new Set(
-          pkg['scripts'] && typeof pkg['scripts'] === 'object' && !Array.isArray(pkg['scripts'])
-            ? Object.keys(pkg['scripts'] as object)
-            : [],
-        );
-        if (typeof pkg['packageManager'] === 'string') {
-          packageManager = /^([a-z]+)@?/.exec(pkg['packageManager'])?.[1] ?? null;
-        }
+      } catch {
+        // Malformed package.json: observe nothing from it.
       }
-    } catch {
-      // Malformed package.json: observe nothing from it.
     }
-  }
 
-  const pyDependencies = new Map<string, string>();
-  for (const file of ['requirements.txt', 'requirements-dev.txt']) {
-    if (!files.has(file)) continue;
-    for (const line of ((await readSafeText(root, file)) ?? '').split('\n')) {
-      const name = pythonRequirementName(line);
-      if (name) pyDependencies.set(name, file);
+    for (const file of ['requirements.txt', 'requirements-dev.txt']) {
+      const relativePath = inDirectory(directory, file);
+      if (!files.has(relativePath)) continue;
+      for (const line of ((await readSafeText(root, relativePath)) ?? '').split('\n')) {
+        const name = pythonRequirementName(line);
+        if (name && !pyDependencies.has(name)) pyDependencies.set(name, relativePath);
+      }
     }
-  }
-  if (files.has('pyproject.toml')) {
-    for (const name of pyprojectDependencies((await readSafeText(root, 'pyproject.toml')) ?? '')) {
-      pyDependencies.set(name, 'pyproject.toml');
+    const pyprojectPath = inDirectory(directory, 'pyproject.toml');
+    if (files.has(pyprojectPath)) {
+      for (const name of pyprojectDependencies((await readSafeText(root, pyprojectPath)) ?? '')) {
+        if (!pyDependencies.has(name)) pyDependencies.set(name, pyprojectPath);
+      }
     }
-  }
 
-  let prismaProvider: string | null = null;
-  if (files.has('prisma/schema.prisma')) {
-    const schema = (await readSafeText(root, 'prisma/schema.prisma')) ?? '';
-    const datasource = /datasource\s+\w+\s*\{([\s\S]*?)\}/.exec(schema)?.[1] ?? '';
-    prismaProvider = /provider\s*=\s*"([a-z]+)"/.exec(datasource)?.[1] ?? null;
+    const schemaPath = inDirectory(directory, 'prisma/schema.prisma');
+    if (prismaProvider === null && files.has(schemaPath)) {
+      const schema = (await readSafeText(root, schemaPath)) ?? '';
+      const datasource = /datasource\s+\w+\s*\{([\s\S]*?)\}/.exec(schema)?.[1] ?? '';
+      prismaProvider = /provider\s*=\s*"([a-z]+)"/.exec(datasource)?.[1] ?? null;
+      prismaSchemaPath = prismaProvider === null ? null : schemaPath;
+    }
   }
 
   const composeImages = new Set<string>();
   for (const file of ['docker-compose.yml', 'docker-compose.yaml', 'compose.yml', 'compose.yaml']) {
     if (!files.has(file)) continue;
     for (const match of ((await readSafeText(root, file)) ?? '').matchAll(/^\s*image:\s*["']?([a-z0-9._/-]+)/gm)) {
-      const image = match[1]!.split('/').pop()!;
+      const image = match[1]!.split('/').pop()!.split(':')[0]!;
       composeImages.add(image);
     }
   }
 
-  return { files, dependencies, pyDependencies, scripts, packageManager, prismaProvider, composeImages };
+  const scripts = scriptsByManifest.size === 0
+    ? null
+    : new Set([...scriptsByManifest.values()].flatMap((set) => [...set]));
+  return { files, dependencies, pyDependencies, scripts, packageManager, prismaProvider, composeImages, packageNames, scriptsByManifest, prismaSchemaPath };
+}
+
+/**
+ * Facts that apply to one project path (a RESTRICTED memory scoped to `path`): manifests
+ * and config inside that folder, plus repository-wide package-manager signals.
+ */
+export function factsForPath(facts: RepositoryFacts, path: string): RepositoryFacts {
+  const prefix = `${path.replace(/\/+$/, '')}/`;
+  const within = (file: string) => file.startsWith(prefix);
+  const rootLockfiles = new Set(TECHNOLOGIES.flatMap((tech) => tech.lockfiles ?? []));
+  const filterMap = (map: ReadonlyMap<string, string> | undefined) => new Map([...(map ?? new Map<string, string>())].filter(([, file]) => within(file)));
+  const scriptsByManifest = new Map([...(facts.scriptsByManifest ?? new Map<string, ReadonlySet<string>>())].filter(([file]) => within(file)));
+  return {
+    files: new Set([...facts.files].filter((file) => within(file) || rootLockfiles.has(file))),
+    dependencies: filterMap(facts.dependencies),
+    pyDependencies: filterMap(facts.pyDependencies),
+    packageNames: filterMap(facts.packageNames),
+    scriptsByManifest,
+    scripts: scriptsByManifest.size === 0 ? null : new Set([...scriptsByManifest.values()].flatMap((set) => [...set])),
+    packageManager: facts.packageManager,
+    prismaProvider: facts.prismaSchemaPath && within(facts.prismaSchemaPath) ? facts.prismaProvider : null,
+    prismaSchemaPath: facts.prismaSchemaPath && within(facts.prismaSchemaPath) ? facts.prismaSchemaPath : null,
+    composeImages: facts.composeImages,
+  };
 }
 
 /** Signals that show a technology is present, e.g. ["package.json: @supabase/supabase-js"]. */
@@ -292,10 +431,16 @@ function directSignals(tech: Technology, facts: RepositoryFacts): string[] {
     if (file) signals.push(`${file}: ${dep}`);
   }
   for (const file of [...(tech.files ?? []), ...(tech.lockfiles ?? [])]) {
-    if (facts.files.has(file)) signals.push(file);
+    for (const present of facts.files) if (present === file || present.endsWith(`/${file}`)) signals.push(present);
+  }
+  // The repository of a library itself ("Express is the framework" inside express/).
+  for (const [name, manifest] of facts.packageNames ?? new Map<string, string>()) {
+    if ((tech.deps ?? []).includes(name) || (tech.depPrefixes ?? []).some((prefix) => name.startsWith(prefix))) {
+      signals.push(`${manifest}: name ${name}`);
+    }
   }
   if (tech.prisma && facts.prismaProvider && tech.prisma.includes(facts.prismaProvider)) {
-    signals.push(`prisma/schema.prisma: provider "${facts.prismaProvider}"`);
+    signals.push(`${facts.prismaSchemaPath ?? 'prisma/schema.prisma'}: provider "${facts.prismaProvider}"`);
   }
   for (const image of tech.images ?? []) {
     if (facts.composeImages.has(image)) signals.push(`compose image: ${image}`);
@@ -412,7 +557,9 @@ function skipReason(record: MemoryRecord): string | null {
   if (record.sensitivity === 'SENSITIVE' || record.sensitivity === 'SECRET') return 'sensitive memory: not scanned';
   if (record.actionPermission === 'FORGET_OR_REDACT') return 'forgotten or marked for redaction';
   if (record.verificationStatus === 'REVOKED' || record.relationships.supersededBy !== undefined) return 'revoked or superseded';
-  if (record.scope.kind === 'RESTRICTED') return 'restricted scope: repository-wide facts may not apply';
+  if (record.scope.kind === 'RESTRICTED' && (record.scope.environment !== undefined || record.scope.component !== undefined || record.scope.path === undefined)) {
+    return 'restricted to an environment or component: repository files cannot tell which one';
+  }
   return null;
 }
 
@@ -422,7 +569,7 @@ export function observeRecords(
   projectFileExists: ReadonlyMap<string, boolean>,
   now: string,
 ): ObservationReport {
-  const present = presentTechnologies(facts);
+  const repositoryPresent = presentTechnologies(facts);
   const observations: Observation[] = [];
   const unverifiable: SkippedClaim[] = [];
   const skipped: SkippedClaim[] = [];
@@ -435,6 +582,10 @@ export function observeRecords(
       skipped.push({ memoryId: record.id, reason });
       continue;
     }
+    // A memory scoped to a project path is checked against that folder's manifests.
+    const scopedPath = record.scope.kind === 'RESTRICTED' ? record.scope.path : undefined;
+    const recordFacts = scopedPath === undefined ? facts : factsForPath(facts, scopedPath);
+    const present = scopedPath === undefined ? repositoryPresent : presentTechnologies(recordFacts);
     const techs = mentionedTechnologies(record);
     const scripts = mentionedScripts(record.statement);
     const paths = mentionedPaths(record.statement);
@@ -484,16 +635,21 @@ export function observeRecords(
 
     // Script claims.
     for (const script of scripts) {
-      if (facts.scripts === null) {
+      const manifests = recordFacts.scriptsByManifest ?? new Map<string, ReadonlySet<string>>(
+        recordFacts.scripts === null ? [] : [['package.json', recordFacts.scripts]],
+      );
+      const definedIn = [...manifests].filter(([, names]) => names.has(script)).map(([file]) => file).sort();
+      if (recordFacts.scripts === null || manifests.size === 0) {
         unverifiable.push({ memoryId: record.id, reason: `script "${script}": no package.json` });
-      } else if (facts.scripts.has(script)) {
+      } else if (definedIn.length > 0) {
         observations.push(observation(record.id, 'script', script, 'SUPPORTS',
-          `package.json defines the script "${script}".`, ['package.json: scripts']));
+          `${definedIn[0]} defines the script "${script}".`, definedIn.map((file) => `${file}: scripts`)));
       } else {
-        const available = [...facts.scripts].sort();
+        const available = [...recordFacts.scripts].sort();
+        const where = manifests.size === 1 ? `${[...manifests.keys()][0]} has` : `None of the ${manifests.size} package.json files has`;
         observations.push(observation(record.id, 'script', script, 'CONTRADICTS',
-          `package.json has no script "${script}"${available.length > 0 ? ` (it defines: ${available.slice(0, 12).join(', ')}${available.length > 12 ? ', …' : ''})` : ''}.`,
-          [`package.json: scripts (${available.length})`]));
+          `${where} no script "${script}"${available.length > 0 ? ` (defined: ${available.slice(0, 12).join(', ')}${available.length > 12 ? ', …' : ''})` : ''}.`,
+          [`package.json scripts (${manifests.size} manifest${manifests.size === 1 ? '' : 's'})`]));
       }
     }
 

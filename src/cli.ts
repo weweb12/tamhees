@@ -299,13 +299,16 @@ withheld from agent context. Re-running records nothing new unless the repositor
 changed.
 
 Conservative by design:
-  - Reads only a fixed list of manifest, lockfile and config files; never .env files,
-    keys or source code. Path claims check existence only. Symlinks are not followed.
+  - Reads only a fixed list of manifest, lockfile and config files, at the root and in
+    workspace folders up to 3 levels deep (node_modules, build output, templates,
+    examples and fixtures are skipped); never .env files, keys or source code. Path
+    claims check existence only. Symlinks are not followed.
+  - A memory scoped to a project path is checked against that folder only.
   - A technology is contradicted only when it is absent AND a competitor in the same
     group (database, test framework, package manager, ...) is present.
   - Statements with negation or change language, or naming several technologies of
-    one group, are skipped rather than guessed. Sensitive, revoked, forgotten and
-    restricted-scope memories are skipped.
+    one group, are skipped rather than guessed. Sensitive, revoked and forgotten
+    memories, and memories restricted to an environment or component, are skipped.
 
 Exit codes:
   0  Completed (findings may include contradictions)

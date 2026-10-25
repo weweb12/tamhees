@@ -1365,3 +1365,28 @@ The owner approved the final pre-release product identity and directed a compreh
   register = signup).
 - Result: precision 12/18 → 14/16 on the same set, with better recall for payment tasks.
   Benchmark byte-identical. The remaining noise is genuine word overlap ("page").
+
+## DM-DEC-048 — Observe monorepos and workspace folders
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence: trial on seven real open-source projects (Next.js Commerce, supabase-js,
+  Express, the FastAPI full-stack template, Vite, djangoproject.com, create-t3-app).
+  Contradictions raised were 9 of 9 correct, but only root manifests were read, so
+  `backend/` and `frontend/` manifests were invisible. A `pyproject.toml` dependency
+  with extras (`"fastapi[standard]>=0.1"`) broke array parsing and hid the whole list.
+  Docker, Turborepo and VitePress were unknown, and a library's own repository could not
+  confirm itself.
+- Decision:
+  - Discover manifest folders up to 3 levels deep. Symlinks are not followed;
+    dependency, build, template, example and fixture folders are skipped; folder counts
+    are bounded. The same allowlisted file names are read in each folder.
+  - Quote-aware TOML array parsing (extras, comments, dependency groups).
+  - The project's own package names count as presence signals.
+  - A RESTRICTED memory scoped only to `path` is checked against that folder's manifests
+    (plus repository-wide package-manager signals). Environment or component scopes are
+    still skipped. Script checks report which manifest defines or lacks the script.
+  - Catalog additions: Docker, Turborepo, Nx, Lerna, VitePress, Docusaurus, MkDocs, Redis,
+    Memcached, Redux, Zustand, MobX, Pinia, Jotai, SQLModel (implies SQLAlchemy).
+- Result on the same trial: stale claims caught 10 of 11 (was 5), true claims confirmed 25
+  (was 15), false alarms 0, false claims confirmed 0.
