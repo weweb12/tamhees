@@ -58,3 +58,18 @@ describe('Concept matching: stays conservative', () => {
     assert.equal(served('check the status', memory('DM-MEM-000002', 'Statu flags are cached.', [])), false, 'status is not plural of statu');
   });
 });
+
+describe('Retrieval ignores generic task words', () => {
+  it('filler verbs and nouns no longer pull in unrelated memories', () => {
+    assert.equal(served('Add a button to the header', memory('DM-MEM-000001', 'Add new tests next to the source file.', ['testing'])), false);
+    assert.equal(served('Fix the bug in the login form', memory('DM-MEM-000002', 'Fix lint warnings before opening a pull request.', ['conventions'])), false);
+    assert.equal(served('Create a new file for the cart', memory('DM-MEM-000003', 'Every new file needs a license header.', [])), false);
+  });
+
+  it('everyday product words reach the right area', () => {
+    assert.equal(served('Add a button to the checkout page', memory('DM-MEM-000001', 'Stripe webhooks must be idempotent.', ['payments'])), true);
+    assert.equal(served('Validate the signup form', memory('DM-MEM-000002', 'Passwords are hashed with argon2id.', ['authentication'])), true);
+    assert.equal(served('Make the endpoint paginate results', memory('DM-MEM-000003', 'Pagination uses cursors, not offsets.', ['api'])), true);
+  });
+});
+
