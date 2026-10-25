@@ -44,6 +44,14 @@ abstention, budget, and exact outcome.
 No. The product is local-only with zero runtime dependencies. The dashboard
 binds to loopback and uses local assets.
 
+## Can Tamhees tell by itself that a memory is wrong?
+
+Partly, and deliberately conservatively. `tamhees observe` checks technology claims
+against dependencies, lockfiles and config files, script claims against package.json,
+and file paths against the project. It contradicts a technology only when a competing
+one is present, and it skips negated or ambiguous statements instead of guessing.
+Other claims still rely on evidence supplied by the agent or owner.
+
 ## How does the hosted demo work without a server?
 
 The hosted page is the same dashboard. Its three API requests are answered inside
