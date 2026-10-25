@@ -44,7 +44,7 @@ flowchart TB
   subgraph F["③ FORGETTING PATH: how a claim stops guiding action"]
     direction LR
     F1["Time passes:<br/>reviewAfter / expiresAfter"] --> F1o["RECHECK<br/>expired = excluded"]
-    F2["Contradicting evidence<br/>added"] --> F2o["BLOCK_ACTION<br/>excluded · ask owner"]
+    F2["Contradicting evidence: from an agent,<br/>or found by tamhees observe"] --> F2o["BLOCK_ACTION<br/>excluded · ask owner"]
     F3["Owner revokes or<br/>supersedes"] --> F3o["REVOKED tombstone<br/>MUST_NOT_ACT · prior state archived"]
     F4["Owner withdraws consent<br/>or secret detected"] --> F4o["FORGET_OR_REDACT<br/>raw text erased, not archived;<br/>safe audit metadata kept"]
   end
@@ -73,5 +73,6 @@ confidence never bypasses an authority, freshness, privacy, conflict or revocati
 |------|------|-------|
 | Write | `src/core/mutations.ts`, `validation.ts`, `privacy.ts`, `atomic-write.ts`, `evidence.ts` | `test/phase2-core.test.ts`, `test/submission-engineering.test.ts` |
 | Retrieval | `src/core/context.ts`, `scope.ts`, `lifecycle.ts` | `test/phase3-*.test.ts`, `test/regression-expired-permission.test.ts` |
-| Forgetting | `src/core/audit.ts` (rules), `mutations.ts` (REVOKE / REDACT) | `test/phase2-core.test.ts`, `npm run failure-test` |
+| Forgetting | `src/core/audit.ts` (rules), `mutations.ts` (REVOKE / REDACT), `quick.ts` (`forget` / `revoke`) | `test/phase2-core.test.ts`, `test/quick-commands.test.ts`, `npm run failure-test` |
+| Self-detection | `src/core/observe.ts` (`tamhees observe`) | `test/observe.test.ts`, step 6 of `npm run failure-test` |
 | Agent access | `src/adapters/*`, `src/mcp/*` (4-tool stdio MCP) | `test/phase5-*.test.ts`, `test/phase6-*.test.ts` |

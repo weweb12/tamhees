@@ -62,6 +62,7 @@ Implemented commands:
 - `tamhees inspect [memory-id] [--format text|json]`: "What do you remember, and how sure are you?" Shows source, status, confidence, freshness, scope, evidence, the plain-language audit outcome and whether agents may see it. Read-only.
 - `tamhees forget <memory-id> [--reason "..."]`: Controlled REDACT. The text is erased everywhere and a privacy-safe tombstone remains.
 - `tamhees revoke <memory-id> [--reason "..."]`: Controlled REVOKE. The memory can no longer guide action; its prior state is archived.
+- `tamhees observe [--record]`: Checks memory claims against the repository itself (technologies against dependencies, lockfiles and config; `npm run` scripts against `package.json`; file paths against the project) and records SUPPORTS or CONTRADICTS evidence. It reads only an allowlist of manifest files, and contradicts a technology only when a competitor is present.
 - `tamhees memory list|show|apply`: Inspect or apply controlled memory operations.
 - `tamhees evidence list|add`: Inspect or add validated evidence.
 - `tamhees context --task "..." [--max-tokens <n>] [--format json|markdown]`: Compile ephemeral ranked context under a hard budget.

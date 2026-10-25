@@ -20,7 +20,7 @@
 ```bash
 npm ci
 npm run verify          # typecheck + build + 298 tests
-npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal
+npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal, self-detection
 npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
 
@@ -31,6 +31,7 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 | A memory layer that tags each fact with **source, confidence, freshness, scope** | Every record in `.tamhees/memories/records/` carries `source`, `confidence` + `verificationStatus` (8 authority levels), `freshness` (`lastVerified` / `reviewAfter` / `expiresAfter`), `scope` (project or restricted to environment / component / path), plus `sensitivity` and `actionPermission`. See [Architecture snapshot](docs/ARCHITECTURE_SNAPSHOT.md). |
 | On retrieval, the agent **shows what it's relying on and how sure it is** | `tamhees context` (and MCP `tamhees_begin_task`) returns a pack where every selected claim lists its audit outcome, verification status, confidence and why it ranked, and every excluded claim lists a reason code. Shown in the demo under *Ephemeral task context*. |
 | A **forgetting policy** for stale, contradicted or user-revoked memories | Expired → `RECHECK` and excluded. Contradicting evidence → `BLOCK_ACTION` and excluded. Owner revocation → `REVOKED` tombstone, prior state archived. Privacy withdrawal → `REDACT`: raw text erased everywhere, not archived, safe audit metadata kept. |
+| The memory **notices** it might be wrong | `tamhees observe` checks claims against the repository by itself: "uses SQLite" against dependencies, "npm run build:legacy" against package.json scripts, and a remembered file path against whether the file still exists. It records SUPPORTS or CONTRADICTS evidence, and contradicted memories are blocked. Step 6 of `npm run failure-test`. |
 | A demo where the memory says **"I might be wrong"** and acts accordingly | Demo: *AI guessed without approval* → `ASK_OWNER` (the agent may look and explain but must not change anything), and *Memory became stale* → `RECHECK`. CLI: step 3 of `npm run failure-test`. |
 
 ## Deliverables
@@ -79,8 +80,9 @@ closed. The hosted demo needs no server, so it has no secrets and sends nothing 
 
 **Out of scope / honest limits.** Lexical (not semantic) retrieval. Pattern-based
 secret detection. Owner identity is declared, not cryptographically authenticated. No
-multi-process locking. Evidence is supplied by the calling agent; the engine does not
-inspect the repository itself. The audit report names the first rule in precedence order,
+multi-process locking. `tamhees observe` checks technology, script and path claims
+against the repository itself, but other kinds of claims still rely on evidence
+supplied by the calling agent. The audit report names the first rule in precedence order,
 so an expired claim with a caution permission is reported as `RECHECK` (caution) rather
 than "expired". Retrieval still excludes it as expired. See
 [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) and the *Limitations* section of the demo.

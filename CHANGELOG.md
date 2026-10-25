@@ -19,6 +19,10 @@ currently unpublished and no public software license has been granted.
   records) must yield a valid context pack and never serve or trust an unsafe record.
   Run against the original rc.2 context compiler, it reports 498 broken packs (DM-DEC-038).
 - CI deploys the hosted demo only when the repository is public.
+- Added `tamhees observe` (DM-DEC-040): Tamhees now notices some wrong memories by
+  itself, checking technology, script and file-path claims against an allowlist of
+  repository manifests and recording SUPPORTS or CONTRADICTS evidence. The failure test
+  gained a self-detection step.
 - Added everyday commands `remember`, `inspect`, `forget` and `revoke` (DM-DEC-039).
   They build candidates for the existing mutation boundary, so every authority,
   privacy, archive and audit rule still applies. `inspect` is a read-only memory
