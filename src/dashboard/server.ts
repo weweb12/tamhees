@@ -1,3 +1,4 @@
+import { getInspectorView, runInspectorObservation } from './inspector.js';
 import { readFile } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -149,6 +150,23 @@ async function handleRequest(
         throw new RequestProblem(400, 'The requested scenario is not available.');
       }
       sendJson(response, 200, runDashboardScenario(input.scenarioId, input.maxTokens));
+      return;
+    }
+
+    if (url.pathname === '/api/inspector') {
+      requireMethod(request, response, ['GET']);
+      sendJson(response, 200, getInspectorView());
+      return;
+    }
+
+    if (url.pathname === '/api/observe') {
+      requireMethod(request, response, ['POST']);
+      requireJsonContentType(request);
+      const body = await readJsonBody(request);
+      if (typeof body !== 'object' || body === null || Array.isArray(body) || Object.keys(body).length > 0) {
+        throw new RequestProblem(400, 'The observe request takes an empty JSON object.');
+      }
+      sendJson(response, 200, runInspectorObservation());
       return;
     }
 

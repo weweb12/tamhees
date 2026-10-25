@@ -139,7 +139,17 @@ const elements = {
   metricPrecision: document.querySelector('#metric-precision'),
   metricUnsafe: document.querySelector('#metric-unsafe'),
   metricSecret: document.querySelector('#metric-secret'),
+  inspectorRepoName: document.querySelector('#inspector-repo-name'),
+  inspectorRepoFacts: document.querySelector('#inspector-repo-facts'),
+  inspectorObserve: document.querySelector('#inspector-observe'),
+  inspectorReset: document.querySelector('#inspector-reset'),
+  inspectorSummary: document.querySelector('#inspector-summary'),
+  inspectorList: document.querySelector('#inspector-list'),
+  inspectorNote: document.querySelector('#inspector-note'),
+  inspectorAnnouncement: document.querySelector('#inspector-announcement'),
 };
+
+const inspector = { initial: null, busy: false };
 
 void initialize();
 
@@ -160,9 +170,12 @@ async function initialize() {
   } catch {
     showStartupError();
   }
+  void loadInspector();
 }
 
 function bindControls() {
+  elements.inspectorObserve.addEventListener('click', () => void observeInspector());
+  elements.inspectorReset.addEventListener('click', resetInspector);
   elements.run.addEventListener('click', () => void runAudit());
   elements.reset.addEventListener('click', resetAudit);
   elements.heroWatch.addEventListener('click', restartHeroAnimation);
@@ -739,6 +752,118 @@ function configurationLabel(value) {
 function outcomeSymbol(outcome) {
   const symbols = { TRUST: '✓', RECHECK: '↻', ASK_OWNER: '?', BLOCK_ACTION: '⊘', FORGET_OR_REDACT: '⌫' };
   return symbols[outcome] || '!';
+}
+
+// ─── Memory inspector ───────────────────────────────────────
+
+const INSPECTOR_PLAIN = {
+  TRUST: 'I can rely on this.',
+  RECHECK: 'I might be wrong. Verify before acting.',
+  ASK_OWNER: 'This is a guess. Ask the owner first.',
+  BLOCK_ACTION: 'Do not act on this.',
+  FORGET_OR_REDACT: 'This must not be kept or shown.',
+};
+
+async function loadInspector() {
+  try {
+    const view = await getJson('/api/inspector');
+    inspector.initial = view;
+    renderInspectorRepository(view.repository);
+    renderInspector(view.report, null, null);
+    elements.inspectorNote.textContent = view.fixtureDisclaimer;
+  } catch {
+    elements.inspectorSummary.textContent = 'The inspector fixture could not be loaded. Reload the page.';
+    elements.inspectorObserve.disabled = true;
+  }
+}
+
+function renderInspectorRepository(repository) {
+  elements.inspectorRepoName.textContent = repository.name;
+  const facts = [
+    ['Files', repository.files.join(', ')],
+    ['Package manager', repository.packageManager],
+    ['Dependencies', repository.dependencies.join(', ')],
+    ['Scripts', repository.scripts.join(', ')],
+  ];
+  elements.inspectorRepoFacts.replaceChildren(...facts.map(([term, value]) => {
+    const row = el('div');
+    row.append(textEl('dt', '', term), textEl('dd', '', value));
+    return row;
+  }));
+}
+
+async function observeInspector() {
+  if (inspector.busy || inspector.initial === null) return;
+  inspector.busy = true;
+  elements.inspectorObserve.disabled = true;
+  try {
+    const result = await getJson('/api/observe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    renderInspector(result.report, inspector.initial.report, result);
+    const contradicted = new Set(result.observations.filter((item) => item.relationship === 'CONTRADICTS').map((item) => item.memoryId)).size;
+    const confirmed = new Set(result.observations.filter((item) => item.relationship === 'SUPPORTS').map((item) => item.memoryId)).size;
+    const summary = `Tamhees read the project's manifest files and found ${contradicted} memories the repository now contradicts and ${confirmed} it confirms. `
+      + `${result.skipped.length > 0 ? `${result.skipped.length} statement was skipped rather than guessed. ` : ''}`
+      + 'Contradicted memories are now blocked and withheld from the agent.';
+    elements.inspectorSummary.textContent = summary;
+    elements.inspectorAnnouncement.textContent = summary;
+    elements.inspectorReset.disabled = false;
+  } catch {
+    elements.inspectorSummary.textContent = 'The repository check could not complete. Reset and retry.';
+    elements.inspectorObserve.disabled = false;
+  } finally {
+    inspector.busy = false;
+  }
+}
+
+function resetInspector() {
+  if (inspector.initial === null) return;
+  renderInspector(inspector.initial.report, null, null);
+  elements.inspectorSummary.textContent = 'Before checking: the memories as the agent last saw them.';
+  elements.inspectorAnnouncement.textContent = 'Inspector reset.';
+  elements.inspectorObserve.disabled = false;
+  elements.inspectorReset.disabled = true;
+  elements.inspectorObserve.focus();
+}
+
+function renderInspector(report, before, observation) {
+  elements.inspectorList.replaceChildren(...report.memories.map((memory) => {
+    const previous = before ? before.memories.find((item) => item.id === memory.id) : null;
+    const changed = previous !== null && previous !== undefined && previous.outcome !== memory.outcome;
+    const item = el('li', 'inspector-item');
+    item.dataset.outcome = memory.outcome;
+    item.dataset.changed = String(changed);
+    const head = el('div', 'inspector-head');
+    head.append(textEl('span', 'outcome-code', `${outcomeSymbol(memory.outcome)} ${memory.outcome}`));
+    if (changed) head.append(textEl('span', 'inspector-chip', `was ${previous.outcome}`));
+    if (!memory.servable) head.append(textEl('span', 'inspector-chip inspector-chip-withheld', 'Withheld from the agent'));
+    const freshness = memory.freshness.state === 'CURRENT'
+      ? `verified ${memory.freshness.ageDays} days ago`
+      : `${memory.freshness.state.toLowerCase().replace('_', ' ')}, verified ${memory.freshness.ageDays} days ago`;
+    const findings = observation ? observation.observations.filter((entry) => entry.memoryId === memory.id) : [];
+    // When the repository check explains the change, show that plain reason instead of evidence IDs.
+    const plain = findings.length > 0 ? INSPECTOR_PLAIN[memory.outcome] : `${INSPECTOR_PLAIN[memory.outcome]} ${memory.explanation}`;
+    item.append(
+      head,
+      textEl('p', 'inspector-statement', memory.statement),
+      textEl('p', 'inspector-plain', plain),
+      textEl('p', 'inspector-meta', `${memory.source.type} · ${memory.verificationStatus} · confidence ${memory.confidence} · ${freshness} · ${memory.actionPermission}`),
+    );
+    if (observation) {
+      for (const finding of findings) {
+        const line = textEl('p', 'inspector-finding', `${finding.relationship === 'CONTRADICTS' ? '✘' : '✔'} ${finding.explanation}`);
+        line.dataset.relationship = finding.relationship;
+        item.append(line);
+      }
+      for (const skipped of observation.skipped.filter((entry) => entry.memoryId === memory.id)) {
+        item.append(textEl('p', 'inspector-finding', `Skipped: ${skipped.reason}.`));
+      }
+    }
+    return item;
+  }));
 }
 
 function renderRequestError() {

@@ -1238,3 +1238,20 @@ The owner approved the final pre-release product identity and directed a compreh
   supporting observations can reach TRUST. Earlier contradicting evidence remains until
   the owner resolves the memory (update or revoke), by design.
 - Not changed: audit rules, schema, MCP tool set, benchmark.
+
+## DM-DEC-041 — Dashboard memory inspector with live repository observation
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Decision: add an Inspector section to the dashboard (`src/dashboard/inspector.ts`,
+  routes `GET /api/inspector` and `POST /api/observe` taking an empty JSON object).
+  It uses a fixed, safe fixture project and eight remembered claims, rendered through
+  `inspectRecords`, before and after `observeRecords` on fixture facts. No file access,
+  no new input surface beyond an empty body, and the same Host/Origin/content-type/
+  method checks as the existing routes.
+- The hosted demo answers both routes in the browser. Because observation evidence IDs
+  are SHA-256-derived, `web/shims/node-crypto.js` now includes a synchronous SHA-256,
+  verified against Node on 308 inputs. All 19 hosted responses (including error cases)
+  are byte-identical to the loopback server.
+- Existing dashboard contracts (light theme, no unsafe DOM APIs, heading order, unique
+  IDs, responsive rules) are unchanged and still tested.

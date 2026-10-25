@@ -19,6 +19,11 @@ currently unpublished and no public software license has been granted.
   records) must yield a valid context pack and never serve or trust an unsafe record.
   Run against the original rc.2 context compiler, it reports 498 broken packs (DM-DEC-038).
 - CI deploys the hosted demo only when the repository is public.
+- Added the dashboard **memory inspector** (DM-DEC-041): "What does the agent remember, and
+  how sure is it?" A fixture project's memories are shown with source, status,
+  confidence, freshness and plain-language outcome; **Let Tamhees check the repository**
+  runs the real observer and shows which memories flip to blocked or confirmed. The
+  hosted demo serves it in the browser with byte-identical responses.
 - Added `tamhees observe` (DM-DEC-040): Tamhees now notices some wrong memories by
   itself, checking technology, script and file-path claims against an allowlist of
   repository manifests and recording SUPPORTS or CONTRADICTS evidence. The failure test

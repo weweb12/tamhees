@@ -11,9 +11,12 @@
 
 ## Try it in two minutes
 
-**In the browser:** open the live demo → **Live audit** → pick an example →
-**Check whether the AI may act**. Try *AI guessed without approval* for the
-"I might be wrong" moment, and *Repository changed* for a contradiction.
+**In the browser:** open the live demo.
+- **Inspector** → **Let Tamhees check the repository**: a confidently remembered
+  "The project uses SQLite" is trusted until Tamhees reads the project, notices
+  Supabase, and blocks it. Jest, a missing build script and a deleted file go the same way.
+- **Live audit** → pick an example → **Check whether the AI may act**. Try *AI guessed
+  without approval* for the "I might be wrong" moment.
 
 **From a clean clone** (Node.js 22+, macOS / Linux / Windows):
 
@@ -60,8 +63,9 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
   caution permission could break retrieval), which is now fixed with a regression test.
 - **Future thesis:** [docs/THESIS.md](docs/THESIS.md).
 
-**Bonus signals.** *Memory inspector:* `tamhees inspect` answers "what do you remember,
-and how sure are you?" in plain words, and `tamhees forget <id>` acts on "forget that". *Privacy
+**Bonus signals.** *Memory inspector:* the demo's **Inspector** section, and `tamhees inspect`
+in the CLI, answer "what do you remember, and how sure are you?" in plain words.
+`tamhees forget <id>` acts on "forget that". *Privacy
 controls:* demonstrated, not claimed. See the *Sensitive value appeared* demo scenario
 and steps 4–5 of the failure test.
 

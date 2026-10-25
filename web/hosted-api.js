@@ -14,9 +14,10 @@ import {
   listDashboardScenarios,
   runDashboardScenario,
 } from './engine/dashboard/scenarios.js';
+import { getInspectorView, runInspectorObservation } from './engine/dashboard/inspector.js';
 
 const nativeFetch = window.fetch.bind(window);
-const API_ROUTE = /\/api\/(scenarios|audit|benchmark)$/;
+const API_ROUTE = /\/api\/(scenarios|audit|benchmark|inspector|observe)$/;
 
 function json(status, body) {
   // Same byte shape as sendJson() in src/dashboard/server.ts (trailing newline included).
@@ -56,24 +57,43 @@ async function handle(route, init) {
   const method = (init?.method ?? 'GET').toUpperCase();
 
   if (route === 'scenarios') {
-    if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported.');
+    if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
     return json(200, { schemaVersion: '1.0.0', scenarios: listDashboardScenarios() });
   }
 
   if (route === 'benchmark') {
-    if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported.');
+    if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
     return nativeFetch(new URL('data/benchmark.json', document.baseURI));
   }
 
+  if (route === 'inspector') {
+    if (method !== 'GET') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
+    return json(200, getInspectorView());
+  }
+
+  if (route === 'observe') {
+    if (method !== 'POST') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
+    let body;
+    try {
+      body = JSON.parse(typeof init?.body === 'string' ? init.body : '');
+    } catch {
+      body = null;
+    }
+    if (typeof body !== 'object' || body === null || Array.isArray(body) || Object.keys(body).length > 0) {
+      return problem(400, 'INVALID_REQUEST', 'The observe request takes an empty JSON object.');
+    }
+    return json(200, runInspectorObservation());
+  }
+
   // route === 'audit'
-  if (method !== 'POST') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported.');
+  if (method !== 'POST') return problem(405, 'METHOD_NOT_ALLOWED', 'This method is not supported for the requested local route.');
   const input = parseAuditRequest(typeof init?.body === 'string' ? init.body : '');
-  if (input === null) return problem(400, 'BAD_REQUEST', 'The dashboard request schema is invalid.');
+  if (input === null) return problem(400, 'INVALID_REQUEST', 'The dashboard request schema is invalid.');
   if (input.budgetError) {
-    return problem(400, 'BAD_REQUEST', 'The context budget must be an integer from 1 through 1000000.');
+    return problem(400, 'INVALID_REQUEST', 'The context budget must be an integer from 1 through 1000000.');
   }
   if (!isDashboardScenarioId(input.scenarioId)) {
-    return problem(400, 'BAD_REQUEST', 'The requested scenario is not available.');
+    return problem(400, 'INVALID_REQUEST', 'The requested scenario is not available.');
   }
   return json(200, runDashboardScenario(input.scenarioId, input.maxTokens));
 }
