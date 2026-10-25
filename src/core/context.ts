@@ -159,6 +159,15 @@ export function compileContext(
       continue;
     }
 
+    // Expiry is enforced here independently of the primary audit finding. The audit reports
+    // the first rule in precedence order, so an expired record whose permission rule
+    // (e.g. ACT_WITH_CAUTION, ASK_BEFORE_CHANGE) fires first never yields DM-RULE-FRESH-001
+    // and previously reached ranking, where context validation rejected the whole pack.
+    if (isExpiredAt(record, generatedAt)) {
+      excluded.push(exclusion(record.id, 'expired', 'The record is expired and must be re-verified before retrieval.'));
+      continue;
+    }
+
     const freshness = computeFreshness(record, generatedAt);
     const authorityScore = authorityScoreFor(record.verificationStatus);
     const safetyScore = safetyScoreFor(outcome);
@@ -368,6 +377,14 @@ function safetyScoreFor(outcome: AuditOutcome): number {
     case 'FORGET_OR_REDACT':
       return 0;
   }
+}
+
+function isExpiredAt(record: MemoryRecord, now: string): boolean {
+  const nowMs = Date.parse(now);
+  const expiresMs = record.freshness.expiresAfter === undefined
+    ? Number.NaN
+    : Date.parse(record.freshness.expiresAfter);
+  return Number.isFinite(expiresMs) && Number.isFinite(nowMs) && expiresMs <= nowMs;
 }
 
 function computeFreshness(record: MemoryRecord, now: string): FreshnessResult {

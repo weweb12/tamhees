@@ -35,3 +35,6 @@ Thumbs.db
 /review/
 /qa-evidence/
 /release-evidence/
+
+# Hosted demo build output
+/_site/
