@@ -12,19 +12,22 @@
 
 ## Try it in two minutes
 
-**In the browser:** open the live demo.
-- **Inspector** → **Let Tamhees check the repository**: a confidently remembered
-  "The project uses SQLite" is trusted until Tamhees reads the project, notices
-  Supabase, and blocks it. Jest, a missing build script and a deleted file go the same way.
-  Then press **Forget** on the owner's memory: the text is gone and the agent can't see it.
-- **Live audit** → pick an example → **Check whether the AI may act**. Try *AI guessed
-  without approval* for the "I might be wrong" moment.
+**In the browser:** open the live demo. The front page is one short story with three
+buttons; every answer comes from the real engine running in your browser.
+1. **Let Tamhees check the project**: "The project uses SQLite" was trusted. Tamhees reads
+   the project, sees Supabase, and blocks it. Nobody had to report the change.
+2. **Forget this**: a memory about the owner is erased for good; only a tombstone remains.
+3. **Can the agent redesign the app based on this?**: a confident AI guess is not the
+   owner's approval, so the agent must ask first. This is the "I might be wrong" moment.
+
+**Full details** (one click from the front page) has everything else: all seven memory
+checks, the command-line lesson, the benchmark and the limits.
 
 **From a clean clone** (Node.js 22+, macOS / Linux / Windows):
 
 ```bash
 npm ci
-npm run verify          # typecheck + build + 404 tests
+npm run verify          # typecheck + build + 412 tests
 npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal, self-detection
 npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
@@ -81,12 +84,12 @@ only a tombstone.
   caution permission could break retrieval), which is now fixed with a regression test.
 - **Future thesis:** [docs/THESIS.md](docs/THESIS.md).
 
-**Bonus signals.** *Memory inspector:* the demo's **Inspector** section, and `tamhees inspect`
-in the CLI, answer "what do you remember, and how sure are you?" in plain words.
-`tamhees forget <id>` acts on "forget that". *Privacy
-controls:* demonstrated, not claimed. In the demo's Inspector, press **Forget** on the
-owner's memory: the text is erased everywhere and only a tombstone remains. Also the
-*Sensitive value appeared* scenario and steps 4–5 of the failure test.
+**Bonus signals.** *Memory inspector:* every memory on the front page shows where it
+came from, how sure it is and when it was checked; the **Inspector** in Full details, and
+`tamhees inspect` in the CLI, show all of them. *Privacy controls:* demonstrated, not
+claimed. Step 2 on the front page erases a memory about the owner for good, the same as
+`tamhees forget <id>`. Also the *Sensitive value appeared* check in Full details and steps
+4–5 of the failure test.
 
 ## Notes for judges
 

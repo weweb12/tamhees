@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tamhees checks what a coding agent remembers before that memory is allowed to guide an action.">
+  <title>Tamhees — Memory that knows it might be wrong</title>
+  <link rel="stylesheet" href="/assets/start.css">
+  <script src="/assets/start.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#demo">Skip to the demo</a>
+  <header class="top">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">?</span><span>Tamhees <small lang="ar" dir="rtl">تمحيص</small></span></a>
+    <nav aria-label="Main">
+      <a href="#demo">Try it</a>
+      <a href="#how">How it works</a>
+      <a href="details">Full details</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <p class="kicker">DOO Builders League · Memory That Knows It Might Be Wrong</p>
+      <h1 id="hero-title">Memory that knows it might&nbsp;be&nbsp;wrong.</h1>
+      <p class="lede">Coding agents remember your project between sessions. <strong>Tamhees checks each memory before the agent is allowed to act on it</strong>, and notices by itself when the project has changed.</p>
+      <a class="button button-primary" href="#demo">Try it in 3 steps</a>
+    </section>
+
+    <section class="problem" aria-labelledby="problem-title">
+      <h2 id="problem-title" class="section-title">The problem in one picture</h2>
+      <ol class="story">
+        <li><span class="story-step">1</span><h3>The agent remembers</h3><p>"The project uses SQLite."</p></li>
+        <li><span class="story-step">2</span><h3>The project changes</h3><p>It moves to Supabase. Nobody updates the memory.</p></li>
+        <li class="story-end"><span class="story-step">3</span><h3>The agent is confidently wrong</h3><p>It writes SQLite code. Tamhees checks the memory first and stops it.</p></li>
+      </ol>
+    </section>
+
+    <section class="demo" id="demo" aria-labelledby="demo-title">
+      <h2 id="demo-title" class="section-title">Try it: three things Tamhees does</h2>
+      <p class="section-lede">A small example project. Every answer comes from the real Tamhees engine, running in your browser.</p>
+
+      <article class="step" aria-labelledby="step1-title">
+        <header class="step-head"><span class="step-number">1</span><div><h3 id="step1-title">It notices when a memory is out of date</h3><p>The agent trusts these memories. The project has changed since, but nobody told it.</p></div></header>
+        <div class="step-body">
+          <aside class="project" aria-labelledby="project-title"><h4 id="project-title">The project today</h4><p class="project-label">Uses</p><ul class="project-deps" id="project-deps"><li>Loading…</li></ul></aside>
+          <ul class="memories" id="step1-memories" aria-label="What the agent remembers"></ul>
+        </div>
+        <div class="step-actions"><button class="button button-primary" id="step1-run" type="button" disabled>Let Tamhees check the project</button></div>
+        <p class="step-result" id="step1-result" hidden></p>
+      </article>
+
+      <article class="step" aria-labelledby="step2-title">
+        <header class="step-head"><span class="step-number">2</span><div><h3 id="step2-title">"Forget that" really forgets</h3><p>Some memories are about you, the owner. Ask Tamhees to forget one.</p></div></header>
+        <ul class="memories" id="step2-memories" aria-label="A memory about the owner"></ul>
+        <div class="step-actions"><button class="button button-primary" id="step2-run" type="button" disabled>Forget this</button></div>
+        <p class="step-result" id="step2-result" hidden></p>
+      </article>
+
+      <article class="step" aria-labelledby="step3-title">
+        <header class="step-head"><span class="step-number">3</span><div><h3 id="step3-title">A confident guess still asks first</h3><p>The agent guessed this from one old mockup, and it is very sure.</p></div></header>
+        <ul class="memories" id="step3-memories" aria-label="An AI guess"></ul>
+        <div class="step-actions"><button class="button button-primary" id="step3-run" type="button" disabled>Can the agent redesign the app based on this?</button></div>
+        <p class="step-result" id="step3-result" hidden></p>
+      </article>
+
+      <p class="demo-footer"><button class="button button-quiet" id="demo-reset" type="button" hidden>Start over</button></p>
+      <p class="sr-only" id="demo-announcement" aria-live="polite"></p>
+      <p class="demo-error" id="demo-error" role="alert" hidden>The demo could not load. Reload the page to try again.</p>
+    </section>
+
+    <section class="how" id="how" aria-labelledby="how-title">
+      <h2 id="how-title" class="section-title">How it works</h2>
+      <div class="how-grid">
+        <article><h3>Every memory carries its proof</h3><p>Where it came from, how sure it is, when it was last checked, and what it is allowed to change.</p></article>
+        <article><h3>Checked before every use</h3><p>The agent only receives what passes. Doubtful memories are labelled; wrong ones are held back.</p></article>
+        <article><h3>Notices, and forgets</h3><p>It reads the project itself to catch outdated memories, and "forget" erases the text for good.</p></article>
+      </div>
+      <p class="how-note">Runs locally. No AI model, no cloud, the same answer every time. 400+ automated tests.</p>
+    </section>
+
+    <section class="more" aria-labelledby="more-title">
+      <h2 id="more-title" class="section-title">Want the details?</h2>
+      <div class="more-links">
+        <a class="more-card" href="details"><strong>Full demo</strong><span>All seven memory checks, the command-line lesson, the benchmark and the limits.</span></a>
+        <a class="more-card" href="https://github.com/terar1kfn/tamhees"><strong>Source code</strong><span>Start with SUBMISSION.md. One command runs every test.</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bottom"><strong>Tamhees · Memory under scrutiny.</strong><span>Give the agent context. Keep the right to doubt it.</span></footer>
+  <noscript><p class="noscript">JavaScript is needed for the demo. Everything runs in this page; nothing is sent anywhere.</p></noscript>
+</body>
+</html>
