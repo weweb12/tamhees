@@ -22,6 +22,7 @@ import {
   type VerificationStatus,
 } from './types.js';
 import { validateMemoryRecord, validateUpdateCandidate } from './validation.js';
+import { withWriteLock } from './lock.js';
 
 const STATUS_ALLOWED_BY_AUTHORITY: Readonly<Record<VerificationStatus, readonly VerificationStatus[]>> = {
   OWNER_CONFIRMED: ['OWNER_CONFIRMED', 'REPO_VERIFIED', 'TEST_VERIFIED', 'OBSERVED', 'INFERRED', 'UNKNOWN', 'CONFLICTED'],
@@ -38,7 +39,7 @@ export async function previewUpdateCandidate(projectDir: string, input: unknown,
   return mutateCandidate(projectDir, input, clock, { evidence });
 }
 export async function applyUpdateCandidate(projectDir: string, input: unknown, clock: Clock): Promise<MutationResult> {
-  return mutateCandidate(projectDir, input, clock);
+  return withWriteLock(projectDir, () => mutateCandidate(projectDir, input, clock));
 }
 async function mutateCandidate(
   projectDir: string,

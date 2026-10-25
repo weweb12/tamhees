@@ -57,6 +57,18 @@ while (pending.length > 0) {
   if (nodeGlobals !== null) {
     throw new Error(`${relative(root, file)} uses Node-only global(s): ${[...new Set(nodeGlobals)].join(', ')}`);
   }
+  // Every name imported from a Node built-in must be exported by its browser stand-in,
+  // otherwise the browser fails to link the module at runtime.
+  for (const named of source.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"](node:[^'"]+)['"]/g)) {
+    const shim = NODE_SHIMS[named[2]];
+    if (shim === undefined) continue;
+    const shimSource = await readFile(join(root, 'web', shim), 'utf8');
+    for (const name of named[1].split(',').map((part) => part.trim().split(/\s+as\s+/)[0]).filter(Boolean)) {
+      if (!new RegExp(`export\\s+(?:async\\s+)?(?:const|let|function|class)\\s+${name}\\b`).test(shimSource)) {
+        throw new Error(`Browser stand-in ${shim} does not export "${name}" needed by ${relative(root, file)}`);
+      }
+    }
+  }
   for (const match of source.matchAll(IMPORT_PATTERN)) {
     const specifier = match[1] ?? match[2];
     if (specifier.startsWith('.')) {
