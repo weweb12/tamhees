@@ -31,12 +31,13 @@ jobs:
       - run: npm run failure-test
       - run: node scripts/build-static-site.mjs
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && !github.event.repository.private
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # GitHub Pages needs a public repository (on the free plan), so deploy only once public.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && !github.event.repository.private
     needs: verify
     runs-on: ubuntu-latest
     permissions:

@@ -14,6 +14,11 @@ currently unpublished and no public software license has been granted.
 - Added judge documents: `SUBMISSION.md`, `docs/ARCHITECTURE_SNAPSHOT.md`,
   `docs/THESIS.md`, `docs/LOOM_90S.md`.
 - The Windows-only PowerShell packaging test is skipped on macOS/Linux.
+- Added `test/rule-combinations.test.ts`: every combination of authority status, source,
+  permission, sensitivity, freshness, evidence, supersession and confidence (18,000
+  records) must yield a valid context pack and never serve or trust an unsafe record.
+  Run against the original rc.2 context compiler, it reports 498 broken packs (DM-DEC-038).
+- CI deploys the hosted demo only when the repository is public.
 
 ## 1.0.0-rc.2 - 2026-09-21
 
