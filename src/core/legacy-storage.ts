@@ -331,6 +331,7 @@ function isAllowedControlledFile(path: string): boolean {
     return isSafeJsonFilename(segments[2]);
   }
   if (segments.length === 2 && segments[0] === 'evidence') return isSafeJsonFilename(segments[1]);
+  if (segments.length === 2 && segments[0] === 'audits') return /^history-[A-Za-z0-9._-]{1,128}\.jsonl$/.test(segments[1]!);
   if (segments.length === 2 && segments[0] === 'episodes') return isSafeJsonFilename(segments[1]);
   if (segments.length === 4 && segments[0] === 'archive' && segments[1] === 'memories') {
     return isSafeArtifactId(segments[2]) && extname(segments[3] ?? '') === '.json';

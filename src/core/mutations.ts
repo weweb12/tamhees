@@ -4,7 +4,7 @@ import { normalizeLegacyMemory } from './scope.js';
 import { randomBytes } from 'node:crypto';
 import { mkdir, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { appendValidatedAuditEvents } from './audit.js';
+import { appendValidatedAuditEvents } from './audit-log.js';
 import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
 import { loadAllEvidence } from './evidence.js';
 import { ENGINE_AUDITOR, ENGINE_VERSION, STORAGE_DIR } from './identity.js';
@@ -241,7 +241,10 @@ async function mutateCandidate(
     return failure(candidate.action, next.id, [issue('', 'WRITE_FAILED', err instanceof Error ? err.message : String(err))], archivePath);
   }
 
-  const indexResult = await rebuildMemoryIndex(absProjectDir, () => now);
+  // The store was loaded and validated under the write lock; only `next` changed.
+  const afterWrite = new Map(recordsById);
+  afterWrite.set(next.id, next);
+  const indexResult = await rebuildMemoryIndex(absProjectDir, () => now, [...afterWrite.values()]);
   if (!indexResult.success) {
     const rollbackError = await rollbackCanonical(recordPath, prior);
     const rollbackIndex = await rebuildMemoryIndex(absProjectDir, () => now);

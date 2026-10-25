@@ -2,7 +2,7 @@
 
 import { mkdir, readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { atomicWriteJson, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
+import { atomicWriteJson, readControlledFiles, verifyPathSafety, verifyStorageTreeSafety } from './atomic-write.js';
 import { STORAGE_DIR } from './identity.js';
 import { scanEvidenceRecord } from './privacy.js';
 import type { EvidenceRecord, ValidationIssue } from './types.js';
@@ -127,15 +127,16 @@ export async function loadAllEvidence(
     return { evidence, errors: ['Cannot read the evidence directory.'] };
   }
 
-  for (const file of files.filter((name) => name.endsWith('.json')).sort()) {
-    const filePath = join(evidenceDir, file);
-    const safety = await verifyPathSafety(filePath, absProjectDir);
-    if (!safety.safe) {
-      errors.push(`Path safety check failed for evidence/${file}: ${safety.reason}`);
+  const reads = await readControlledFiles(evidenceDir, files.filter((name) => name.endsWith('.json')).sort());
+  for (const read of reads) {
+    const file = read.name;
+    if (read.unsafeReason !== undefined) {
+      errors.push(`Path safety check failed for evidence/${file}: ${read.unsafeReason}`);
       continue;
     }
     try {
-      const parsed: unknown = JSON.parse(await readFile(filePath, 'utf-8'));
+      if (read.content === undefined) throw new Error('unreadable');
+      const parsed: unknown = JSON.parse(read.content);
       const validation = validateEvidenceRecord(parsed);
       if (!validation.valid) {
         errors.push(`Invalid evidence in ${file}: ${validation.issues.map((issue) => `${issue.field}: ${issue.message}`).join('; ')}`);
