@@ -1299,3 +1299,17 @@ The owner approved the final pre-release product identity and directed a compreh
     write code. The static build now verifies that every Node built-in name the engine
     imports is exported by its browser stand-in.
 - Reads take no lock; every write is temp-file-plus-rename, so readers see whole files.
+
+## DM-DEC-044 — MCP protocol negotiation and spec-defined optional fields
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Evidence: probed with the official MCP TypeScript SDK client (1.32.2) and raw handshakes.
+  The server returned an error for every protocol revision except `2025-11-25`, and for
+  optional fields real clients send (`_meta`, clientInfo `title`, a `tools/list` cursor),
+  so most clients could not connect.
+- Decision: negotiate revisions `2025-11-25`, `2025-06-18`, `2025-03-26` and `2024-11-05`
+  (the four-tool surface is identical across them). Answer a requested listed revision
+  with itself, and any other revision with the latest, as the MCP lifecycle requires.
+  Accept exactly the optional fields the MCP schema defines. Genuinely unknown fields are
+  still rejected, preserving the owner's strict-parameter rule.

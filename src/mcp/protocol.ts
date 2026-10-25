@@ -1,6 +1,13 @@
 import { ENGINE_VERSION, PRODUCT_NAME } from '../core/identity.js';
 
 export const MCP_PROTOCOL_VERSION = '2025-11-25' as const;
+/**
+ * Protocol revisions this server can speak. The four-tool surface (initialize, ping,
+ * tools/list, tools/call with text content) is unchanged across them. Per the MCP
+ * lifecycle rules, a client asking for a listed revision gets that revision; any other
+ * request is answered with the latest revision and the client decides whether to continue.
+ */
+export const MCP_SUPPORTED_PROTOCOL_VERSIONS: readonly string[] = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 export const MCP_MAX_LINE_BYTES = 1_048_576;
 export const MCP_DUPLICATE_ID_WINDOW = 4_096;
 
@@ -62,7 +69,7 @@ export class McpSession {
       if (
         method === 'notifications/initialized'
         && this.initialized
-        && (params === undefined || isExactObject(params, []))
+        && (params === undefined || isObject(params))
       ) {
         this.ready = true;
       }
@@ -70,28 +77,29 @@ export class McpSession {
     }
 
     if (method === 'ping') {
-      if (params !== undefined && !isExactObject(params, [])) return encode(errorResponse(id, -32602, 'Invalid params'));
+      if (params !== undefined && !isExactObject(params, ['_meta'])) return encode(errorResponse(id, -32602, 'Invalid params'));
       return encode(resultResponse(id!, {}));
     }
     if (method === 'initialize') {
       if (this.initialized || !validInitializeParams(params)) return encode(errorResponse(id, -32602, 'Invalid params'));
-      const requested = params['protocolVersion'];
-      if (requested !== MCP_PROTOCOL_VERSION) return encode(errorResponse(id, -32602, 'Unsupported protocol version'));
+      const requested = params['protocolVersion'] as string;
+      const negotiated = MCP_SUPPORTED_PROTOCOL_VERSIONS.includes(requested) ? requested : MCP_PROTOCOL_VERSION;
       this.initialized = true;
       return encode(resultResponse(id!, {
-        protocolVersion: MCP_PROTOCOL_VERSION,
+        protocolVersion: negotiated,
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: PRODUCT_NAME, version: ENGINE_VERSION },
       }));
     }
     if (!this.initialized || !this.ready) return encode(errorResponse(id, -32600, 'Server is not initialized'));
     if (method === 'tools/list') {
-      if (params !== undefined && !isExactObject(params, [])) return encode(errorResponse(id, -32602, 'Invalid params'));
+      // The tool list is never paginated, so a cursor (if any) is accepted and ignored.
+      if (params !== undefined && !isExactObject(params, ['cursor', '_meta'])) return encode(errorResponse(id, -32602, 'Invalid params'));
       return encode(resultResponse(id!, { tools: this.tools.list() }));
     }
     if (method === 'tools/call') {
       if (
-        !isExactObject(params, ['name', 'arguments'])
+        !isExactObject(params, ['name', 'arguments', '_meta'])
         || typeof params['name'] !== 'string'
         || (params['arguments'] !== undefined && !isObject(params['arguments']))
       ) {
@@ -186,12 +194,18 @@ export function decodeMcpLine(bytes: Buffer): string | null {
 
 export function parseErrorLine(): string { return encode(errorResponse(null, -32700, 'Parse error')); }
 
+// Strict, but only against the MCP schema: the optional fields the specification
+// defines (`_meta`; clientInfo `title`, `websiteUrl`, `icons`, `description`) are
+// accepted because real clients send them. Anything else is still rejected.
+const INITIALIZE_PARAM_KEYS = ['protocolVersion', 'capabilities', 'clientInfo', '_meta'] as const;
+const CLIENT_INFO_KEYS = ['name', 'version', 'title', 'websiteUrl', 'icons', 'description'] as const;
 function validInitializeParams(value: unknown): value is Record<string, unknown> {
-  if (!isExactObject(value, ['protocolVersion', 'capabilities', 'clientInfo'])) return false;
+  if (!isExactObject(value, INITIALIZE_PARAM_KEYS)) return false;
   const clientInfo = value['clientInfo'];
   return typeof value['protocolVersion'] === 'string'
+    && value['protocolVersion'].length > 0
     && isObject(value['capabilities'])
-    && isExactObject(clientInfo, ['name', 'version'])
+    && isExactObject(clientInfo, CLIENT_INFO_KEYS)
     && typeof clientInfo['name'] === 'string'
     && clientInfo['name'].length > 0
     && typeof clientInfo['version'] === 'string'

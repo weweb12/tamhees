@@ -44,8 +44,11 @@ describe('Phase 6 MCP JSON-RPC conformance', () => {
   it('rejects pre-initialize calls, unsupported versions, and duplicate IDs', async () => {
     const session = new McpSession(fakeTools());
     assert.equal(parse(await session.receiveLine(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }))).error.code, -32600);
-    const bad = JSON.parse(init(2)); bad.params.protocolVersion = '2024-01-01';
-    assert.equal(parse(await session.receiveLine(JSON.stringify(bad))).error.code, -32602);
+    const malformed = JSON.parse(init(2)); malformed.params.protocolVersion = 42;
+    assert.equal(parse(await session.receiveLine(JSON.stringify(malformed))).error.code, -32602);
+    // Spec: an unknown revision is answered with the server's latest; the client decides.
+    const unknown = JSON.parse(init(3)); unknown.params.protocolVersion = '2024-01-01';
+    assert.equal(parse(await new McpSession(fakeTools()).receiveLine(JSON.stringify(unknown))).result.protocolVersion, '2025-11-25');
     const second = new McpSession(fakeTools()); await second.receiveLine(init('same'));
     assert.equal(parse(await second.receiveLine(JSON.stringify({ jsonrpc: '2.0', id: 'same', method: 'ping' }))).error.code, -32600);
   });
