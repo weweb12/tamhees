@@ -1,4 +1,4 @@
-import { getInspectorView, runInspectorObservation } from './inspector.js';
+import { getInspectorView, inspectorState, parseInspectorStateRequest, runInspectorObservation } from './inspector.js';
 import { readFile } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -156,6 +156,17 @@ async function handleRequest(
     if (url.pathname === '/api/inspector') {
       requireMethod(request, response, ['GET']);
       sendJson(response, 200, getInspectorView());
+      return;
+    }
+
+    if (url.pathname === '/api/inspector-state') {
+      requireMethod(request, response, ['POST']);
+      requireJsonContentType(request);
+      const state = parseInspectorStateRequest(await readJsonBody(request));
+      if (state === null) {
+        throw new RequestProblem(400, 'The inspector state takes {"observed": boolean, "forgotten": [fixture memory IDs]}.');
+      }
+      sendJson(response, 200, inspectorState(state));
       return;
     }
 
