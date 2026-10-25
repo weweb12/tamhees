@@ -19,6 +19,10 @@ currently unpublished and no public software license has been granted.
   records) must yield a valid context pack and never serve or trust an unsafe record.
   Run against the original rc.2 context compiler, it reports 498 broken packs (DM-DEC-038).
 - CI deploys the hosted demo only when the repository is public.
+- Retrieval matches equivalent terms (DM-DEC-042): plural folding, a fixed synonym table
+  (`db` = `database`, `auth` = `authentication`) and one-way specific-to-general links
+  (`postgres` → `database`, `vitest` → `test`). Sibling technologies never match each
+  other. Benchmark artifacts are byte-identical.
 - Added the dashboard **memory inspector** (DM-DEC-041): "What does the agent remember, and
   how sure is it?" A fixture project's memories are shown with source, status,
   confidence, freshness and plain-language outcome; **Let Tamhees check the repository**

@@ -1255,3 +1255,21 @@ The owner approved the final pre-release product identity and directed a compreh
   are byte-identical to the loopback server.
 - Existing dashboard contracts (light theme, no unsafe DOM APIs, heading order, unique
   IDs, responsive rules) are unchanged and still tested.
+
+## DM-DEC-042 — Deterministic concept matching for retrieval
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Problem: exact word matching missed obvious equivalents. "set up Postgres" did not
+  retrieve a memory tagged `database`, and "write the migrations" did not match
+  "migration".
+- Decision: `termsMatch` in `src/core/context.ts` compares concepts. Terms match when
+  they are equal; equal after light plural folding (terms known to the tables are never
+  folded); equal through a fixed synonym table; or linked one-way from a specific term
+  to its general category (`postgres` → `database`). Two siblings (`postgres`, `mysql`)
+  never match each other.
+- Unchanged: the scoring formula (20 per matched tag, 10 per matched statement word),
+  the eligibility gates, determinism, and no embeddings, model or locale dependence.
+  The 22-scenario benchmark is byte-identical (its fixtures do not exercise synonyms),
+  so the improvement is evidenced by `test/concept-matching.test.ts`, not by the
+  benchmark. The 18,000-combination safety suite still passes.
