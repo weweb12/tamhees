@@ -22,7 +22,7 @@
 
 ```bash
 npm ci
-npm run verify          # typecheck + build + 352 tests
+npm run verify          # typecheck + build + 404 tests
 npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal, self-detection
 npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
