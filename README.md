@@ -55,6 +55,8 @@ Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycl
 
 ![Tamhees mobile dashboard](docs/assets/tamhees-dashboard-mobile.png)
 
+![Memory inspector: Tamhees checks remembered claims against the repository](docs/assets/tamhees-inspector.png)
+
 Implemented commands:
 
 - `tamhees init [directory]`: Initialize safe `.tamhees/` storage.

@@ -22,10 +22,12 @@
 
 ```bash
 npm ci
-npm run verify          # typecheck + build + 298 tests
+npm run verify          # typecheck + build + 352 tests
 npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal, self-detection
 npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
+
+![Memory inspector after Tamhees checked the repository](docs/assets/tamhees-inspector.png)
 
 ## The brief, point by point
 
@@ -54,12 +56,15 @@ npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
   confidence never overrides a gate).
 - **Technical depth:** real storage (atomic per-claim JSON files, archive and
   append-only audit log), retrieval (gated, scored, hard-budgeted, fail-closed
-  validation) and forgetting (expiry, contradiction, revoke, redact). No embeddings and
+  validation, deterministic synonym and concept matching), forgetting (expiry,
+  contradiction, revoke, redact) and self-detection (`tamhees observe` reads the
+  project's manifests and contradicts stale claims itself). No embeddings and
   no vector store: 15 deterministic audit rules with stable IDs.
 - **Demo quality:** the hosted demo runs the unchanged engine modules in the browser.
   Its answers match the local Node server byte for byte across all 7 scenarios.
-- **Failure thinking:** `npm run failure-test` drives the real CLI through the failure
-  cases and asserts each outcome. It also found a real defect (an expired claim behind a
+- **Failure thinking:** `npm run failure-test` drives the real CLI through six failure
+  cases and asserts each outcome. An exhaustive suite checks 18,000 combinations of
+  authority, permission, privacy, freshness and evidence for safety invariants. It also found a real defect (an expired claim behind a
   caution permission could break retrieval), which is now fixed with a regression test.
 - **Future thesis:** [docs/THESIS.md](docs/THESIS.md).
 
@@ -82,7 +87,8 @@ claims rather than notes. AI inference can never promote itself to owner authori
 Context budgets select whole claims and never truncate. The context validator fails
 closed. The hosted demo needs no server, so it has no secrets and sends nothing anywhere.
 
-**Out of scope / honest limits.** Lexical (not semantic) retrieval. Pattern-based
+**Out of scope / honest limits.** Lexical (not semantic) retrieval, widened only by fixed
+synonym and concept tables. Pattern-based
 secret detection. Owner identity is declared, not cryptographically authenticated. No
 multi-process locking. `tamhees observe` checks technology, script and path claims
 against the repository itself, but other kinds of claims still rely on evidence
