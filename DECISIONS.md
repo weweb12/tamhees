@@ -1410,3 +1410,25 @@ The owner approved the final pre-release product identity and directed a compreh
   by `adapter install`, preserving bytes outside the block. Any other content is still CORRUPT
   and never rewritten. Fixtures under `test/fixtures/rc2-adapters/` were produced by the real
   rc.2 installer and are protected from line-ending conversion by `.gitattributes`.
+
+## DM-DEC-050 — Store health check and safe recovery (`tamhees doctor`)
+
+- Date: 2026-10-25
+- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Problem: reads are fail-closed by design, so one unreadable memory, evidence or audit
+  file (a git merge conflict in `.tamhees/`, a hand edit, a file truncated by a crash)
+  stopped every command, and the error gave no way forward. Interrupted finalizations
+  said "manual recovery required" with no tool or guidance. Memories stored before
+  DM-DEC-046 could still hold raw secret-like text.
+- Decision: `tamhees doctor` diagnoses the whole store read-only: store files, every
+  record and evidence file (merge-conflict markers, JSON breakage by line and column,
+  invalid fields by name, file-name mismatch, links), index drift, audit-log segments
+  (blocking when the active segment is damaged), task journals (FINALIZING/FAILED: which
+  intended changes were saved, checked against the store for new memories, and which to
+  verify), write-lock state, and secret-like content. Raw content is never printed.
+- `--fix` runs under the write lock and does only reversible things: move damaged files to
+  `.tamhees/quarantine/<time>/` with MANIFEST.json and a `.gitignore` of `*`; for a damaged
+  audit segment, keep the valid event lines in place and quarantine the original; rebuild
+  the index. It never edits, forgets or revokes a memory and never changes a task journal.
+- Fail-closed behaviour of all other commands is unchanged; their store errors now point
+  to the doctor.
