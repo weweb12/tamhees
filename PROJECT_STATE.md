@@ -11,7 +11,7 @@ During development, AI agents must update PROJECT_STATE.md after material work. 
 ## Status summary
 
 - Project: Tamhees
-- Current phase: DOO challenge submission preparation on the private development copy (GitHub `terar1kfn/tamhees`, private). Post-RC2 improvements DM-DEC-038 to DM-DEC-042 are merged to `main`; the untouched RC2 is preserved on the `rc2-original` branch.
+- Current phase: DOO challenge submission preparation on the private development copy (GitHub `weweb12/tamhees`, private). Post-RC2 improvements DM-DEC-038 to DM-DEC-042 are merged to `main`; the untouched RC2 is preserved on the `rc2-original` branch.
 - Overall status: Release candidate, not a final public release.
 - Verification runtimes: engineering Windows Node 24.11.1, Linux Node 24.19.0, and final independent Windows Node 22.23.2 x64 (official runtime checksum verified).
 - Repository root: `doubtful-memory` (local path is environment-specific).

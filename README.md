@@ -5,7 +5,7 @@
 Tamhees checks what an AI remembers before that memory is allowed to guide an action. The name comes from the Arabic word تمحيص, used here to mean careful examination or scrutiny.
 
 > **DOO Builders League judges:** start with **[SUBMISSION.md](SUBMISSION.md)**.
-> **Live demo:** https://terar1kfn.github.io/tamhees/ (the real engine runs in your browser, with no server and nothing sent anywhere)
+> **Live demo:** https://weweb12.github.io/tamhees/ (the real engine runs in your browser, with no server and nothing sent anywhere)
 >
 > ```bash
 > npm ci && npm run verify     # typecheck, build, full test suite (Node.js 22+, any OS)

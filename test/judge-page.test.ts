@@ -58,6 +58,6 @@ describe('Judge overview page', () => {
     assert.doesNotMatch(css, /@import|url\(\s*["']?https?:/);
     // The only external link is the source repository.
     const external = [...html.matchAll(/href="(https?:[^"]+)"/g)].map((match) => match[1]);
-    assert.deepEqual(external, ['https://github.com/terar1kfn/tamhees']);
+    assert.deepEqual(external, ['https://github.com/weweb12/tamhees']);
   });
 });

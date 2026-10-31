@@ -1,8 +1,8 @@
 # Tamhees: DOO Builders League submission
 
 **Challenge:** Memory That Knows It Might Be Wrong
-**Live demo:** https://terar1kfn.github.io/tamhees/ (opens instantly; the real engine runs in your browser)
-**Repository:** https://github.com/terar1kfn/tamhees
+**Live demo:** https://weweb12.github.io/tamhees/ (opens instantly; the real engine runs in your browser)
+**Repository:** https://github.com/weweb12/tamhees
 
 > Tamhees (تمحيص, "scrutiny") checks what an AI remembers *before* that memory is
 > allowed to guide an action. It is built for coding agents, where wrong memory turns
