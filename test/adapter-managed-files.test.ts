@@ -16,7 +16,7 @@ async function project(): Promise<string> {
   return path;
 }
 
-describe('Owner verification: managed instruction files', () => {
+describe('Managed instruction files', () => {
   it('preserves LF, CRLF, missing final newline, BOM, and empty pre-existing files exactly', async () => {
     const fixtures = [
       Buffer.from('LF file\nsecond line\n', 'utf8'),

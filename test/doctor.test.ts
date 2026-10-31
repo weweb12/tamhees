@@ -43,7 +43,7 @@ async function cli(cwd: string, ...args: string[]): Promise<{ code: number; stdo
   }
 }
 
-describe('doctor: diagnosis', () => {
+describe('Doctor: diagnosis', () => {
   it('reports a healthy store as healthy', async () => {
     const report = await diagnoseStore(await store(), systemClock);
     assert.equal(report.healthy, true);
@@ -173,7 +173,7 @@ describe('doctor: diagnosis', () => {
   });
 });
 
-describe('doctor --fix: safe repair', () => {
+describe('Doctor --fix: safe repair', () => {
   it('quarantines damaged files without deleting them, keeps valid audit events, and the store works again', async () => {
     const root = await store(3);
     const conflictPath = recordPath(root, 'DM-MEM-000002');

@@ -1,4 +1,4 @@
-/** Tamhees - controlled Phase 4 task lifecycle. */
+/** Tamhees - controlled task lifecycle. */
 
 import { createHash, randomBytes } from 'node:crypto';
 import { mkdir, readFile, stat, unlink } from 'node:fs/promises';

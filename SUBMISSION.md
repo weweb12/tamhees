@@ -27,7 +27,7 @@ checks, the command-line lesson, the benchmark and the limits.
 
 ```bash
 npm ci
-npm run verify          # typecheck + build + 412 tests
+npm run verify          # typecheck + build + 408 tests
 npm run failure-test    # contradiction, staleness, AI guess, privacy revocation, secret refusal, self-detection
 npm run dashboard       # the same demo, served locally on 127.0.0.1:8787
 ```
@@ -58,7 +58,7 @@ only a tombstone.
 | Deliverable | Link |
 |---|---|
 | Working build | This repository + the live demo above |
-| 90-second walkthrough | Linked in the submission form (script: [docs/LOOM_90S.md](docs/LOOM_90S.md)) |
+| 90-second walkthrough | Linked in the submission form |
 | Architecture snapshot: write, retrieval and forgetting paths | [docs/ARCHITECTURE_SNAPSHOT.md](docs/ARCHITECTURE_SNAPSHOT.md) |
 | Failure test: contradictory facts, stale data, privacy revocation | [`scripts/failure-test.mjs`](scripts/failure-test.mjs), run with `npm run failure-test` (also runs in CI) |
 | Two-year thesis (≤300 words) | [docs/THESIS.md](docs/THESIS.md) |
@@ -120,4 +120,4 @@ prompts for the coding agent. **Antigravity** (Google's agent IDE) as the develo
 that implemented and verified the engine up to 1.0.0-rc.2. **Claude** for the post-rc.2
 reliability pass (real-repository trials, concurrency, recovery, the exhaustive rule
 suite), the hosted demo and these submission documents. Every change went through tests;
-design decisions and their reasons are recorded in [DECISIONS.md](DECISIONS.md).
+design decisions and their reasons are recorded in [docs/DECISIONS.md](docs/DECISIONS.md).

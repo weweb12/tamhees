@@ -1,6 +1,6 @@
 # Tamhees — Architecture
 
-> **Status**: Version 1.0.0-rc.2 retains the independently Windows-QA-approved architecture; final independent Windows Node 22.23.2 x64 verification and RC2 PowerShell dry-run passed. The core engine is frozen locally.
+> **Version**: 1.0.0-rc.2. A one-page summary is in [ARCHITECTURE_SNAPSHOT.md](ARCHITECTURE_SNAPSHOT.md).
 
 ## Overview
 
@@ -112,9 +112,9 @@ A `REVOKED` status prevents the record from authorizing any action. The pre-revo
 
 ## Context compiler
 
-The Phase 3 context compiler is a pure, deterministic boundary that assembles task-specific memory context packs for agent consumption. It performs lexical/tag retrieval; it does not provide semantic retrieval.
+The context compiler is a pure, deterministic boundary that assembles task-specific memory context packs for agent consumption. It performs lexical/tag retrieval; it does not provide semantic retrieval.
 
-### Implemented Phase 3 flow
+### Context compiler flow
 
 1. Accept a task description, canonical records, evidence, fixed clock, and a validated estimated-token budget.
 2. Redact secret-like task input before deriving retrieval terms.
@@ -151,7 +151,7 @@ The estimator is `utf8-bytes-ceil-div-4` version `1.0.0`: UTF-8 byte length divi
 
 The audit engine evaluates memory records against deterministic rules.
 
-### Implemented Phase 2 behavior
+### Storage, mutation and audit behavior
 
 1. Accept a memory record and available evidence.
 2. Apply audit rules in defined precedence order.
@@ -286,7 +286,7 @@ The system maintains project memory state automatically. Users do not manually u
 
 ## Migration from bootstrap Markdown
 
-The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDIT.md`. The controlled Phase 4 bootstrap migration to `.tamhees/` JSON is implemented. The Markdown sources are preserved.
+`tamhees migrate bootstrap` imports a Markdown claim ledger (by default `memory/MEMORY_CLAIMS.md`) into `.tamhees/` JSON. The Markdown source is preserved. Tamhees's own original ledger is kept as a test fixture in `test/fixtures/bootstrap-ledger/`.
 
 ### Migration invariants
 
@@ -294,7 +294,7 @@ The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDI
 2. The migration must not elevate `INFERRED` claims to `OWNER_CONFIRMED`.
 3. Superseded claims must remain visible with `REVOKED` status.
 4. The migration itself must be auditable.
-5. The bootstrap Markdown files are preserved during migration (not deleted during Phase 0).
+5. The bootstrap Markdown files are preserved during migration.
 
 ## Legacy storage-directory rename
 
@@ -312,9 +312,9 @@ The bootstrap memory exists in `memory/MEMORY_CLAIMS.md` and `memory/MEMORY_AUDI
 9. **Auditable history**: Append-only JSONL for audit events.
 10. **Schema versioning**: Every stored artifact is versioned for migration.
 
-## Phase 4 controlled lifecycle architecture
+## Controlled lifecycle architecture
 
-The interface-neutral lifecycle engine lives in `src/core/lifecycle.ts`; the CLI only parses inputs and formats results. `beginLifecycle` accepts an injected clock and ID generator, calls the Phase 3 context compiler, returns its pack ephemerally, and writes only safe correlation metadata beneath `.tamhees/episodes/`. Task text, selected statements, evidence contents, and generated JSON or Markdown are never stored in lifecycle state.
+The interface-neutral lifecycle engine lives in `src/core/lifecycle.ts`; the CLI only parses inputs and formats results. `beginLifecycle` accepts an injected clock and ID generator, calls the context compiler, returns its pack ephemerally, and writes only safe correlation metadata beneath `.tamhees/episodes/`. Task text, selected statements, evidence contents, and generated JSON or Markdown are never stored in lifecycle state.
 
 Legal states are:
 

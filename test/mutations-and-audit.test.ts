@@ -96,7 +96,7 @@ function candidate(
   };
 }
 
-describe('Phase 2 validation and evidence', () => {
+describe('Validation and evidence', () => {
   let projectDir: string;
 
   beforeEach(async () => {
@@ -157,7 +157,7 @@ describe('Phase 2 validation and evidence', () => {
   });
 });
 
-describe('Phase 2 controlled mutations', () => {
+describe('Controlled mutations', () => {
   let projectDir: string;
 
   beforeEach(async () => {
@@ -404,7 +404,7 @@ describe('Phase 2 controlled mutations', () => {
   });
 });
 
-describe('Phase 2 audit precedence and context safety', () => {
+describe('Audit precedence and context safety', () => {
   it('privacy outranks conflict and revocation', () => {
     const record = memory('DM-MEM-PRECEDENCE', {
       sensitivity: 'SECRET',
@@ -538,7 +538,7 @@ describe('Phase 2 audit precedence and context safety', () => {
   });
 });
 
-describe('Phase 2 CLI operations', () => {
+describe('CLI operations', () => {
   let projectDir: string;
 
   beforeEach(async () => {

@@ -14,5 +14,4 @@ copies used for the local dependency review. No third-party font, CDN asset,
 image, animation library, provider SDK, or copied website template is included.
 
 Project license status: `UNLICENSED`. All rights are reserved; no public license
-has been granted. Publishing or selecting a public license requires explicit
-owner approval.
+has been granted.

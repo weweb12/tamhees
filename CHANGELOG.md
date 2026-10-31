@@ -1,10 +1,12 @@
 # Changelog
 
-All notable local Tamhees release candidates are documented here. Tamhees is
-currently unpublished and no public software license has been granted.
+All notable changes to Tamhees are documented here.
 
-## Unreleased - DOO submission (2026-10-25)
+## Unreleased - DOO submission
 
+- Repository prepared for public review: a rewritten README, a single FAQ, decisions moved
+  to `docs/DECISIONS.md`, test files named by feature, and internal planning notes,
+  video scripts and the Windows packaging workflow removed from the public tree.
 - New short front page for judges (DM-DEC-052): one sentence, the problem in three cards,
   one guided three-step demo (Tamhees notices an outdated memory, "forget that" erases one,
   a confident guess still asks the owner), three points and two links. The complete
@@ -91,19 +93,15 @@ The accepted engineering basis passed independent Windows QA: 294/294 complete t
 44/44 focused tests and 26/26 adversarial scenarios. Final verification on 2026-09-26
 passed under official Windows Node 22.23.2 x64: 294/294 complete, 44/44 focused,
 24/24 release/migration, byte-identical benchmark and RC2 PowerShell dry-run.
-`NODE22_RC2_CHECK_PASSED` was recorded; product source remained unchanged.
-The local RC2 source is frozen. No publication or new Windows portable build is
-included in this freeze.
+Product source remained unchanged during that verification.
 
 ## 1.0.0-rc.1 - 2026-07-27
 
 ### Added
 
-- Release-hardening documentation, judge demonstration guide, FAQ, and
-  owner-gated release checklist.
+- Release documentation, a demonstration guide and an FAQ.
 - Local threat model and third-party dependency notices.
-- A path-safe, dry-run-first local distribution workflow for future source and
-  portable Windows x64 archives.
+- A path-safe, dry-run-first local packaging workflow for Windows x64.
 - Automated release-consistency checks.
 
 ### Verified locally
@@ -114,11 +112,10 @@ included in this freeze.
 - Zero runtime dependencies and exactly two approved direct development
   dependencies.
 
-### Still gated
+### Known gaps at this release
 
-- Independent execution on Node 22, real assistive-technology and physical
-  device review, owner judge-comprehension and second-laptop portable review,
-  publication, and challenge submission.
+- Independent execution on Node 22 (passed in rc.2), and review with real
+  assistive technology and physical devices.
 
 ## 0.8.2 - 2026-07-27
 

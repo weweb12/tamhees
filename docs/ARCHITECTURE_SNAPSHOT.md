@@ -1,6 +1,6 @@
 # Architecture snapshot: write, retrieval and forgetting paths
 
-One page for judges. The full design is in [ARCHITECTURE.md](ARCHITECTURE.md); the
+A one-page overview. The full design is in [ARCHITECTURE.md](ARCHITECTURE.md); the
 memory and audit schemas are in [PROTOCOL_SPECIFICATION.md](PROTOCOL_SPECIFICATION.md).
 
 Every remembered fact is one JSON claim in `.tamhees/memories/records/`, tagged with:
@@ -71,8 +71,8 @@ confidence never bypasses an authority, freshness, privacy, conflict or revocati
 
 | Path | Code | Proof |
 |------|------|-------|
-| Write | `src/core/mutations.ts`, `validation.ts`, `privacy.ts`, `atomic-write.ts`, `evidence.ts` | `test/phase2-core.test.ts`, `test/submission-engineering.test.ts` |
-| Retrieval | `src/core/context.ts`, `scope.ts`, `lifecycle.ts` | `test/phase3-*.test.ts`, `test/regression-expired-permission.test.ts` |
-| Forgetting | `src/core/audit.ts` (rules), `mutations.ts` (REVOKE / REDACT), `quick.ts` (`forget` / `revoke`) | `test/phase2-core.test.ts`, `test/quick-commands.test.ts`, `npm run failure-test` |
+| Write | `src/core/mutations.ts`, `validation.ts`, `privacy.ts`, `atomic-write.ts`, `evidence.ts` | `test/mutations-and-audit.test.ts`, `test/scope-and-bundles.test.ts` |
+| Retrieval | `src/core/context.ts`, `scope.ts`, `lifecycle.ts` | `test/context-*.test.ts`, `test/regression-expired-permission.test.ts` |
+| Forgetting | `src/core/audit.ts` (rules), `mutations.ts` (REVOKE / REDACT), `quick.ts` (`forget` / `revoke`) | `test/mutations-and-audit.test.ts`, `test/quick-commands.test.ts`, `npm run failure-test` |
 | Self-detection | `src/core/observe.ts` (`tamhees observe`) | `test/observe.test.ts`, step 6 of `npm run failure-test` |
-| Agent access | `src/adapters/*`, `src/mcp/*` (4-tool stdio MCP) | `test/phase5-*.test.ts`, `test/phase6-*.test.ts` |
+| Agent access | `src/adapters/*`, `src/mcp/*` (4-tool stdio MCP) | `test/adapter*.test.ts`, `test/mcp-*.test.ts` |

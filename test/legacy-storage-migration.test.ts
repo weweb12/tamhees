@@ -60,7 +60,7 @@ async function legacyProject(): Promise<string> {
   return root;
 }
 
-describe('Phase 8.2 legacy-storage state machine', () => {
+describe('Legacy-storage state machine', () => {
   it('returns no-migration-needed when neither directory exists', async () => {
     const root = await project();
     const result = await migrateLegacyStorage(root);
@@ -182,7 +182,7 @@ describe('Phase 8.2 legacy-storage state machine', () => {
   });
 });
 
-describe('Phase 8.2 legacy-storage CLI', () => {
+describe('Legacy-storage CLI', () => {
   it('exposes the exact dry-run and real command with structured deterministic output', async () => {
     const root = await legacyProject();
     const before = await treeDigest(join(root, LEGACY_STORAGE_DIR));
@@ -212,7 +212,7 @@ describe('Phase 8.2 legacy-storage CLI', () => {
   });
 });
 
-describe('Phase 8.2 active-identity regression boundary', () => {
+describe('Active-identity regression boundary', () => {
   it('exposes only the centralized Tamhees package, CLI, storage, and MCP identities', async () => {
     assert.equal(PRODUCT_NAME, 'Tamhees');
     assert.equal(PRODUCT_TAGLINE, 'Memory under scrutiny.');
@@ -276,16 +276,9 @@ describe('Phase 8.2 active-identity regression boundary', () => {
   it('uses a precise legacy-name allowlist in current documentation and ignore safety rules', async () => {
     const expectedLegacyCounts = new Map<string, number>([
       ['.gitignore', 3],
-      ['AGENTS.md', 0],
-      ['PROJECT_BRAIN.md', 1],
-      ['PROJECT_STATE.md', 1],
       ['README.md', 1],
-      ['REQUIREMENTS_AND_ASSUMPTIONS.md', 1],
-      ['RISK_REGISTER.md', 1],
       ['docs/ARCHITECTURE.md', 2],
       ['docs/PROTOCOL_SPECIFICATION.md', 3],
-      ['docs/IMPLEMENTATION_ROADMAP.md', 0],
-      ['docs/WEBSITE.md', 0],
     ]);
     const oldIdentity = /Doubtful Memory|doubtful_memory_|DOUBTFUL_MEMORY|\.gptbrain|\bgptbrain\b/g;
     for (const [path, expectedCount] of expectedLegacyCounts) {
@@ -293,14 +286,12 @@ describe('Phase 8.2 active-identity regression boundary', () => {
       assert.equal(matches.length, expectedCount, `${path} legacy-name allowlist changed.`);
       assert.ok(matches.every((match) => match === '.gptbrain'), `${path} contains a non-migration legacy identity.`);
     }
-    const decisions = await readFile('DECISIONS.md', 'utf8');
-    const claims = await readFile('memory/MEMORY_CLAIMS.md', 'utf8');
-    const audits = await readFile('memory/MEMORY_AUDIT.md', 'utf8');
+    const decisions = await readFile('docs/DECISIONS.md', 'utf8');
+    const claims = await readFile('test/fixtures/bootstrap-ledger/MEMORY_CLAIMS.md', 'utf8');
     assert.match(decisions, /DM-DEC-014 - Product name and gptbrain engine\/CLI identity/);
     assert.match(decisions, /DM-DEC-035 - Approved Tamhees identity/);
     assert.match(claims, /DM-CLAIM-018[\s\S]*status: REVOKED[\s\S]*superseded_by: DM-CLAIM-028/);
     assert.match(claims, /DM-CLAIM-028[\s\S]*status: OWNER_CONFIRMED/);
-    assert.match(audits, /DM-AUDIT-2026-07-25-008/);
   });
 
   it('generates Tamhees instructions for all five adapters and exactly four renamed MCP tools', async () => {

@@ -12,7 +12,7 @@ const init = (id: number|string = 1) => JSON.stringify({ jsonrpc: '2.0', id, met
 const initialized = JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} });
 const parse = (line: string|null) => JSON.parse(line!) as Record<string, any>;
 
-describe('Phase 6 MCP JSON-RPC conformance', () => {
+describe('MCP JSON-RPC conformance', () => {
   it('negotiates the exact protocol revision and advertises all required tools', async () => {
     const project = await mkdtemp(join(tmpdir(), 'dm-mcp-')); roots.push(project);
     const session = new McpSession(createMcpTools(project));
@@ -64,7 +64,7 @@ describe('Phase 6 MCP JSON-RPC conformance', () => {
   });
 });
 
-describe('Phase 6 MCP byte framing', () => {
+describe('MCP byte framing', () => {
   it('reassembles fragmented multibyte UTF-8 and accepts CRLF', () => {
     const framer = new McpLineFramer(); const bytes = Buffer.from('{"task":"ذاكرة"}\r\n', 'utf8');
     const split = bytes.indexOf(Buffer.from('ذ', 'utf8')) + 1;

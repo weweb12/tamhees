@@ -14,7 +14,7 @@ const roots: string[] = [];
 afterEach(async () => { while (roots.length) await rm(roots.pop()!, { recursive: true, force: true }); });
 async function root(): Promise<string> { const value = await mkdtemp(join(tmpdir(), 'dm-adapter-')); roots.push(value); return value; }
 
-describe('Phase 5-6 shared adapter registry and lifecycle', () => {
+describe('Shared adapter registry and lifecycle', () => {
   it('exposes exactly the five canonical adapter names in stable order', () => {
     assert.deepEqual(listAdapterDefinitions().map((item) => item.name), ADAPTER_NAMES);
     assert.deepEqual(ADAPTER_NAMES, ['codex', 'antigravity', 'claude', 'generic', 'mcp']);
@@ -42,7 +42,7 @@ describe('Phase 5-6 shared adapter registry and lifecycle', () => {
   });
 });
 
-describe('Phase 5-6 managed adapter instructions', () => {
+describe('Managed adapter instructions', () => {
   for (const name of ADAPTER_NAMES) {
     it(`installs, reports, repeats, and removes ${name} idempotently`, async () => {
       const project = await root();

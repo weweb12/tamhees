@@ -44,7 +44,7 @@ async function storageText(projectDir: string): Promise<string> {
   return parts.join('\n');
 }
 
-describe('remember: candidate builder', () => {
+describe('Remember: candidate builder', () => {
   it('maps each basis to an aligned source, authority, permission and review window', () => {
     const expectations = [
       ['inferred', 'INFERRED', 'AGENT_INFERENCE', 'ASK_BEFORE_CHANGE', 30],
@@ -102,7 +102,7 @@ describe('remember: candidate builder', () => {
   });
 });
 
-describe('inspect: what is remembered and how sure', () => {
+describe('Inspect: what is remembered and how sure', () => {
   const base = (id: string, overrides: Partial<MemoryRecord>): MemoryRecord => ({
     ...buildRememberCandidate({ statement: 'Release builds use the legacy script.', basis: 'observed', id }, [], '2026-04-01T09:00:00.000Z').proposedRecord!,
     ...overrides,
@@ -143,7 +143,7 @@ describe('inspect: what is remembered and how sure', () => {
   });
 });
 
-describe('everyday commands through the real CLI', () => {
+describe('Everyday commands through the real CLI', () => {
   let project: string;
   beforeEach(async () => {
     project = await mkdtemp(join(tmpdir(), 'tamhees-quick-'));

@@ -42,7 +42,7 @@ async function snapshot(): Promise<string> {
 }
 async function rejectUnchanged(input: unknown) { await begin(); const before = await snapshot(); const result = await finalizeLifecycle(dir, input, later); assert.equal(result.success, false); assert.equal(await snapshot(), before); }
 
-describe('Submission: scope applicability and privacy', () => {
+describe('Scope applicability and privacy', () => {
   it('validates exact project and composable restricted scopes', () => {
     assert.equal(validMemoryScope({ kind: 'PROJECT' }), true);
     assert.equal(validMemoryScope({ kind: 'RESTRICTED', environment: 'production', component: 'parser', path: 'src/parser' }), true);
@@ -99,7 +99,7 @@ describe('Submission: scope applicability and privacy', () => {
   });
 });
 
-describe('Submission: bundled evidence, authority and interruption', () => {
+describe('Bundled evidence, authority and interruption', () => {
   it('creates repository evidence and verified memory together; replay changes no bytes', async () => {
     await begin(); const request=bundle();const result=await finalizeLifecycle(dir,request,later); assert.equal(result.success,true,JSON.stringify(result));
     const record=(await loadAllRecords(dir)).records.find(x=>x.id==='DM-MEM-NEW')!;
@@ -162,7 +162,7 @@ describe('Submission: bundled evidence, authority and interruption', () => {
   });
 });
 
-describe('Submission: MCP and CLI encoding',()=> {
+describe('MCP and CLI encoding',()=> {
   it('MCP alone creates evidence and scoped verified memory and retrieves matching context',async()=> {
     const mcp=createMcpTools(dir);await mcp.call(MCP_TOOL_NAMES[0],{});
     const beginResult=await mcp.call(MCP_TOOL_NAMES[1],{task:'parser',scope:{environment:'prod'}});
@@ -189,7 +189,7 @@ describe('Submission: MCP and CLI encoding',()=> {
   });
 });
 
-describe('Submission: review regressions',()=> {
+describe('Review regressions',()=> {
   it('initializes an old store without rewriting a missing bootstrap scope',async()=> {
     const path=join(dir,'.tamhees/memories/records/DM-MEM-000001.json');const old=JSON.parse(await readFile(path,'utf8'));delete old.scope;const raw=JSON.stringify(old);await writeFile(path,raw);
     assert.equal((await initTamhees(dir,later)).success,true);assert.equal(await readFile(path,'utf8'),raw);

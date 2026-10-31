@@ -1170,7 +1170,7 @@ export function asValidContextPack(data: unknown): ContextPack | null {
   return validateContextPack(data).valid ? data as ContextPack : null;
 }
 
-// --- Phase 4 controlled lifecycle validation ---
+// --- Controlled lifecycle validation ---
 function addLifecycleUnknownFieldIssues(object: Record<string, unknown>, allowed: readonly string[], prefix: string, issues: ValidationIssue[]): void {
   const allowedSet = new Set(allowed);
   for (const key of Object.keys(object)) if (!allowedSet.has(key)) issues.push({

@@ -13,7 +13,7 @@ import {
   type BenchmarkFixture,
 } from '../src/benchmark/benchmark.js';
 
-describe('Phase 7 deterministic benchmark', () => {
+describe('Deterministic benchmark', () => {
   it('loads the complete stable unique fixture-authored scenario catalogue', () => {
     const scenarios = benchmarkScenarios();
     assert.equal(scenarios.length, 22);

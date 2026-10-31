@@ -31,10 +31,5 @@ Thumbs.db
 .gptbrain/**/*.tmp
 .gptbrain/**/*.temp
 
-# Private review and release evidence (kept outside product source)
-/review/
-/qa-evidence/
-/release-evidence/
-
 # Hosted demo build output
 /_site/

@@ -13,7 +13,7 @@ afterEach(async () => {
   while (roots.length > 0) await rm(roots.pop()!, { recursive: true, force: true });
 });
 
-describe('Owner verification: mutating cross-adapter equivalence', () => {
+describe('Mutating cross-adapter equivalence', () => {
   it('produces equivalent mutations, indexes, archives, lifecycle states, and safe audit references', async () => {
     const snapshots: string[] = [];
     for (const name of ['codex', 'antigravity', 'claude', 'generic', 'mcp'] as const) {

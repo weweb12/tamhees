@@ -40,7 +40,7 @@ after(async () => {
   await dashboard.close();
 });
 
-describe('Phase 8 canonical dashboard scenarios', () => {
+describe('Canonical dashboard scenarios', () => {
   test('executes every representative scenario through canonical deterministic rules', () => {
     const expected = new Map([
       ['architecture-conflict', 'BLOCK_ACTION'],
@@ -89,7 +89,7 @@ describe('Phase 8 canonical dashboard scenarios', () => {
   });
 });
 
-describe('Phase 8 local API and security boundary', () => {
+describe('Local API and security boundary', () => {
   test('binds only to loopback and serves the opening page and local assets', async () => {
     assert.equal(dashboard.host, DASHBOARD_HOST);
     assert.match(dashboard.url, /^http:\/\/127\.0\.0\.1:\d+\/$/);
@@ -244,7 +244,7 @@ describe('Phase 8 local API and security boundary', () => {
   });
 });
 
-describe('Phase 8 benchmark, privacy, and UI contract', () => {
+describe('Benchmark, privacy, and UI contract', () => {
   test('loads the committed benchmark artifact with exact integrity and transparent ratios', async () => {
     const artifact = await readFile(DASHBOARD_BENCHMARK_RELATIVE_PATH);
     assert.equal(createHash('sha256').update(artifact).digest('hex'), DASHBOARD_BENCHMARK_SHA256);

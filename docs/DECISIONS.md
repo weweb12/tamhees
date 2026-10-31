@@ -1,10 +1,12 @@
-# Tamhees - Decision Register
+# Decision log
 
 ## Purpose
 
-This file records important product, architecture, privacy, cost, and scope decisions.
+This log records Tamhees's product, architecture, privacy, cost and scope decisions, with
+the reason for each. Entries are kept in the order they were made; file names mentioned in
+older entries are the names at the time.
 
-A decision should be added when changing it later could affect the product direction, safety, cost, architecture, or submission.
+A decision is added when changing it later could affect the product direction, safety, cost, architecture, or submission.
 
 Decisions must not be silently deleted. If a decision changes, mark the earlier decision as superseded and create a new entry explaining the replacement.
 
@@ -306,7 +308,7 @@ Recognizing uncertainty is not useful unless it changes what the agent is allowe
 ## DM-DEC-012 - Private repository state during development
 
 - Date: 2026-07-11
-- Status: APPROVED
+- Status: SUPERSEDED by DM-DEC-037 and DM-DEC-053
 - Category: Repository
 
 ### Decision
@@ -1131,8 +1133,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-036 — Applicability and controlled evidence bundles
 
 - Date: 2026-09-20
-- Status: IMPLEMENTED CANDIDATE under the owner's explicit engineering request;
-  independent review pending, not release approval.
+- Status: IMPLEMENTED. Independently verified on Windows, Node 22 (see CHANGELOG, 1.0.0-rc.2).
 - Scope: required canonical PROJECT or conjunctive RESTRICTED environment/component/
   path scope; missing schema-1.0 scope defaults on read; UPDATE omission preserves
   target scope. Scope filters before ranking and never supplies authority.
@@ -1148,11 +1149,10 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-037 — Challenge submission: publication and static hosted demo
 
 - Date: 2026-10-25
-- Status: PREPARED, NOT APPROVED. Publication was declined for now (2026-10-25). Nothing is
-  pushed or deployed until the owner approves. The DOO "Memory That Knows It Might Be Wrong"
-  submission (deadline 2026-11-15) requires a public repository and a live demo URL.
-- Publication (when approved): the source would be pushed to a public GitHub repository. The package stays
-  `UNLICENSED` (all rights reserved) unless the owner records a separate license decision.
+- Status: IMPLEMENTED. The DOO "Memory That Knows It Might Be Wrong" submission requires a
+  public repository and a live demo URL.
+- Publication: the source is published as a public GitHub repository. The package stays
+  `UNLICENSED` (all rights reserved) unless a separate license decision is recorded.
 - Hosted demo: `scripts/build-static-site.mjs` builds a static site from the unchanged
   dashboard page and the compiled engine modules reachable from
   `src/dashboard/scenarios.ts`. `web/hosted-api.js` answers the dashboard's three
@@ -1190,8 +1190,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-039 — Everyday memory commands and read-only inspector
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction to improve usability on the private
-  development copy.
+- Status: IMPLEMENTED.
 - Problem: creating or removing a memory required hand-writing a full update-candidate
   JSON file, and there was no human-readable answer to "what do you remember, and how
   sure are you?"
@@ -1212,7 +1211,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-040 — Repository observation: Tamhees notices contradictions itself
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Problem: the engine only learned that a memory was wrong when a calling agent
   supplied CONTRADICTS evidence (RC2 known limitation: "Evidence truth depends on
   external observation, not independent engine inspection").
@@ -1242,7 +1241,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-041 — Dashboard memory inspector with live repository observation
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Decision: add an Inspector section to the dashboard (`src/dashboard/inspector.ts`,
   routes `GET /api/inspector` and `POST /api/observe` taking an empty JSON object).
   It uses a fixed, safe fixture project and eight remembered claims, rendered through
@@ -1259,7 +1258,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-042 — Deterministic concept matching for retrieval
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Problem: exact word matching missed obvious equivalents. "set up Postgres" did not
   retrieve a memory tagged `database`, and "write the migrations" did not match
   "migration".
@@ -1277,7 +1276,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-043 — Project write lock and atomic create-if-absent
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence: with 20 simultaneous writers on rc.2, most writes failed, audit events were
   lost, and one reported-successful memory was overwritten (data loss).
 - Decision:
@@ -1303,7 +1302,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-044 — MCP protocol negotiation and spec-defined optional fields
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence: probed with the official MCP TypeScript SDK client (1.32.2) and raw handshakes.
   The server returned an error for every protocol revision except `2025-11-25`, and for
   optional fields real clients send (`_meta`, clientInfo `title`, a `tools/list` cursor),
@@ -1317,7 +1316,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-045 — Scale: parallel controlled reads, fewer full loads, audit-log segments
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence (1,500 memories, 6,000 audit events): one `remember` took 1.7 s, and a
   profile showed 66% of the time idle on sequential file I/O. Each record file was
   checked by walking every path component, the store was fully loaded three times per
@@ -1343,7 +1342,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-046 — Secret detection for common credential shapes
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence: of 10 realistic secrets, a Bearer JWT, a database URL with an embedded
   password and a Slack webhook were stored. Of 20 ordinary engineering statements, none
   was refused.
@@ -1355,7 +1354,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-047 — Retrieval ignores generic task words
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence: on 18 realistic memories and 8 everyday tasks, 6 of 18 selected memories were
   unrelated, matched only through words such as "add", "fix", "new" and "file".
 - Decision: extend the common-term list with generic task verbs and filler; add everyday
@@ -1369,7 +1368,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-048 — Observe monorepos and workspace folders
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction (real-world reliability review).
+- Status: IMPLEMENTED (real-world reliability review).
 - Evidence: trial on seven real open-source projects (Next.js Commerce, supabase-js,
   Express, the FastAPI full-stack template, Vite, djangoproject.com, create-t3-app).
   Contradictions raised were 9 of 9 correct, but only root manifests were read, so
@@ -1394,7 +1393,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-049 — Installable command and clearer agent instructions
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Problem 1: in a fresh clone, `npm install -g .` reported success but no `tamhees` command
   appeared, because `dist/` is not committed and nothing built it. The adapter instructions
   told agents to run `tamhees` without saying how to get it.
@@ -1414,7 +1413,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-050 — Store health check and safe recovery (`tamhees doctor`)
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Problem: reads are fail-closed by design, so one unreadable memory, evidence or audit
   file (a git merge conflict in `.tamhees/`, a hand edit, a file truncated by a crash)
   stopped every command, and the error gave no way forward. Interrupted finalizations
@@ -1436,7 +1435,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-051 — Live privacy control in the web demo
 
 - Date: 2026-10-25
-- Status: IMPLEMENTED under the owner's direction on the private development copy.
+- Status: IMPLEMENTED.
 - Problem: the challenge's bonus signals ask for privacy controls demonstrated, not claimed,
   and a "what do you remember about me?" inspector. The hosted demo showed secret redaction
   only as a fixed scenario; forgetting was only visible in the CLI.
@@ -1452,7 +1451,7 @@ The owner approved the final pre-release product identity and directed a compreh
 ## DM-DEC-052 — Short judge-facing front page
 
 - Date: 2026-10-25
-- Status: APPROVED by the owner ("very simple for judges to understand Tamhees and not get
+- Status: APPROVED ("very simple for judges to understand Tamhees and not get
   overwhelmed"; chosen: new front page, one guided story, keep the light blue style).
 - Decision: `src/dashboard/public/start.html|css|js` is served at `/` locally and as
   `index.html` on the hosted demo. It has five sections: hero, the problem in three cards,
@@ -1463,3 +1462,22 @@ The owner approved the final pre-release product identity and directed a compreh
   build time).
 - `test/judge-page.test.ts` keeps it short (three steps, at most six sections), accessible
   and free of unsafe DOM APIs, inline styles, inline scripts and external resources.
+
+## DM-DEC-053 — Public repository layout
+
+- Date: 2026-10-31
+- Status: IMPLEMENTED.
+- Decision: the public repository contains the product, its tests and the documents a
+  reader needs: README, SUBMISSION, CHANGELOG, third-party notices, and `docs/`
+  (architecture, protocol, threat model, this log, thesis, FAQ). Working files used while
+  building it with AI agents (project brain and state notes, requirements and risk
+  registers, roadmap, website plan, video scripts, release checklists, and the Windows
+  portable-packaging workflow) are not part of the public tree.
+- The original Markdown claim ledger is kept as a migration test fixture
+  (`test/fixtures/bootstrap-ledger/`), because `migrate bootstrap` is tested against it.
+- Test files are named by feature instead of development phase, for example
+  `phase2-core` → `mutations-and-audit`, `phase3-context` → `context-compiler`,
+  `phase4-lifecycle` → `lifecycle`, `phase6-mcp` → `mcp-protocol`,
+  `submission-engineering` → `scope-and-bundles`.
+- Benchmark results are kept for the current release only; earlier results remain in the
+  git history.

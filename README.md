@@ -1,323 +1,188 @@
 # Tamhees
 
-**Memory under scrutiny.**
+**Memory under scrutiny.** Tamhees checks what an AI coding agent remembers *before* that
+memory is allowed to guide an action.
 
-Tamhees checks what an AI remembers before that memory is allowed to guide an action. The name comes from the Arabic word تمحيص, used here to mean careful examination or scrutiny.
+*Tamhees* (تمحيص) is Arabic for careful examination.
 
-> **DOO Builders League judges:** start with **[SUBMISSION.md](SUBMISSION.md)**.
-> **Live demo:** https://weweb12.github.io/tamhees/ (the real engine runs in your browser, with no server and nothing sent anywhere)
->
-> ```bash
-> npm ci && npm run verify     # typecheck, build, full test suite (Node.js 22+, any OS)
-> npm run failure-test         # contradiction, staleness, AI guess, privacy revocation
-> ```
->
-> [Architecture snapshot](docs/ARCHITECTURE_SNAPSHOT.md) · [Two-year thesis](docs/THESIS.md) · [90-second script](docs/LOOM_90S.md)
+[**Live demo**](https://weweb12.github.io/tamhees/) · [Submission overview](SUBMISSION.md) · [Architecture](docs/ARCHITECTURE_SNAPSHOT.md) · [Two-year thesis](docs/THESIS.md) · [FAQ](docs/FAQ.md)
 
-## What is this?
+[![Verify and deploy hosted demo](https://github.com/weweb12/tamhees/actions/workflows/demo.yml/badge.svg)](https://github.com/weweb12/tamhees/actions/workflows/demo.yml)
+![Node.js 22+](https://img.shields.io/badge/node-%E2%89%A522-2F648F)
+![Runtime dependencies: 0](https://img.shields.io/badge/runtime%20dependencies-0-2F648F)
 
-Tamhees is a local developer tool for auditing AI coding-agent memory. It treats remembered project information as evidence-backed claims rather than unquestioned truth.
+![The Tamhees overview page: the problem, then a three-step demo running the real engine](docs/assets/tamhees-overview.png)
 
-When memory conflicts with current evidence, contains sensitive information, lacks sufficient support, or may be outdated, the system explains the problem and restricts unsafe action.
+## Why
 
-## The problem
+Coding agents carry memory between sessions: instruction files, notes, past decisions.
+That memory goes wrong quietly:
 
-AI coding agents use project instructions, memory files, and prior decisions to continue work across sessions. These sources can become:
+- **Stale.** "The project uses SQLite" stays true in memory after the project moves to Supabase.
+- **Overconfident.** A guess the agent made from one old mockup reads like an owner's decision.
+- **Invasive.** Personal details picked up in a chat are kept long after they were needed.
+- **Unexplained.** Nobody can tell where a remembered fact came from, or how sure it is.
 
-- **Inaccurate** because the project changed.
-- **Invasive** because unnecessary private information was retained.
-- **Overconfident** because an inference was presented as confirmed truth.
-- **Unsafe** because an agent acted without verifying conflicting evidence.
-- **Tool-specific** because memory formats differ between AI products.
-- **Difficult to audit** because the reason behind a remembered fact is missing.
+More memory does not fix this. An agent needs to know which memories it can rely on.
 
-Existing memory and instruction systems provide continuity, but continuity alone does not prove that remembered information remains correct or safe to use.
+## What Tamhees does
 
-## Intended product (Version 1)
+Every memory is stored as a **claim** with its source, confidence, verification status
+(8 authority levels), freshness, scope, sensitivity and action permission. Before an agent
+uses memory, Tamhees audits each claim with 15 deterministic rules and gives one of five
+outcomes:
 
-- **Tamhees engine**: Tool-neutral memory engine with deterministic audit rules.
-- **tamhees CLI**: Command-line interface for initialization, memory management, context compilation, and auditing.
-- **Structured local storage**: `.tamhees/` directory with atomic JSON memory records and JSONL audit logs.
-- **Authority model**: Eight-status verification model distinguishing owner decisions from agent inferences.
-- **Context compiler**: Task-specific context packs with explicit budgets and selection explanations.
-- **Agent adapters**: Codex, Claude Code, Antigravity, and generic adapters with cross-adapter equivalence.
-- **Local MCP adapter**: stdio-based Model Context Protocol integration.
-- **Deterministic benchmark harness**: Measures retrieval precision, recall, budget compliance, authority protection, and more.
-- **Local visual dashboard**: Browser-based project memory viewer and audit explorer.
+| Outcome | Meaning for the agent |
+|---|---|
+| `TRUST` | Safe to rely on. |
+| `RECHECK` | Might be wrong or out of date: verify before relying on it. |
+| `ASK_OWNER` | Not confirmed by the owner: may look and explain, must ask before changing anything. |
+| `BLOCK_ACTION` | Contradicted by current evidence: must not act on it. |
+| `FORGET_OR_REDACT` | Must not be kept or shown. |
 
-## Current status
+The agent then receives a small, task-specific **context pack** under a hard token
+budget. Every included claim says how sure it is and why it was chosen; every excluded
+claim has a reason code. A validator rejects the whole pack rather than serve something
+unsafe.
 
-> **Version 1.0.0-rc.2 — frozen local release source. Final independent Windows Node 22.23.2 x64 verification and RC2 PowerShell packaging dry-run passed. Local release tag: `v1.0.0-rc.2`.**
+Tamhees can also **notice by itself** that a memory is wrong. `tamhees observe` reads the
+project's manifests and checks technology, script and file-path claims against them.
+"Forget that" erases the text everywhere and leaves only a tombstone.
 
-Tamhees now includes the complete local Version 1 engine, CLI, storage, lifecycle, five adapters, four-tool stdio MCP surface, deterministic benchmark, loopback dashboard, release documentation, threat model, and dry-run-first distribution preparation. The product has no external service, telemetry, or runtime dependency. For the DOO challenge submission, a static hosted demo (GitHub Pages) that runs the same engine modules inside the visitor's browser is prepared; publication awaits owner approval (`DECISIONS.md`, DM-DEC-037). The candidate is not a final public release: real assistive-technology and physical-device review, judge-comprehension review and a public license decision remain owner or external gates.
+## Quick start
 
-![Tamhees desktop dashboard](docs/assets/tamhees-dashboard-desktop.png)
-
-![Tamhees mobile dashboard](docs/assets/tamhees-dashboard-mobile.png)
-
-![Memory inspector: Tamhees checks remembered claims against the repository](docs/assets/tamhees-inspector.png)
-
-Implemented commands:
-
-- `tamhees init [directory]`: Initialize safe `.tamhees/` storage.
-- `tamhees remember "<statement>" [--as inferred|observed|repo|test|unknown] [--source <ref>] [--tags a,b] [--expires-in <days>] [--dry-run]`: Remember a claim with provenance, authority and freshness defaults, with no JSON needed.
-- `tamhees inspect [memory-id] [--format text|json]`: "What do you remember, and how sure are you?" Shows source, status, confidence, freshness, scope, evidence, the plain-language audit outcome and whether agents may see it. Read-only.
-- `tamhees forget <memory-id> [--reason "..."]`: Controlled REDACT. The text is erased everywhere and a privacy-safe tombstone remains.
-- `tamhees revoke <memory-id> [--reason "..."]`: Controlled REVOKE. The memory can no longer guide action; its prior state is archived.
-- `tamhees doctor [--fix]`: Checks every memory, evidence record, the index, the audit log, interrupted tasks and the write lock, and explains each problem in plain words with how to fix it. `--fix` moves damaged files to `.tamhees/quarantine/` (never deletes them), keeps every valid audit event, and rebuilds the index.
-- `tamhees observe [--record]`: Checks memory claims against the repository itself (technologies against dependencies, lockfiles and config; `npm run` scripts against `package.json`; file paths against the project) and records SUPPORTS or CONTRADICTS evidence. It reads only an allowlist of manifest files, and contradicts a technology only when a competitor is present.
-- `tamhees memory list|show|apply`: Inspect or apply controlled memory operations.
-- `tamhees evidence list|add`: Inspect or add validated evidence.
-- `tamhees context --task "..." [--max-tokens <n>] [--format json|markdown]`: Compile ephemeral ranked context under a hard budget.
-- `tamhees audit`: Apply the complete precedence chain and append privacy-safe audit events.
-- `tamhees lifecycle begin|finalize`: Use the controlled pre-task and post-task boundary.
-- `tamhees migrate bootstrap|legacy-storage`: Run the bootstrap import or explicitly validate and rename one safe legacy `.gptbrain/` store to `.tamhees/` without merge or overwrite.
-- `tamhees adapter list|status|install|remove|begin|finalize`: Manage all five local adapters.
-- `tamhees mcp serve`: Run the four-tool JSON-RPC 2.0 stdio server.
-- `tamhees benchmark run`: Run the deterministic benchmark.
-- `npm run dashboard`: Build and start the loopback dashboard: a short three-step overview at `/`, and the complete dashboard at `/details`.
-- `npm run verify`: Typecheck, build, and run the full suite.
-## Design principles
-
-- **Local-only**: No cloud services, accounts, API keys, or telemetry.
-- **Zero runtime dependencies**: Core engine targets Node.js built-ins only.
-- **Deterministic**: Same input always produces the same audit result.
-- **Privacy-safe**: Raw SENSITIVE/SECRET retention candidates are rejected; legacy sensitive output is defensively redacted. Common secret-like patterns are rejected before memory or evidence persistence, and controlled redaction removes legacy raw content without copying it into archives or logs. Pattern matching is defensive but cannot guarantee detection of every possible secret.
-- **Tool-neutral**: Works across different AI coding agents through thin adapters.
-- **Auditable**: Every audit decision includes evidence and triggered rules.
-
-## Repository structure
-
-```
-doubtful-memory/
-├── package.json
-├── tsconfig.json
-├── src/
-├── test/
-├── examples/
-│   ├── create-memory-candidate.json
-│   └── repository-evidence.json
-├── PROJECT_BRAIN.md              # Stable project identity and boundaries
-├── PROJECT_STATE.md              # Current phase and working position
-├── DECISIONS.md                  # Recorded decisions and reasoning
-├── REQUIREMENTS_AND_ASSUMPTIONS.md  # Testable requirements and unverified assumptions
-├── RISK_REGISTER.md              # Known risks and mitigations
-├── AGENTS.md                     # Cross-agent governance rules
-├── README.md                     # This file
-├── .agents/
-│   └── rules/
-│       └── tamhees.md            # Antigravity workspace rule
-├── docs/
-│   ├── ARCHITECTURE.md           # Component boundaries and invariants
-│   ├── PROTOCOL_SPECIFICATION.md # Memory and audit protocol schemas
-│   └── IMPLEMENTATION_ROADMAP.md # Phased development checkpoints
-└── memory/
-    ├── MEMORY_CLAIMS.md          # Bootstrap project memory claims
-    └── MEMORY_AUDIT.md           # Bootstrap audit history
-```
-
-## Local setup and verification
-
-In the checked-out repository, install the locked development dependencies and build the local package:
-
-```powershell
-npm ci
-npm run build
-```
-
-### Install the command
-
-Tamhees is not published to npm. Install it from this folder once, and the `tamhees` command works in any project on the machine (macOS, Linux and Windows; Node.js 22 or newer):
+Requires Node.js 22 or newer on macOS, Linux or Windows. Tamhees is installed from source.
 
 ```bash
-npm ci              # installs the build tools and builds Tamhees
-npm install -g .    # puts the `tamhees` command on your PATH
-tamhees --version   # check it works
+git clone https://github.com/weweb12/tamhees.git
+cd tamhees
+npm ci                 # installs build tools and builds Tamhees
+npm install -g .       # puts the `tamhees` command on your PATH
 ```
-
-- If `npm install -g .` stops with "Tamhees is not built yet", run `npm ci` first. On Windows, run both commands in the same terminal, then open a new one so `tamhees` is found.
-- To update after pulling new changes, run `npm ci` again; the global command points at this folder, so there is nothing else to reinstall.
-- To uninstall: `npm uninstall -g tamhees`.
-
-### When something goes wrong
-
-Commands that read memory stop rather than use a file they cannot validate. If you see an error ending in *Run "tamhees doctor" for details and a safe fix*, that is what to do:
-
-```bash
-tamhees doctor        # explains each problem: which file, what is wrong, how to fix it
-tamhees doctor --fix  # moves damaged files to .tamhees/quarantine/<time>/ and rebuilds the index
-```
-
-Common causes are a git merge conflict inside `.tamhees/`, a hand edit, or a file cut short by a crash. Quarantined files are kept with a `MANIFEST.json` and are excluded from git; nothing is deleted. The doctor never edits, forgets or revokes a memory, and never replays an interrupted task: it tells you which of that task's changes were saved and which to check.
 
 Then, in the project you want Tamhees to look after:
 
 ```bash
 tamhees init
-tamhees adapter install --agent claude   # or codex, antigravity, generic, mcp
+tamhees adapter install --agent claude      # or codex, antigravity, generic, mcp
 tamhees remember "The project uses Postgres" --as repo --source package.json
-tamhees inspect
+tamhees observe --record                    # check memories against the repository
+tamhees inspect                             # what is remembered, and how sure
+tamhees context --task "add a database migration"
 ```
 
-`tamhees adapter install` adds a short, clearly marked block to the agent's instruction file (`CLAUDE.md`, `AGENTS.md`, ...) that tells the agent how to use Tamhees. Running it again on a block installed by rc.2 upgrades it in place; your own text in the file is never changed. For MCP clients, `TAMHEES_MCP.md` contains ready-to-paste configuration for Claude Code, Cursor and VS Code.
+`tamhees adapter install` adds a short, clearly marked block to the agent's instruction
+file (`CLAUDE.md`, `AGENTS.md`, …) that tells the agent how to use Tamhees. Text you wrote
+in that file is never changed. For MCP clients, the generated `TAMHEES_MCP.md` has
+ready-to-paste configuration for Claude Code, Cursor and VS Code.
 
-The package exposes only the `tamhees` executable. After installing it as above, these identity and initialization commands are exact and copyable:
+To update, pull and run `npm ci` again. To uninstall, run `npm uninstall -g tamhees`.
 
-```powershell
-tamhees --help
-tamhees --version
-tamhees init
+## Commands
+
+| Command | What it does |
+|---|---|
+| `tamhees init [dir]` | Create safe `.tamhees/` storage. |
+| `tamhees remember "<claim>"` | Store a claim with provenance and freshness defaults (`--as`, `--source`, `--tags`, `--expires-in`, `--dry-run`). |
+| `tamhees inspect [id]` | Show source, status, confidence, freshness, scope, evidence and the audit outcome in plain words. Read-only. |
+| `tamhees observe [--record]` | Check claims against the repository and record `SUPPORTS` or `CONTRADICTS` evidence. |
+| `tamhees forget <id>` | Redact: erase the text everywhere and keep a privacy-safe tombstone. |
+| `tamhees revoke <id>` | Revoke: the claim can no longer guide action, and its prior state is archived. |
+| `tamhees context --task "…"` | Compile a ranked, budgeted context pack (`--max-tokens`, `--format json\|markdown`, `--scope-input`). |
+| `tamhees audit` | Run the full rule chain and append privacy-safe audit events. |
+| `tamhees lifecycle begin\|finalize` | Controlled pre-task and post-task boundary for agents. |
+| `tamhees memory list\|show\|apply` | Inspect claims or apply a strict JSON update candidate. |
+| `tamhees evidence list\|add` | Inspect or add validated evidence. |
+| `tamhees adapter list\|status\|install\|remove` | Manage the Codex, Claude Code, Antigravity, generic and MCP adapters. |
+| `tamhees mcp serve` | Run the four-tool stdio MCP server. |
+| `tamhees doctor [--fix]` | Diagnose a damaged store and repair it safely (damaged files are quarantined, never deleted). |
+| `tamhees migrate bootstrap\|legacy-storage` | Import a Markdown claim ledger, or rename a legacy `.gptbrain/` store. |
+| `tamhees benchmark run` | Run the deterministic benchmark. |
+
+Run `tamhees --help` for every option.
+
+## Design principles
+
+- **Deterministic.** The same input always gives the same, explainable answer. No LLM judges memory.
+- **Local-first.** No cloud service, account, API key or telemetry. Zero runtime dependencies.
+- **Authority is earned.** An AI inference can never promote itself to an owner decision, and high confidence never overrides a safety gate.
+- **Fail closed.** Reads stop rather than use a file they cannot validate; `tamhees doctor` explains why.
+- **Private by default.** Secret-like content is refused before it is stored. Redaction removes text from records, archives and logs.
+- **Tool-neutral.** Every adapter and the MCP server share one engine and one storage format.
+
+## How it works
+
+```
+Agent ──► adapter / MCP ──► lifecycle ──► context compiler ──► audit rules ──► storage (.tamhees/)
+                                              │                    │
+                                     ranked, budgeted pack     evidence, observe
 ```
 
-For repository development without a PATH install, the equivalent commands are:
+- **Write path:** strict JSON candidates are validated, checked for secrets and authority
+  escalation, then written atomically with an archive and an append-only audit log.
+  Writes are serialized by a project lock.
+- **Retrieval path:** per-claim gates (privacy, revocation, conflict, expiry, scope,
+  relevance), then scoring by relevance, authority, freshness and safety, a hard budget
+  of whole claims, and a fail-closed validator.
+- **Forgetting path:** expiry → `RECHECK`; contradicting evidence → `BLOCK_ACTION`;
+  owner revocation → archived tombstone; privacy withdrawal → text erased.
 
-```powershell
-npm run tamhees -- --help
-npm run tamhees -- --version
-npm run tamhees -- init
+See the [architecture snapshot](docs/ARCHITECTURE_SNAPSHOT.md) for all three paths and
+the [protocol specification](docs/PROTOCOL_SPECIFICATION.md) for the schemas.
+
+## Demo and benchmark
+
+```bash
+npm run dashboard      # local demo at http://127.0.0.1:8787/
+npm run failure-test   # the real CLI through six ways memory goes wrong
+npm run benchmark      # regenerate benchmark/results/
 ```
 
-Before migrating an existing project, run the pure preview, inspect the structured result, and then run the explicit migration:
+The [hosted demo](https://weweb12.github.io/tamhees/) runs the same engine modules in your
+browser. Its answers are byte-identical to the local server, and nothing is sent anywhere.
 
-```powershell
-tamhees migrate legacy-storage --dry-run
-tamhees migrate legacy-storage
-```
+The benchmark compares no memory, a single memory file, split files and Tamhees on 22
+fixed scenarios. Tamhees gets 22/22 expected outcomes, 15/15 precision and zero unsafe or
+secret exposures. Recall is 15/17: two relevant records are left out on purpose to stay
+within the hard budget. These are reproducible results on fixed fixtures; they are not
+universal claims.
 
-A minimal real workflow uses strict JSON inputs rather than free-form shell content:
+## Development
 
-```powershell
-tamhees init
-tamhees memory apply --input .\examples\create-memory-candidate.json
-tamhees evidence add --input .\examples\repository-evidence.json
-tamhees audit
-tamhees context --task "prepare the database migration"
-```
-
-Start the fixed-fixture local dashboard separately:
-
-```powershell
-npm run dashboard
-```
-
-No API key, account, hosted model, database, or external runtime network is required. The dashboard uses only local loopback HTTP. Its guided CLI sequence is a visual lesson over fixed safe fixtures and one canonical local audit request; it does not execute commands, accept arbitrary shell input, or write project memory.
-
-### Phase 3 context budgets
-
-`--max-tokens` accepts a decimal positive integer from 1 through 1,000,000. If omitted, the default is 2,048. The budget covers only the canonical agent-consumable selected-memory payload: memory ID, redacted statement, audit outcome, verification status, confidence, and output-safe tags. Ranking diagnostics, exclusions, warnings, and budget metadata remain visible outside that bounded payload.
-
-Token counts use the deterministic local `utf8-bytes-ceil-div-4` estimator (UTF-8 byte length divided by four and rounded up, minimum one). This is a capacity estimate, not an exact vendor tokenizer. Complete memory statements are never truncated; when a ranked contribution does not fit, it and lower-ranked candidates are excluded as `over-budget`. A budget too small for one complete unit returns a valid explained empty pack.
-
-Task-specific eligibility requires at least one positive Unicode-NFKC-normalized, case-folded, non-common lexical or tag match. Terms match exactly, after light plural folding, through a fixed synonym table (`db` = `database`, `auth` = `authentication`), or through a fixed one-way specific-to-general link (`postgres` → `database`, `vitest` → `test`); sibling terms such as `postgres` and `mysql` never match each other. Substring-only and common-word-only matches are irrelevant. Authority, freshness, and safety rank only eligible records; unrelated records never consume budget. This is deterministic lexical retrieval, not semantic retrieval.
-
-## Controlled update workflow
-
-Coding agents should not edit `.tamhees/` records directly. They submit a JSON update candidate matching `docs/PROTOCOL_SPECIFICATION.md`, then invoke:
-
-```powershell
-node dist/src/cli.js memory apply --input .\candidate.json
-```
-
-The engine validates schema, authority, evidence references, optimistic concurrency, privacy, paths, archive behavior, index consistency, and audit logging. A failed candidate does not silently overwrite canonical memory.
-
-The `examples/` files are safe templates for coding agents. Copy and edit them for the target project rather than treating their example timestamps and IDs as current facts.
-
-Owner-confirmed promotion is intentionally two-step: create a lower-authority memory, attach explicit owner-instruction evidence, then propose the promotion. An agent's claim that it has owner authority is not sufficient by itself.
-
-## Phase 4 controlled lifecycle
-
-`lifecycle begin` validates local storage, invokes the Phase 3 compiler, and returns a lifecycle ID plus JSON or Markdown context. The task and complete context pack are ephemeral. Only selected memory IDs, controlled exclusion codes, budget arithmetic, timestamps, state, and safe audit references are stored in `.tamhees/episodes/`.
-
-`lifecycle finalize` accepts this strict envelope and reuses Phase 2 `UpdateCandidate` objects:
-
-```json
-{
-  "schemaVersion": "1.0.0",
-  "lifecycleId": "lc-example",
-  "proposer": { "type": "AGENT", "id": "safe-agent-id" },
-  "proposedUpdates": [],
-  "reason": "Optional privacy-safe reason"
-}
-```
-
-Every candidate receives `APPLIED`, `HELD_FOR_OWNER`, `REJECTED`, or `NO_CHANGE`. Authorized items apply in input order through the canonical mutation boundary only after all bundle candidates pass preflight; an invalid candidate prevents all canonical writes. The engine journals `FINALIZING` before mutation; interrupted work requires controlled recovery and is never replayed automatically. Identical completed input is idempotent, while different replay is rejected. Owner-policy proposals without sufficient owner evidence are held and cannot mutate memory.
-
-`migrate bootstrap` is the one-time deterministic migration for the documented Markdown claim ledger. It maps legacy vocabulary explicitly, validates every claim before writing, preserves IDs and authority, retains the source Markdown, rejects unsafe source paths, and uses staged recovery markers to reconcile an audit/completion interruption without duplication.
-
-## Phase 5–7 adapters, MCP, and benchmark
-
-The shared adapter registry contains exactly `codex`, `antigravity`, `claude`, `generic`, and `mcp`. All five use the same lifecycle API and canonical storage. Managed installs are project-local, dry-run capable, atomic, idempotent, path-safe, preserve bytes outside the managed block, and reject malformed or user-modified managed content without changing the target.
-
-The MCP adapter is a limited local stdio-only JSON-RPC 2.0 server. It uses Node.js built-ins, one UTF-8 JSON object per line, protocol revision `2025-11-25` (also negotiates `2025-06-18`, `2025-03-26` and `2024-11-05`, answering unknown revisions with the latest, per the MCP lifecycle rules), a bounded rolling 4,096-request duplicate-ID window, and exactly four tools for initialization, begin, finalize, and privacy-safe status. It has no HTTP listener, global configuration, SDK dependency, or runtime network request; this is the documented project subset, not a claim of full MCP feature coverage.
-
-`npm run benchmark` regenerates `benchmark/results/v1.0.0-rc.2.json` and `.md` from 22 fixture-authored deterministic scenarios without rewriting the fixture. It compares no memory, a monolithic GPTBrain baseline, simple split files, and the production Tamhees compiler. Undefined metrics are `null` and excluded from applicable means. Detection, prevention, exposure, escalation, abstention, budget, and exact outcome are separate. Tamhees records 15/15 micro precision, 15/17 micro recall (two safe relevant records are deliberately excluded by the hard budget), 22/22 abstention correctness, 22/22 exact outcome correctness, and zero unsafe or secret exposures.
-
-## Phase 8 local dashboard
-
-```powershell
+```bash
 npm ci
-npm run verify
-npm run dashboard
+npm run verify         # typecheck, build and the full test suite
+npm run site           # build the static hosted demo into _site/
 ```
 
-Open the exact printed `http://127.0.0.1:8787/` URL. For the primary demonstration, select **Repository conflict**, run the audit, and inspect `BLOCK_ACTION`, `DM-RULE-CONFLICT-001`, the contradictory evidence, action consequence, owner next step, and `conflicted` context exclusion. The remaining scenarios cover stale, revoked, inferred, secret-like, budget-constrained, and supported memory.
-
-Fixtures are fake and fixed. Results come from production audit/context functions, benchmark values come from the SHA-256-checked committed artifact, and execution creates no repository memory or persisted context.
-## Next planned work
-
-The next action is a native-Windows portable build from the frozen RC2 commit/tag, followed by clean-extraction smoke testing and owner testing on the second Windows x64 laptop. Core changes require a confirmed defect, failed release verification or an explicit new post-challenge decision. Publication and challenge-submission work require separate authorization.
-
-## Local release preparation
-
-After the independently verified Phase 9 checkpoint, review `docs/RELEASE_CHECKLIST.md`, then dry-run the path-safe workflow to an output directory outside this repository:
-
-```powershell
-npm ci
-npm run verify
-npm run release:prepare -- -OutputDirectory C:\tmp\tamhees-release -DryRun
+```
+src/
+  core/        engine: storage, validation, audit rules, context, lifecycle, observe, doctor
+  adapters/    Codex, Claude Code, Antigravity, generic and MCP adapters
+  mcp/         stdio JSON-RPC server and tools
+  dashboard/   local demo server and pages
+  benchmark/   deterministic benchmark harness
+  cli.ts       the tamhees command
+test/          node:test suites, including an 18,000-case rule-combination check
+web/           browser shims for the hosted demo
+scripts/       failure test, static-site build, install check
+benchmark/     fixed scenarios and committed results
+docs/          architecture, protocol, threat model, decisions, thesis, FAQ
 ```
 
-A real private archive additionally requires `-NodeRuntimeDirectory` pointing to an existing local Windows x64 runtime directory containing only the reviewed `node.exe` and its complete `LICENSE` or `LICENSE.txt`. The native-Windows build handoff uses the frozen RC2 commit/tag and official Node 22.23.2 x64 to produce one `Tamhees-Portable-Website-v1.0.0-rc.2-Windows-x64.zip`, refuses repository-contained output and existing artifacts unless `-Force` is explicitly selected, validates every entry, embeds stable per-file SHA-256 values, and creates no source archive, public release, or upload.
-## Runtime requirements
+Design decisions and their reasons are recorded in [docs/DECISIONS.md](docs/DECISIONS.md).
+Release history is in [CHANGELOG.md](CHANGELOG.md).
 
-- **Minimum**: Node.js 22
-- **Development**: Node.js 24
+## Limits
 
-Node 20 and earlier versions are end-of-life and will not be supported.
-
-## Doo challenge
-
-This project was initially inspired by the Doo challenge ("Memory That Knows It Might Be Wrong"). The challenge remains an active delivery target.
-
-> **Important**: The detailed challenge brief, exact judging criteria, deadline year/timezone, and submission fields remain unverified. These are tracked as unverified assumptions in the project documentation. The product is designed for independent usefulness beyond the challenge.
+Retrieval is lexical, widened only by fixed synonym and concept tables, not semantic.
+Token counts are a deterministic estimate. Secret detection is pattern-based and cannot
+catch every secret. Owner identity is declared, not cryptographically authenticated.
+`observe` covers technology, script and path claims; other claims rely on evidence from
+the agent. Agents must cooperate and call Tamhees. See the
+[threat model](docs/THREAT_MODEL.md).
 
 ## License
 
-`UNLICENSED`. All rights reserved; no public license has been granted. See `THIRD_PARTY_NOTICES.md`. Selecting a public license requires explicit owner approval.
-
-## RC2 accepted engineering basis
-
-The accepted 2026-09-20 implementation adds explicit memory applicability and
-same-finalization evidence. RC2 changes release identity, not that implementation.
-The five audit outcomes remain unchanged. See `docs/PROTOCOL_SPECIFICATION.md`
-for the contract and `docs/RELEASE_NOTES_V1_RC2.md` for verification and pending gates.
-Final independent Windows Node 22.23.2 x64 verification passed 294/294 complete,
-44/44 focused and 24/24 release/migration tests; benchmark bytes were unchanged,
-the RC2 PowerShell dry-run passed, and `NODE22_RC2_CHECK_PASSED` was recorded.
-No product source changed during that verification. Raw QA logs are retained
-separately as private evidence, outside the product repository.
-
-- A memory can carry `scope: {"kind":"RESTRICTED","environment":"production"}`.
-- Supply `--scope-input task-scope.json` to context, lifecycle begin or adapter
-  begin; the file contains `{"environment":"production"}`. MCP begin uses `scope`.
-- Omitted task scope excludes narrower memories. Old records without scope read
-  as PROJECT; subsequent controlled writes serialize explicit scope.
-- Finalization accepts `proposedEvidence` alongside `proposedUpdates`. See
-  `examples/finalize-with-evidence.json`; replace its lifecycle ID with the ID
-  returned by begin. Evidence and a new REPO_VERIFIED claim can be created together.
-- Invalid bundles perform no canonical writes. Runtime interruptions require
-  journal-guided manual recovery; this is not a multi-file transaction.
-- PowerShell JSON files with one initial UTF-8 BOM are accepted.
-
-Writes to one project are serialized by a project write lock (`.tamhees/runtime/write.lock`, DM-DEC-043), so several agents or processes can write safely at the same time. Manual edits to `.tamhees/` files bypass the lock. Existing local caller trust, owner-policy
-holds, secret-pattern limits, and non-ambient adapter invocation still apply.
+Copyright © 2026. All rights reserved. No open-source license has been granted yet. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the development dependencies.

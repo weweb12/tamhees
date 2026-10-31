@@ -1,4 +1,4 @@
-# Tamhees judge FAQ
+# Frequently asked questions
 
 ## Is Tamhees another coding agent?
 
@@ -35,7 +35,8 @@ user bytes and refuse tampering.
 
 ## Does the benchmark prove Tamhees is universally better?
 
-No. It proves reproducible behavior on 22 fixed, fixture-authored scenarios.
+No, and the results are not universal. It proves reproducible behavior on 22 fixed,
+fixture-authored scenarios.
 It separates precision, recall, authority, freshness, exposure, escalation,
 abstention, budget, and exact outcome.
 
@@ -54,18 +55,19 @@ Other claims still rely on evidence supplied by the agent or owner.
 
 ## How does the hosted demo work without a server?
 
-The hosted page is the same dashboard. Its three API requests are answered inside
-your browser by the compiled engine modules, so the audit and context results are
-the real engine's, byte-identical to the local server. Nothing is sent anywhere.
+The hosted pages are the same pages the local dashboard serves. Their API requests are
+answered inside your browser by the compiled engine modules, so every audit and context
+result is the real engine's, byte-identical to the local server. Nothing is sent anywhere.
 
 ## Is it security audited or production-certified?
 
 No. It has automated adversarial tests and a local engineering threat model,
 not a formal external audit or certification.
 
-## What still needs owner review?
+## What are the known limits?
 
-Real assistive technology, physical devices, judge comprehension, the new native-
-Windows portable build and second-laptop review, license/publication decisions,
-and challenge submission. Final Windows Node 22.23.2 x64 execution and the RC2
-PowerShell packaging dry-run have passed.
+Retrieval is lexical, widened only by fixed synonym and concept tables, not semantic.
+Token counts are a deterministic estimate, not a vendor tokenizer. Secret detection is
+pattern-based. Owner identity is declared, not cryptographically authenticated. Agents
+have to cooperate and call Tamhees; it does not intercept them. See
+[THREAT_MODEL.md](THREAT_MODEL.md) for the full list.

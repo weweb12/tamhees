@@ -28,7 +28,7 @@ const initialize = (id: string | number = 1, extra: Record<string, unknown> = {}
   },
 });
 
-describe('Owner verification: MCP session boundaries', () => {
+describe('MCP session boundaries', () => {
   it('preserves valid string and integer IDs and rejects invalid ID shapes', async () => {
     const session = new McpSession(tools);
     assert.equal(parse(await session.receiveLine(JSON.stringify({ jsonrpc: '2.0', id: 'alpha', method: 'ping' }))).id, 'alpha');
@@ -85,7 +85,7 @@ describe('Owner verification: MCP session boundaries', () => {
   });
 });
 
-describe('Owner verification: MCP framing boundaries', () => {
+describe('MCP framing boundaries', () => {
   it('handles LF, CRLF, multiple messages per chunk, fragmentation, and final EOF data', () => {
     const framer = new McpLineFramer();
     const first = framer.push(Buffer.from('{}\n{\"a\":1}\r\n{\"unicode\":\"ذا', 'utf8'));

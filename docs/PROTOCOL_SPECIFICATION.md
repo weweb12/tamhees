@@ -158,7 +158,7 @@ Sensitivity classifies the retention and exposure handling of a record.
 | `SENSITIVE` | Requires redaction before external output |
 | `SECRET` | Must not be retained in raw form; redact immediately |
 
-### Sensitivity rules (implemented in Phase 2)
+### Sensitivity rules
 
 1. `SECRET` records trigger `FORGET_OR_REDACT`.
 2. New memory and evidence candidates matching common secret patterns are rejected before persistence without echoing the candidate value.
@@ -236,7 +236,7 @@ Authority determines what types of evidence can authorize different categories o
 
 ---
 
-## 9. Freshness rules (implemented in Phase 2)
+## 9. Freshness rules
 
 Freshness determines whether a memory record may still be considered current.
 
@@ -247,7 +247,7 @@ Freshness determines whether a memory record may still be considered current.
 3. If `expiresAfter` is set and the current date exceeds it, the record cannot produce `TRUST`.
 4. Expired records automatically receive `RECHECK` audit outcome.
 5. Conditional `reviewAfter` values that cannot be evaluated automatically produce `RECHECK`.
-6. Automatic confidence degradation remains planned; Phase 2 does not silently rewrite confidence during an audit.
+6. Automatic confidence degradation remains planned; the audit does not silently rewrite confidence during an audit.
 7. `lastVerified` may only be updated after actual verification against the stated source.
 
 ---
@@ -278,7 +278,7 @@ The audit engine produces one primary outcome per evaluated record.
 
 Audit rules are evaluated in defined order. Each rule has a stable identifier.
 
-### Rule categories and stable Phase 2 identifiers
+### Rule categories and stable identifiers
 
 1. **Privacy**: `DM-RULE-PRIV-001`, `DM-RULE-PRIV-002`.
 2. **Revocation**: `DM-RULE-REVOKE-001`.
@@ -316,7 +316,7 @@ Audit rules are packaged in source code with stable IDs. They are not stored in 
 
 ## 12. Context-pack contract
 
-A context pack is the ephemeral output of the deterministic lexical/tag context compiler for one task. Context generation does not alter the Phase 2 storage schema and does not write a pack to `.tamhees/`.
+A context pack is the ephemeral output of the deterministic lexical/tag context compiler for one task. Context generation does not alter the storage schema and does not write a pack to `.tamhees/`.
 
 ```json
 {
@@ -467,9 +467,9 @@ Each audit event is appended to the JSONL audit log.
 }
 ```
 
-### Phase 2 audit-event compatibility
+### Audit-event compatibility
 - New events include `evidenceExamined`.
-- The field remains optional during validation so existing Phase 1 history rows remain readable without destructive migration.
+- The field remains optional during validation so earlier history rows remain readable without destructive migration.
 - Audit batches are fully validated before one atomic history replacement, preventing partially written batches.
 
 ---
@@ -495,13 +495,13 @@ Each audit event is appended to the JSONL audit log.
 
 ---
 
-## Phase 4 lifecycle protocol
+## Lifecycle protocol
 
 ### Begin contract
 
 Core signature: `beginLifecycle(projectDir, taskDescription, clock, idGenerator, { maxTokens, scope })`.
 
-The operation rejects an empty or secret-like task before retrieval or persistence. On success it returns a lifecycle ID, `OPEN` status, opening timestamp, safe audit references, and the exact Phase 3 context pack. Only this metadata is persisted: `schemaVersion`, `lifecycleId`, `status`, `openedAt`, `updatedAt`, `selectedMemoryIds`, unique controlled `exclusionReasonCodes`, the Phase 3 `budget` summary, and `auditReferences`. Unknown fields and unsupported states fail strict runtime validation.
+The operation rejects an empty or secret-like task before retrieval or persistence. On success it returns a lifecycle ID, `OPEN` status, opening timestamp, safe audit references, and the exact context pack. Only this metadata is persisted: `schemaVersion`, `lifecycleId`, `status`, `openedAt`, `updatedAt`, `selectedMemoryIds`, unique controlled `exclusionReasonCodes`, the context `budget` summary, and `auditReferences`. Unknown fields and unsupported states fail strict runtime validation.
 
 ### Finalization input
 
@@ -580,7 +580,7 @@ The historical RC1 benchmark view is `benchmark/results/v1.0.0-rc.1.json`, pinne
 
 At this engineering checkpoint, package/engine version remained `1.0.0-rc.1`;
 RC2 advances only the product version to `1.0.0-rc.2`. Storage schema remains `1.0.0`.
-This additive reader upgrade supersedes the Phase 4 independent-application rule
+This additive reader upgrade supersedes the earlier independent-application rule
 for invalid bundles: any preflight rejection now prevents all canonical writes.
 Owner holds and no-change items are valid dispositions, not invalid input.
 

@@ -44,7 +44,7 @@ function memory(id: string, statement: string, overrides: Partial<MemoryRecord> 
   };
 }
 
-describe('Owner verification: positive relevance eligibility', () => {
+describe('Positive relevance eligibility', () => {
   it('excludes unrelated owner-confirmed, fresh TRUST, and repository-verified records', () => {
     const pack = compileContext('quantum horticulture', [
       memory('DM-REL-OWNER', 'Release approval policy.', {

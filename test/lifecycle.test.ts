@@ -21,7 +21,7 @@ let projectDir:string;
 beforeEach(async()=>{projectDir=await mkdtemp(join(tmpdir(),'tamhees-p4-'));const result=await initTamhees(projectDir,clock1);assert.equal(result.success,true);});
 afterEach(async()=>{await rm(projectDir,{recursive:true,force:true});});
 
-describe('Phase 4 lifecycle begin',()=>{
+describe('Lifecycle begin',()=>{
   it('returns context but persists only privacy-safe metadata',async()=>{const result=await begin(projectDir);assert.equal(result.success,true);assert.equal(result.status,'OPEN');const path=join(projectDir,'.tamhees','episodes','lc-phase4-test.json');const raw=await readFile(path,'utf8');assert.doesNotMatch(raw,/implement retrieval lifecycle behavior/);assert.doesNotMatch(raw,/taskDescription|statement/);assert.equal(validateLifecycleMetadata(JSON.parse(raw)).valid,true);});
   it('rejects secret-like task input before creating metadata or audit',async()=>{const history=await readFile(join(projectDir,'.tamhees','audits','history.jsonl'),'utf8');const result=await beginLifecycle(projectDir,'token ghp_abcdefghijklmnopqrstuvwxyz123456',clock1,()=> 'lc-secret');assert.equal(result.success,false);assert.equal(result.errors[0]?.code,'SECRET_LIKE_CONTENT');assert.equal(await readFile(join(projectDir,'.tamhees','audits','history.jsonl'),'utf8'),history);assert.equal((await readdir(join(projectDir,'.tamhees','episodes'))).length,0);});
   it('enforces generated ID safety and duplicate IDs',async()=>{assert.equal((await beginLifecycle(projectDir,'safe task',clock1,()=> '../bad')).errors[0]?.code,'UNSAFE_ID');assert.equal((await begin(projectDir,'lc-duplicate')).success,true);assert.equal((await begin(projectDir,'lc-duplicate')).errors[0]?.code,'DUPLICATE_ID');});
@@ -29,7 +29,7 @@ describe('Phase 4 lifecycle begin',()=>{
   it('formats safe begin output as Markdown and JSON-compatible data',async()=>{const result=await begin(projectDir,'lc-format');const markdown=formatLifecycleBeginAsMarkdown(result);assert.match(markdown,/Lifecycle lc-format/);assert.match(markdown,/Budget/);assert.equal(JSON.parse(JSON.stringify(result)).lifecycleId,'lc-format');});  it('enforces the hard context budget without persisting a pack',async()=>{const result=await beginLifecycle(projectDir,'unrelated task',clock1,()=> 'lc-budget',{maxTokens:1});assert.equal(result.success,true);assert.equal(result.contextPack?.budget.maxTokens,1);assert.equal(result.contextPack?.budget.compliant,true);assert.equal(result.contextPack?.selected.length,0);});
 });
 
-describe('Phase 4 lifecycle finalization',()=>{
+describe('Lifecycle finalization',()=>{
   it('applies an authorized proposal through canonical mutation storage',async()=>{await begin(projectDir);const result=await finalizeLifecycle(projectDir,finalization('lc-phase4-test',[candidate('DM-MEM-P4-001')]),clock2);assert.equal(result.success,true);assert.equal(result.status,'COMPLETED');assert.equal(result.dispositions[0]?.disposition,'APPLIED');assert.equal(result.storageChanged,true);assert.ok((await loadAllRecords(projectDir)).records.some(r=>r.id==='DM-MEM-P4-001'));});
   it('is idempotent for identical completed input and rejects different replay',async()=>{await begin(projectDir);const input=finalization('lc-phase4-test',[candidate('DM-MEM-P4-IDEM')]);assert.equal((await finalizeLifecycle(projectDir,input,clock2)).success,true);const replay=await finalizeLifecycle(projectDir,input,clock2);assert.equal(replay.success,true);assert.equal(replay.alreadyFinalized,true);const changed={...input,reason:'Different finalization.'};assert.equal((await finalizeLifecycle(projectDir,changed,clock2)).errors[0]?.code,'ALREADY_FINALIZED');assert.equal((await loadAllRecords(projectDir)).records.filter(r=>r.id==='DM-MEM-P4-IDEM').length,1);});
   it('completes an empty proposal set without storage changes',async()=>{await begin(projectDir);const result=await finalizeLifecycle(projectDir,finalization('lc-phase4-test',[]),clock2);assert.equal(result.status,'COMPLETED');assert.equal(result.storageChanged,false);assert.deepEqual(result.dispositions,[]);});
@@ -48,10 +48,10 @@ describe('Phase 4 lifecycle finalization',()=>{
   it('formats terminal results without exposing proposal records',async()=>{await begin(projectDir);const result=await finalizeLifecycle(projectDir,finalization('lc-phase4-test',[candidate('DM-MEM-P4-FORMAT')]),clock2);const markdown=formatLifecycleFinalizeAsMarkdown(result);assert.match(markdown,/APPLIED/);assert.doesNotMatch(markdown,/A local lifecycle observation/);});  it('gives privacy rejection precedence over ordinary automatic application',async()=>{await begin(projectDir);const raw=record('DM-MEM-P4-PRIVATE',{sensitivity:'SECRET',statement:'raw private material',source:{type:'AGENT_INFERENCE',reference:'raw private material'},actionPermission:'FORGET_OR_REDACT'});const result=await finalizeLifecycle(projectDir,finalization('lc-phase4-test',[candidate(raw.id,{proposedRecord:raw})]),clock2);assert.equal(result.dispositions[0]?.reasonCode,'PRIVACY_REDACTION');assert.equal(result.storageChanged,false);});
 });
 
-describe('Phase 4 bootstrap migration',()=>{
+describe('Bootstrap migration',()=>{
   const markdown='# Memory Claims\n\n## DM-CLAIM-901\n\n- claim: A preserved local fact.\n- source_type: Repository inspection\n- source_reference: `package.json`\n- status: REPO_VERIFIED\n- confidence: HIGH\n- last_verified: 2026-07-22\n- sensitivity: INTERNAL\n- action_permission: MAY_ACT\n- recheck_method: Inspect package.json.\n';
   it('imports valid claims once, preserves source text, and is idempotent',async()=>{const first=await migrateBootstrapClaims(projectDir,markdown,clock2);assert.equal(first.success,true);assert.deepEqual(first.importedIds,['DM-CLAIM-901']);const second=await migrateBootstrapClaims(projectDir,markdown,clock2);assert.equal(second.success,true);assert.equal(second.alreadyMigrated,true);assert.equal((await loadAllRecords(projectDir)).records.filter(r=>r.id==='DM-CLAIM-901').length,1);});
-  it('imports the complete current claim ledger with explicit legacy vocabulary mapping',async()=>{const currentLedger=await readFile(resolve('memory/MEMORY_CLAIMS.md'),'utf8');const result=await migrateBootstrapClaims(projectDir,currentLedger,clock2);assert.equal(result.success,true);assert.equal(result.importedIds.length,29);assert.ok(result.importedIds.includes('DM-CLAIM-018'));assert.ok(result.importedIds.includes('DM-CLAIM-028'));assert.ok(result.importedIds.includes('DM-CLAIM-029'));const records=await loadAllRecords(projectDir);assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-018')?.actionPermission,'MUST_NOT_ACT');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-028')?.source.type,'OWNER_INSTRUCTION');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-029')?.source.type,'TEST_RESULT');});
+  it('imports the complete current claim ledger with explicit legacy vocabulary mapping',async()=>{const currentLedger=await readFile(resolve('test/fixtures/bootstrap-ledger/MEMORY_CLAIMS.md'),'utf8');const result=await migrateBootstrapClaims(projectDir,currentLedger,clock2);assert.equal(result.success,true);assert.equal(result.importedIds.length,29);assert.ok(result.importedIds.includes('DM-CLAIM-018'));assert.ok(result.importedIds.includes('DM-CLAIM-028'));assert.ok(result.importedIds.includes('DM-CLAIM-029'));const records=await loadAllRecords(projectDir);assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-018')?.actionPermission,'MUST_NOT_ACT');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-028')?.source.type,'OWNER_INSTRUCTION');assert.equal(records.records.find((record)=>record.id==='DM-CLAIM-029')?.source.type,'TEST_RESULT');});
   it('rejects changed source after completion',async()=>{assert.equal((await migrateBootstrapClaims(projectDir,markdown,clock2)).success,true);const result=await migrateBootstrapClaims(projectDir,markdown+'\n',clock2);assert.equal(result.errors[0]?.code,'MIGRATION_SOURCE_CHANGED');});
   it('rejects ambiguous or unmapped Markdown before writing records',async()=>{const bad=markdown.replace('Repository inspection','Unknown source').replace('- claim:','- mystery:');const result=await migrateBootstrapClaims(projectDir,bad,clock2);assert.equal(result.success,false);assert.ok(!(await loadAllRecords(projectDir)).records.some(r=>r.id==='DM-CLAIM-901'));});
 });
@@ -84,7 +84,7 @@ function secondClaim(source:string):string{
   return source+'\n## DM-CLAIM-902\n\n- claim: A second preserved local fact.\n- source_type: Repository inspection\n- source_reference: package.json\n- status: REPO_VERIFIED\n- confidence: MEDIUM\n- last_verified: 2026-07-22\n- sensitivity: INTERNAL\n- action_permission: ACT_WITH_CAUTION\n';
 }
 
-describe('Phase 4 owner-verification lifecycle invariants',()=>{
+describe('Lifecycle invariants',()=>{
   it('normalizes object-key order in the finalization fingerprint without duplicating effects',async()=>{
     await begin(projectDir);
     const input=finalization('lc-phase4-test',[candidate('DM-MEM-P4-KEYORDER')]);
@@ -177,7 +177,7 @@ describe('Phase 4 owner-verification lifecycle invariants',()=>{
   });
 });
 
-describe('Phase 4 owner-verification migration invariants',()=>{
+describe('Migration invariants',()=>{
   const source='# Memory Claims\n\n## DM-CLAIM-901\n\n- claim: A preserved local fact.\n- source_type: Repository inspection\n- source_reference: package.json\n- status: REPO_VERIFIED\n- confidence: HIGH\n- last_verified: 2026-07-22\n- sensitivity: INTERNAL\n- action_permission: MAY_ACT\n';
 
   it('rejects a malformed middle claim and duplicate identifiers before any record write',async()=>{

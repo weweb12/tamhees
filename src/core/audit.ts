@@ -1,7 +1,7 @@
 /**
  * Tamhees — deterministic audit engine.
  *
- * Phase 2 implements the complete precedence chain defined by the protocol:
+ * Implements the complete precedence chain defined by the protocol:
  * privacy, revocation, conflict, authority, freshness, evidence, then trust.
  * Rules are packaged in source and cannot be weakened by project data.
  */

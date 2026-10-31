@@ -51,7 +51,7 @@ function ids(records: readonly MemoryRecord[], task = 'retrieval'): readonly str
   return compileContext(task, records, clock).selected.map((item) => item.memoryId);
 }
 
-describe('Phase 3 deterministic ranking', () => {
+describe('Deterministic ranking', () => {
   it('orders by relevance, authority, and freshness', () => {
     const relLow = memory('DM-MEM-P3-REL-B', { statement: 'Generic project guidance.' });
     const relHigh = memory('DM-MEM-P3-REL-A', {
@@ -112,7 +112,7 @@ describe('Phase 3 deterministic ranking', () => {
   });
 });
 
-describe('Phase 3 exclusions and privacy', () => {
+describe('Exclusions and privacy', () => {
   it('controls all safety and relevance exclusion reasons', () => {
     const pack = compileContext('retrieval', [
       memory('DM-MEM-P3-BLOCKED', { actionPermission: 'MUST_NOT_ACT' }),
@@ -169,7 +169,7 @@ describe('Phase 3 exclusions and privacy', () => {
   });
 });
 
-describe('Phase 3 hard budget', () => {
+describe('Hard budget', () => {
   it('uses deterministic UTF-8-byte estimates including multibyte text', () => {
     assert.deepEqual(
       ['abcd', 'abcde', 'é', '😀', '😀a'].map(estimateTextTokens),
@@ -241,7 +241,7 @@ describe('Phase 3 hard budget', () => {
   });
 });
 
-describe('Phase 3 context contract', () => {
+describe('Context contract', () => {
   it('validates JSON and formats ranking, budget, and exclusion diagnostics', () => {
     const selected = memory('DM-MEM-P3-FORMAT');
     const irrelevant = memory('DM-MEM-P3-FORMAT-X', { tags: ['compiler'], statement: 'Compiler note.' });
@@ -360,7 +360,7 @@ describe('Phase 3 context contract', () => {
   });
 });
 
-describe('Phase 3 CLI and ephemerality', () => {
+describe('CLI and ephemerality', () => {
   let projectDir: string;
   beforeEach(async () => {
     projectDir = await mkdtemp(join(tmpdir(), 'tamhees-phase3-'));

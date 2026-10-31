@@ -49,7 +49,7 @@ async function write(root: string, path: string, content: string): Promise<void>
   await writeFile(join(root, path), content);
 }
 
-describe('observe: claim extraction', () => {
+describe('Observe: claim extraction', () => {
   it('finds technologies by statement aliases and tags, but ambiguous words only as tags', () => {
     assert.deepEqual(mentionedTechnologies(memory('M1', 'Persistence uses SQLite.')).map((tech) => tech.id), ['sqlite']);
     assert.deepEqual(mentionedTechnologies(memory('M2', 'The API is built on Next.js.')).map((tech) => tech.id), ['nextjs']);
@@ -69,7 +69,7 @@ describe('observe: claim extraction', () => {
   });
 });
 
-describe('observe: decisions are conservative', () => {
+describe('Observe: decisions are conservative', () => {
   const supabaseRepo = facts({
     files: new Set(['package.json', 'supabase/config.toml', 'pnpm-lock.yaml']),
     dependencies: new Map([['@supabase/supabase-js', 'package.json'], ['vitest', 'package.json']]),
@@ -144,7 +144,7 @@ describe('observe: decisions are conservative', () => {
   });
 });
 
-describe('observe: reading the repository safely', () => {
+describe('Observe: reading the repository safely', () => {
   let root: string;
   beforeEach(async () => {
     root = await mkdtemp(join(tmpdir(), 'tamhees-observe-'));
@@ -238,7 +238,7 @@ describe('observe: reading the repository safely', () => {
   });
 });
 
-describe('observe: monorepos and workspace folders', () => {
+describe('Observe: monorepos and workspace folders', () => {
   let root: string;
   beforeEach(async () => {
     root = await mkdtemp(join(tmpdir(), 'tamhees-observe-ws-'));

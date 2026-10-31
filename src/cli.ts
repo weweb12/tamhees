@@ -852,7 +852,7 @@ async function readJsonInput(inputPath: string): Promise<unknown> {
 
 // ─── Entry point ────────────────────────────────────────────
 
-// Phase 4 controlled lifecycle and bootstrap migration.
+// Controlled lifecycle and bootstrap migration.
 async function handleLifecycle(): Promise<void> {
   const subcommand = args[1];
   if (args.includes('--help')) {

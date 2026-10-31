@@ -1,6 +1,6 @@
 import { normalizeLegacyMemory, scopeMatches, validTaskScope } from './scope.js';
 /**
- * Tamhees — deterministic Phase 3 context compiler.
+ * Tamhees — deterministic context compiler.
  *
  * Retrieval is lexical/tag based. It is not semantic retrieval. Eligible
  * records are ranked by relevance, authority, freshness, and audit safety,
